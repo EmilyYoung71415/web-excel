@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html style="font-size:20px">
+<head>
+  <meta charset="utf-8">
+  <title><%= htmlWebpackPlugin.options.title %></title>
+</head>
+<body onload="load()">
+  <div id="app"></div>
+  <canvas id="canvas"></canvas>
+  <script>
+    function load(){
+        webexcel(document.getElementById('canvas'));
+    }
+  </script>
+</body>
+</html>
