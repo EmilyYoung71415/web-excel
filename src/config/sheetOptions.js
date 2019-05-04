@@ -1,8 +1,10 @@
 // sheet config
 // excel初始化(不含表格数据)
 const sheetOptions = {
-    width:window.innerWidth,
-    height:window.innerHeight,
+    view:{
+        height:()=>window.innerHeight,
+        width:()=>window.innerWidth
+    },
     formats: [], //单元格格式化
     formula: [], // 公式
     row: { // 表格初始化 10行 每行25px高
@@ -12,6 +14,8 @@ const sheetOptions = {
     col: {
         len: 50,
         width: 100,
+        indexWidth: 60,
+        minWidth: 60
     },
     style: {
         bgcolor: '#ffffff',

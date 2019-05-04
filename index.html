@@ -3,16 +3,14 @@
 <head>
   <meta charset="utf-8">
   <title><%= htmlWebpackPlugin.options.title %></title>
-  <style>
-      *{margin: 0;padding: 0;}
-  </style>
 </head>
 <body onload="load()">
-  <div id="app"></div>
-  <canvas id="canvas"></canvas>
+    <div id="app">
+        <div id="webexcel"></div>
+    </div>
   <script>
     function load(){
-        webexcel(document.getElementById('canvas'))
+        webexcel(document.getElementById('webexcel'))
         .loadData({
             borders: [
                 [1, 'dashed', '#0366d6'],

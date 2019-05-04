@@ -215,5 +215,5 @@ class DrawBox{// 生成一个块
 export default {};
 export {
     Draw,// 封装了canvas的draw
-    DrawBox,// draw上面 针对 box的drow
+    DrawBox,// draw上面 针对 box的draw
 };

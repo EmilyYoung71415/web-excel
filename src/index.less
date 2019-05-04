@@ -1,0 +1,71 @@
+@border-style: 1px solid #e0e2e4;
+@icon-size: 18px;
+// <div id="app">
+//     <div id="webexcel">
+//         <div class="web-excel">
+//             <canvas class="excel-table"></canvas>
+//             <div class="excel-resizer horizontal">
+//                 <div class="excel-resizer-hover"></div><!-hover时显示的小方块-->
+//                 <div class="excel-resizer-line"></div><!-move时的辅助线-->
+//             </div>
+//             <div class="excel-resizer vertical">
+//                 <div class="excel-resizer-hover"></div>
+//                 <div class="excel-resizer-line"></div>
+//             </div>
+//             <div class="excel-scrollbar horizontal"><!-控制滚动条位置-->
+//                 <div style="width:1px"></div><!-控制滚动条样式-->
+//             </div>
+//             <div class="excel-scrollbar vertical"></div>
+//         </div>
+//     </div>
+// </div>
+body {
+    margin: 0;
+}
+
+.web-excel {
+    font-size: 14px;
+    line-height: normal;
+    user-select: none;
+    -moz-user-select: none;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    box-sizing: content-box;
+    background: #fff;
+}
+
+.excel-table {
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    line-height: 0;
+}
+
+/* resizer **/
+.excel-resizer {
+    position: absolute;
+    // z-index: 11;
+    
+    .excel-resizer-hover {
+      background-color: rgba(75, 137, 255, .25);
+    }
+    .excel-resizer-line {
+      position: absolute;
+    }
+    
+    &.horizontal {
+      cursor: row-resize;
+      .excel-resizer-line {
+        border-bottom: 2px dashed rgb(75, 137, 255);
+        left: 0;
+        bottom: 0;
+      }
+    }
+    &.vertical {
+      cursor: col-resize;
+      .excel-resizer-line {
+        border-right: 2px dashed rgb(75, 137, 255);
+        top: 0;
+        right: 0;
+      }
+    }
+}
