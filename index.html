@@ -3,13 +3,29 @@
 <head>
   <meta charset="utf-8">
   <title><%= htmlWebpackPlugin.options.title %></title>
+  <style>
+      *{margin: 0;padding: 0;}
+  </style>
 </head>
 <body onload="load()">
   <div id="app"></div>
   <canvas id="canvas"></canvas>
   <script>
     function load(){
-        webexcel(document.getElementById('canvas'));
+        webexcel(document.getElementById('canvas'))
+        .loadData({
+            borders: [
+                [1, 'dashed', '#0366d6'],
+            ],
+            styles: [
+                { bgcolor: '#dddddd', bi: 0, color: '#900b09' },
+            ],
+            cellmm: {
+                1: {
+                    1: { text: 'testtest测试', si: 0 },
+                },
+            },
+        })
     }
   </script>
 </body>
