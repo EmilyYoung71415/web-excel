@@ -37,7 +37,6 @@ export default class Table{
             if (styles) this.styles = styles;
             if (borders) this.borders = borders;
         }
-        this.render()
     }
     clear(){
         this.draw.clear()
