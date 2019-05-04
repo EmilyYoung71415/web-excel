@@ -1,8 +1,13 @@
-import { Draw } from '../draw/canvas';
+import { Draw,DrawBox } from '../draw/canvas';
 import help from '../utils/help';
 import alphabet from '../config/alphabet';
 const gLeftFixedCellWidth = 60;
-// const gCellPaddingWidth = 5;
+const gCellPaddingWidth = 5;
+/***
+ * table类的数据:
+ * el,row,col,style来自组件入口的defaultOption 和类的初始化
+ * loadData:给予数据配置
+ */
 export default class Table{
     constructor(el,row,col,style){
         this.el = el;
@@ -32,6 +37,7 @@ export default class Table{
             if (styles) this.styles = styles;
             if (borders) this.borders = borders;
         }
+        this.render()
     }
     clear(){
         this.draw.clear()
@@ -90,12 +96,62 @@ export default class Table{
         });
         draw.line([0, row.height], [this.colTotalWidth() + gLeftFixedCellWidth, row.height]);
         // left-top-cell
-        draw.attr({ fillStyle: 'red' })
-            .fillRect(0, 0, leftFixedCellWidth, row.height);
+        draw.attr({ fillStyle: '#fff' })
+            .fillRect(0, 0, gLeftFixedCellWidth, row.height);
         draw.restore();
     }
     renderContent(){
+        const { cellmm } = this;
+        Object.keys(cellmm).forEach((rindex) => {
+            Object.keys(cellmm[rindex]).forEach((cindex) => {
+                this.renderCell(rindex, cindex, cellmm[rindex][rindex]);
+            });
+        });
+    }
+    renderCell(rindex,cindex,cell){
+        const {
+            styles, cellmm, draw, row,
+        } = this;
 
+        const style = styles[cell.si];
+        //传入逻辑索引返回得到单元格坐标、长宽,以此来生成drawbox
+        const dbox = this.getDrawBox(rindex, cindex);
+        const {
+            bgcolor, bi, bti, bri, bbi, bli
+        } = style;
+        dbox.bgcolor = bgcolor;
+        dbox.setBorders(
+            this.borders[bi],
+            this.borders[bti],
+            this.borders[bri],
+            this.borders[bbi],
+            this.borders[bli],
+        );
+        draw.save().translate(gLeftFixedCellWidth, row.height);
+        draw.rect(dbox);
+        // render cell数据
+        const cellText = cell.text;// TODO:格式化
+        const wrapText = (style && style.wrapText) || this.style.wrapText;
+        const font = Object.assign({}, this.style.font, style.font);
+        draw.text(cellText, dbox, {
+            align: (style && style.align) || this.style.align,
+            valign: (style && style.align) || this.style.valign,
+            font,
+            color: (style && style.color) || this.style.color,
+        }, wrapText);
+        draw.restore();
+    }
+    getDrawBox(rindex, cindex){
+        let x,y,width,height;//x.y 坐标值
+        this.rowEach(rindex, (i, y1, rowHeight) => {
+            y = y1;
+            height = rowHeight;
+        });
+        this.colEach(cindex, (i, x1, colWidth) => {
+            x = x1;
+            width = colWidth;
+        });
+        return new DrawBox(x, y, width, height, gCellPaddingWidth);
     }
     colTotalWidth(){
         // col是normal-size colm包含了特殊样式列的列样式
@@ -113,7 +169,7 @@ export default class Table{
         let x = 0;
         for (let i = 0; i <= colLen; i += 1) {
           const colWidth = this.getColWidth(i);//当前列的列宽
-          // 列索引 当前笔触的位置x 当前列的列宽
+          // 列索引 当前一笔的起始点 当前列的列宽
           cb(i, x, colWidth);
           x += colWidth;
         }
