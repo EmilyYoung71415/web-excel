@@ -86,7 +86,6 @@ const loadData = {
       italic: false,
     },
   }
-  border: [width, style, color]
 */
 
 export {
