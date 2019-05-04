@@ -1,12 +1,12 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
-
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const resolve = dir => path.join(__dirname, '..', dir);
 
 module.exports = {
   entry: {
-    xspreadsheet: './src/index.js',
+    webexcel: './src/index.js',
   },
   plugins: [
     new CleanWebpackPlugin(['dist']),
@@ -32,8 +32,17 @@ module.exports = {
       {
         test: /\.css$/,
         use: [
+          MiniCssExtractPlugin.loader,
           'style-loader',
           'css-loader',
+        ],
+      },
+      {
+        test: /\.less$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          'css-loader',
+          'less-loader',
         ],
       },
       {
