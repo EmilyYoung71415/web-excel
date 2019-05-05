@@ -229,4 +229,14 @@ export default class Table{
         }
         return { ci, left, width };
     }
+    setRowHeight(index,height){
+        this.rowm[index] = this.rowm[index] || {}
+        this.rowm[index].height = height;
+        this.render();
+    }
+    setColWidth(index,width){
+        this.colm[index] = this.colm[index] || {}
+        this.colm[index].width = width;
+        this.render();
+    }
 }

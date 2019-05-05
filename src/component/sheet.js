@@ -42,6 +42,18 @@ function tableMousemove(ev){
         colResizer.hide()
     }
 }
+
+function rowResizerFinished(cRect, distance) {
+    const { ri } = cRect;
+    const { table } = this;
+    table.setRowHeight(ri - 1, distance);
+}
+  
+function colResizerFinished(cRect, distance) {
+    const { ci } = cRect;
+    const { table } = this;
+    table.setColWidth(ci - 1, distance);
+}
 export default class Sheet {
     constructor(targetEl, options = {}){
         this.el = h('div', 'web-excel');//创建div标签
@@ -67,6 +79,15 @@ export default class Sheet {
         );
         // 根节点载入组件节点
         targetEl.appendChild(this.el.el);
+        // resizer类在resize动作结束之后 将收集到的相关数据通过回调函数返回
+        // table使用数据改变行高列宽
+        this.rowResizer.finishedFn = (cRect,distance)=>{
+            rowResizerFinished.call(this,cRect,distance);
+        }
+        this.colResizer.finishedFn = (cRect,distance)=>{
+            colResizerFinished.call(this,cRect,distance);
+        }
+
         bind(window, 'resize', () => {
             this.reload();
         });
