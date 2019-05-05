@@ -18,6 +18,7 @@ export default class Table{
         this.rowm = {}; // {rowIndex: {height: 200},....}
         this.colm = {}; // {colIndex: {width: 200},....}
         this.cellmm = {}; // {rowIndex: {colIndex: Cell}}
+        this.scrollOffset = { x: 0, y: 0 };
         this.style = style;
         this.styles = []; // style特殊单元格
         this.borders = []; // border边框样式
@@ -107,6 +108,15 @@ export default class Table{
             });
         });
     }
+    // 根据鼠标坐标点，获得所在的cell矩形信息
+    // (ri, ci, offsetX, offsetY, width, height)
+    getCellRectWithIndexes(x,y){
+        const { ri, top, height } = this.getCellRowByY(y);
+        const { ci, left, width } = this.getCellColByX(x);
+        return {
+            ri, ci, left, top, width, height,
+        };
+    }
     renderCell(rindex,cindex,cell){
         const {
             styles, cellmm, draw, row,
@@ -188,5 +198,35 @@ export default class Table{
     getRowHeight(index) {
         const { row, rowm } = this;
         return rowm[`${index}`] ? rowm[`${index}`].height : row.height;
+    }
+    getCellRowByY(y){// 根据y坐标获得所在行号
+        const { row,scrollOffset } = this;
+        const [ri, top, height] = help.rangeReduceIf(
+            0,
+            row.len,
+            row.height - scrollOffset.y,// top
+            row.height,// 行高
+            y,
+            i => this.getRowHeight(i)//传入获取第i行行高的cb函数
+        );
+        if (top <= 0) {
+            return { ri: 0, top: 0, height };
+        }
+        return { ri, top, height };
+    }
+    getCellColByX(x){
+        const { col, scrollOffset } = this;
+        const [ci, left, width] = help.rangeReduceIf(
+            0,
+            col.len,
+            col.indexWidth - scrollOffset.x,
+            col.indexWidth,
+            x,
+            i => this.getColWidth(i),
+        );
+        if (left <= 0) {
+            return { ci: 0, left: 0, width: col.indexWidth };
+        }
+        return { ci, left, width };
     }
 }
