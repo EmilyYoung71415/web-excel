@@ -19,8 +19,30 @@ const sum = (objOrAry, cb = value => value) => {
       size += 1;
     });
     return [total, size];
-  };
+};
+
+/****
+ * 传入taget坐标值 返回坐标值对应的单元格子
+ * @param min页面最小格子数 max页面当前的格子数 
+ *        top:可视窗口的top值  rowH：行高
+ *        target目标坐标值 getv根据格子索引得到当前格子的行高   
+ * 比如传入y坐标 返回y坐标所在的行号及位置
+ * @return [ri,top,height]
+ */
+const rangeReduceIf = (min,max,top,rowH,target,getv)=>{
+    let i = min,
+        s = top,
+        v = rowH;
+    for(;i<max;i++){
+        if(s>target) break;
+        v = getv(i);
+        s += v;
+    }
+    return [i,s-v,v];
+}
+
   
 export default{
-    sum
+    sum,
+    rangeReduceIf
 }

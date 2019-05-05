@@ -22,6 +22,24 @@ class Element {
     on(eventName, handler) {
         // on('mousemove',ev=>{})
         // resizer-hover .on('mousedown.stop', evt =>{})
+        const [event, ...infos] = eventName.split('.');
+        this.el.addEventListener(event, evt => {
+            for (let i = 0; i < infos.length; i++) {
+                const info = infos[i];
+                // 鼠标左键正确
+                if (info === 'left' && evt.button !== 0) {
+                    return;
+                }
+                // 鼠标右键正确
+                if (info === 'right' && evt.button !== 2) {
+                    return;
+                }
+                if (info === 'stop') {
+                    evt.stopPropagation();//阻止冒泡
+                }
+            }
+            handler(evt);
+        })
         return this;
     }
     /***
@@ -31,10 +49,10 @@ class Element {
      *         'color':'red'     
      *      })
      */
-    css(name,value){
+    css(name, value) {
         if (Array.isArray(name)) {
             Object.keys(name).forEach((k) => {
-              this.el.style[k] = name[k];
+                this.el.style[k] = name[k];
             });
             return this;
         }
@@ -45,17 +63,35 @@ class Element {
         return this.el.style[name];
     }
     // exp: tableEl.attr({width:100px})
-    attr(key, value){
+    attr(key, value) {
         if (value !== undefined) {
             this.el.setAttribute(key, value);
         }
         if (typeof value === 'string') {
-        return this.el.getAttribute(key);
+            return this.el.getAttribute(key);
         }
         Object.keys(key).forEach((k) => {
-        this.el.setAttribute(k, key[k]);
+            this.el.setAttribute(k, key[k]);
         });
         return this;
+    }
+    // 接受obj设置元素的 top left  width height
+    offset(obj){
+        const {
+            offsetTop, offsetLeft, offsetHeight, offsetWidth,
+        } = this.el;
+        if(obj){
+            Object.keys(obj).forEach(key=>{
+                this.css(key,`${obj[key]}px`);
+            })
+            return this;
+        }
+        return {
+            top: offsetTop,
+            left: offsetLeft,
+            height: offsetHeight,
+            width: offsetWidth,
+        }
     }
     hide() {
         this.css('display', 'none');
@@ -92,8 +128,8 @@ class Element {
 }
 
 // 工厂模式 使用者可以无需new 直接使用模板函数h创建对象
-const h = (tag,className='')=>new Element(tag,className);
-export{
+const h = (tag, className = '') => new Element(tag, className);
+export {
     Element,
     h
 }
