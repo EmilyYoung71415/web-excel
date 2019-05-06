@@ -10,7 +10,7 @@ export function mouseMoveUp(target, movefunc, upfunc) {
     bind(target, 'mouseup', movefinished);
     function movefinished(evt){
         unbind(target, 'mousemove', movefunc);
-        unbind(target, 'mouseup', target.xEvtUp);
+        unbind(target, 'mouseup', movefinished);
         upfunc(evt);
     }
 }
