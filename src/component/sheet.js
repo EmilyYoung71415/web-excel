@@ -1,5 +1,6 @@
 import Resizer from './resizer';
 import Scrollbar from './scrollbar';
+import Selector from './selector';
 import Table from './table';
 import { h } from './element';
 import { bind } from '../events/event';
@@ -9,17 +10,22 @@ import { bind } from '../events/event';
  */
 function sheetReset() {
     const {
-      el, tableEl, view,
+      tableEl,overlayerEl, overlayerCEl,
     } = this;
-    tableEl.attr({
-      width: el.box().width,
-      height: view.height(),
-    });
+    const tableOffset = this.getTableOffset();
+    const viewRect = this.getRect();
+    tableEl.attr(viewRect)
+    // tableEl.attr({
+    //   width: el.box().width,
+    //   height: view.height(),
+    // });
+    overlayerEl.offset(viewRect);// 包裹层
+    overlayerCEl.offset(tableOffset);// table内容层
     verticalScrollbarSet.call(this);
     horizontalScrollbarSet.call(this);
 }
 
-function tableMousemove(ev){
+function overlayerMousemove(ev){
     if(ev.buttons!==0) return;
     const {
         table, rowResizer, colResizer, tableEl
@@ -79,6 +85,21 @@ function horizontalScrollbarMove(distance) {
     const { table } = this;
     table.scroll({ x: distance });
 }
+
+function overlayerMousedown(evt){
+    const { table, selector } = this;
+    const {// 根据鼠标坐标获取单元格位置
+        ri, ci, left, top, width, height,
+    } = table.getCellRectWithIndexes(evt.offsetX, evt.offsetY);
+    const tOffset = this.getTableOffset();
+    if (ri > 0 && ci > 0) {
+        // 设置绝对位置将selector附着在逻辑索引的第ri,ci单元格上 
+        selector.set([ri, ci], {
+            left: left - tOffset.left, top: top - tOffset.top, width, height,
+        });
+    }
+}
+
 export default class Sheet {
     constructor(targetEl, options = {}){
         this.el = h('div', 'web-excel');//创建div标签
@@ -89,9 +110,9 @@ export default class Sheet {
         this.row = row;
         this.view = view;
         this.tableEl = h('canvas', 'excel-table')
-            .on('mousemove', (evt) => {
-                tableMousemove.call(this, evt);
-            });
+            // .on('mousemove', (evt) => {//===> overlay包裹层捕捉事件
+            //     tableMousemove.call(this, evt);
+            // });
         this.table = new Table(this.tableEl.el, row, col, style);
         // resizer
         this.rowResizer = new Resizer(false, row.height);
@@ -99,12 +120,26 @@ export default class Sheet {
         // scrollbar
         this.verticalScrollbar = new Scrollbar(true);
         this.horizontalScrollbar = new Scrollbar(false);
+        // selector
+        this.selector = new Selector();
+        this.overlayerEl = h('div', 'excel-overlayer').children(
+                this.overlayerCEl = h('div', 'excel-overlayer-content').children(
+                    this.selector.el,
+                ),
+            )
+            .on('mousemove',evt=>{
+                overlayerMousemove.call(this, evt);
+            })
+            .on('mousedown',(evt)=>{
+                overlayerMousedown.call(this, evt);
+            })
         // web-excel里push节点canvas、resizer
         this.el.children(
             this.tableEl,
+            this.overlayerEl.el,// z-index:10
             this.rowResizer.el,
-            this.colResizer.el,
-            this.verticalScrollbar.el,
+            this.colResizer.el,// z-index:11
+            this.verticalScrollbar.el,// z-index:12
             this.horizontalScrollbar.el,
         );
         // 根节点载入组件节点
@@ -137,5 +172,21 @@ export default class Sheet {
     reload(){
         sheetReset.call(this);
         this.table.render();
+    }
+    getRect() {
+        const { width } = this.el.box();
+        const height = this.view.height();
+        return { width, height };
+      }
+    
+    getTableOffset() {
+        const { row, col } = this;
+        const { width, height } = this.getRect();
+        return {
+            width: width - col.indexWidth,
+            height: height - row.height,
+            left: col.indexWidth,
+            top: row.height,
+        };
     }
 }
