@@ -6,7 +6,7 @@ export default class Scrollbar {
         this.moveFn = null;
         this.el = h('div', `excel-scrollbar ${vertical ? 'vertical' : 'horizontal'}`)
                     .child(this.contentEl = h('div', ''))
-                    .on('scroll',(ev)=>{
+                    .on('scroll.stop',(ev)=>{
                         // 移动距离
                         const { scrollTop, scrollLeft } = ev.target;
                         if (this.moveFn) {

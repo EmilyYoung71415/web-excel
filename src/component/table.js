@@ -120,7 +120,7 @@ export default class Table{
         };
     }
     // offset = {x: , y: }
-    scroll(offset){
+    scroll(offset,cb=()=>{}){
         const { x, y } = offset;// 滚动条在浏览器中 横向滚动距离 和 竖向滚动距离
         const { scrollOffset, col, row } = this; 
         if (y||y==0) {
@@ -135,6 +135,7 @@ export default class Table{
             let y1 = top;
             if (y > 0) y1 += height;
             if (scrollOffset.y !== y1) {
+                cb(y1 - scrollOffset.y);
                 scrollOffset.y = y1;
                 this.render();  
             }
@@ -151,6 +152,7 @@ export default class Table{
             let x1 = left;
             if (x > 0) x1 += width;
             if (scrollOffset.x !== x1) {
+                cb(x1 - scrollOffset.x);// 将移动距离传入cb
                 scrollOffset.x = x1;
                 this.render();
             }

@@ -53,15 +53,20 @@ function overlayerMousemove(ev){
 }
 
 function rowResizerFinished(cRect, distance) {
-    const { ri } = cRect;
-    const { table } = this;
+    const { ri,height } = cRect;
+    const { table,selector } = this;
     table.setRowHeight(ri - 1, distance);
+    selector.addTopOrHeight(ri, distance - height);
+    verticalScrollbarSet.call(this);
 }
   
 function colResizerFinished(cRect, distance) {
-    const { ci } = cRect;
-    const { table } = this;
+    const { ci,width } = cRect;
+    const { table,selector } = this;
     table.setColWidth(ci - 1, distance);
+    //当列收缩的时候 selector也会改变位置\大小
+    selector.addLeftOrWidth(ci, distance - width);
+    horizontalScrollbarSet.call(this);
 }
 function verticalScrollbarSet() {
     const {
@@ -77,13 +82,18 @@ function horizontalScrollbarSet() {
 }
 
 function verticalScrollbarMove(distance) {
-    const { table } = this;
-    table.scroll({ y: distance });
+    const { table,selector } = this;
+    // 滚动条 竖向滚动的时候 selector也要跟着那个单元格滚动
+    table.scroll({ y: distance },d=>{
+        selector.addTop(-d);
+    });
 }
   
 function horizontalScrollbarMove(distance) {
-    const { table } = this;
-    table.scroll({ x: distance });
+    const { table,selector } = this;
+    table.scroll({ x: distance },d=>{
+        selector.addLeft(-d);
+    });
 }
 
 function overlayerMousedown(evt){
