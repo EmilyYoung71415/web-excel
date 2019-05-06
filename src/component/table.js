@@ -18,7 +18,7 @@ export default class Table{
         this.rowm = {}; // {rowIndex: {height: 200},....}
         this.colm = {}; // {colIndex: {width: 200},....}
         this.cellmm = {}; // {rowIndex: {colIndex: Cell}}
-        this.scrollOffset = { x: 0, y: 0 };
+        this.scrollOffset = { x: 0, y: 0 };// 滚动距离
         this.style = style;
         this.styles = []; // style特殊单元格
         this.borders = []; // border边框样式
@@ -43,13 +43,15 @@ export default class Table{
         this.draw.clear()
     }
     renderContentGrid(){
-        const {draw, row, col} = this;
+        const {draw, row, col,scrollOffset} = this;
         draw.save();
         draw.attr({
             lineWidth: 0.5,
             strokeStyle: '#d0d0d0',
         });
         draw.translate(gLeftFixedCellWidth, row.height);
+        //  移动canvas
+        draw.translate(-scrollOffset.x, -scrollOffset.y);// 画笔向上移动
         const colSumWidth = this.colTotalWidth();// 全部列总宽
         const rowSumHeight = this.rowTotalHeight();// 全部行总高
         // 在table里的画横、竖
@@ -63,7 +65,7 @@ export default class Table{
         draw.restore();
     }
     renderFixedHeaders(){// 表格的索引栏 有浅灰色的背景颜色
-        const {draw, row, col} = this;
+        const {draw, row, col,scrollOffset} = this;
         draw.save();
         // 背景颜色   
         draw.attr({ fillStyle: '#f4f5f8' })
@@ -80,7 +82,7 @@ export default class Table{
         });
         // 第一列 生成行索引
         this.rowEach(row.len, (i, y1, rowHeight) => {
-            const y = y1 + row.height;
+            const y = y1 + row.height-scrollOffset.y;
             const [tx, ty] = [0 + (gLeftFixedCellWidth / 2), y + (rowHeight / 2)];
             if (i !== row.len) draw.fillText(i + 1, tx, ty);
             // 分割线
@@ -89,7 +91,7 @@ export default class Table{
         draw.line([gLeftFixedCellWidth, 0], [gLeftFixedCellWidth, this.rowTotalHeight() + row.height]);
         // 第一行 生成列索引
         this.colEach(col.len, (i, x1, colWidth) => {
-            const x = x1 + gLeftFixedCellWidth;
+            const x = x1 + gLeftFixedCellWidth- scrollOffset.x;
             const [tx, ty] = [x + (colWidth / 2), 0 + (row.height / 2)];
             if (i !== col.len) draw.fillText(alphabet.stringAt(i), tx, ty);
             draw.line([x, 0], [x, row.height]);
@@ -117,9 +119,47 @@ export default class Table{
             ri, ci, left, top, width, height,
         };
     }
+    // offset = {x: , y: }
+    scroll(offset){
+        const { x, y } = offset;// 滚动条在浏览器中 横向滚动距离 和 竖向滚动距离
+        const { scrollOffset, col, row } = this; 
+        if (y||y==0) {
+            const [, top, height] = help.rangeReduceIf(
+                0, 
+                row.len, 
+                0, 
+                0, 
+                y, 
+                i => this.getRowHeight(i)
+            );
+            let y1 = top;
+            if (y > 0) y1 += height;
+            if (scrollOffset.y !== y1) {
+                scrollOffset.y = y1;
+                this.render();  
+            }
+        } 
+        if (x||x==0) {
+            const [, left, width] = help.rangeReduceIf(
+                0, 
+                col.len, 
+                0, 
+                0, 
+                x, 
+                i => this.getColWidth(i)
+            );
+            let x1 = left;
+            if (x > 0) x1 += width;
+            if (scrollOffset.x !== x1) {
+                scrollOffset.x = x1;
+                this.render();
+            }
+        }
+        
+    }
     renderCell(rindex,cindex,cell){
         const {
-            styles, cellmm, draw, row,
+            styles, cellmm, draw, row,scrollOffset
         } = this;
 
         const style = styles[cell.si];
@@ -136,7 +176,8 @@ export default class Table{
             this.borders[bbi],
             this.borders[bli],
         );
-        draw.save().translate(gLeftFixedCellWidth, row.height);
+        draw.save().translate(gLeftFixedCellWidth, row.height)
+                    .translate(-scrollOffset.x, -scrollOffset.y);
         draw.rect(dbox);
         // render cell数据
         const cellText = cell.text;// TODO:格式化
