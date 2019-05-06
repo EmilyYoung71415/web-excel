@@ -12,7 +12,10 @@
 //                 <div class="excel-resizer-hover"></div>
 //                 <div class="excel-resizer-line"></div>
 //             </div>
+//             生成滚动条: 外层 宽高赋值=容器宽高，可视区域
 //             <div class="excel-scrollbar horizontal"><!-控制滚动条位置-->
+//                 内层div宽高赋值=内容宽高，当内容宽高 > 容器宽高 会在容器上产生滚动条
+//                 外层绑定原生srcoll事件
 //                 <div style="width:1px"></div><!-控制滚动条样式-->
 //             </div>
 //             <div class="excel-scrollbar vertical"></div>
@@ -67,5 +70,40 @@ body {
         top: 0;
         right: 0;
       }
+    }
+}
+// body::-webkit-scrollbar{
+//     background:transparent;
+// }
+/* scrollbar */
+.xss-scrollbar {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    opacity: 0;
+    &::-webkit-scrollbar{
+        width: 8px;
+        height: 8px;
+        background: rgba(75, 137, 255, 0.2);
+    }
+    &::-webkit-scrollbar-thumb {
+        background: rgb(75, 137, 255);
+        border-radius: 6px;
+    }
+    &::-webkit-scrollbar-corner {
+        background: rgba(75, 137, 255,.2);
+    }
+    &.horizontal {
+      // right: 15px;
+      overflow-x: scroll;
+      overflow-y: hidden;
+    }
+    &.vertical {
+      // bottom: 15px;
+      overflow-x: hidden;
+      overflow-y: scroll;
+    }
+    &:hover {
+      opacity: .85;
     }
 }
