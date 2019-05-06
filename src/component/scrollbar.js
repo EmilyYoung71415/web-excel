@@ -4,7 +4,7 @@ export default class Scrollbar {
     constructor(vertical=true){
         this.vertical = vertical;
         this.moveFn = null;
-        this.el = h('div', `xss-scrollbar ${vertical ? 'vertical' : 'horizontal'}`)
+        this.el = h('div', `excel-scrollbar ${vertical ? 'vertical' : 'horizontal'}`)
                     .child(this.contentEl = h('div', ''))
                     .on('scroll',(ev)=>{
                         // 移动距离
