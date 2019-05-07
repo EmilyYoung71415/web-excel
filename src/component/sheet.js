@@ -158,6 +158,25 @@ function selectorSetEnd(evt){
     })
 }
 
+function selectorMove(keycode){
+    const {
+        table, selector, col, row,
+    } = this;
+    let [ri, ci] = selector.indexes;
+    const moveMap = {37:'left',38:'up',39:'right',40:'down',9:'right',12:'down'}
+    const dir = moveMap[keycode]
+    if (dir === 'left') {
+        if (ci > 1) ci -= 1;
+    } else if (dir === 'right') {
+        if (ci < col.len) ci += 1;
+    } else if (dir === 'up') {
+        if (ri > 1) ri -= 1;
+    } else if (dir === 'down') {
+        if (ri < row.len) ri += 1;
+    }
+    table.setSelectRectIndexes([[ri, ci], [ri, ci]]).render();
+    selector.set([ri, ci], table.getSelectRect());
+}
 export default class Sheet {
     constructor(targetEl, options = {}){
         this.el = h('div', 'web-excel');//创建div标签
@@ -167,6 +186,7 @@ export default class Sheet {
         this.col = col;
         this.row = row;
         this.view = view;
+        this.focusing = false;// table当前是否为focus状态
         this.tableEl = h('canvas', 'excel-table')
             // .on('mousemove', (evt) => {//===> overlay包裹层捕捉事件
             //     tableMousemove.call(this, evt);
@@ -220,6 +240,22 @@ export default class Sheet {
         bind(window, 'resize', () => {
             this.reload();
         });
+        bind(window,'click',(ev)=>{
+            this.focusing = this.overlayerEl.el.contains(ev.target);
+        })
+        bind(window,'keydown',(ev)=>{
+            if (ev.ctrlKey){
+               // todo:复制粘贴剪切 
+            }
+            else{
+                // 上下左右 tab enter
+                const directionCode = [37,38,39,40,9,13];
+                if(directionCode.includes(ev.keyCode)){
+                    selectorMove.call(this,ev.keyCode);
+                    ev.preventDefault();
+                } 
+            }
+        })
         sheetReset.call(this);
     }
     loadData(data){
