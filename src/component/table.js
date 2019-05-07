@@ -17,6 +17,7 @@ export default class Table{
         this.colm = {}; // {colIndex: {width: 200},....}
         this.cellmm = {}; // {rowIndex: {colIndex: Cell}}
         this.scrollOffset = { x: 0, y: 0 };// 滚动距离
+        this.scrollIndexes = [0, 0];
         this.style = style;
         this.styles = []; // style特殊单元格
         this.borders = []; // border边框样式
@@ -75,7 +76,7 @@ export default class Table{
         const { x, y } = offset;// 滚动条在浏览器中 横向滚动距离 和 竖向滚动距离
         const { scrollOffset, col, row } = this; 
         if (y||y==0) {
-            const [, top, height] = help.rangeReduceIf(
+            const [ri, top, height] = help.rangeReduceIf(
                 0, 
                 row.len, 
                 0, 
@@ -86,13 +87,14 @@ export default class Table{
             let y1 = top;
             if (y > 0) y1 += height;
             if (scrollOffset.y !== y1) {
+                this.scrollIndexes[0] = y > 0 ? ri : 0;
                 cb(y1 - scrollOffset.y);
                 scrollOffset.y = y1;
                 this.render();  
             }
         } 
         if (x||x==0) {
-            const [, left, width] = help.rangeReduceIf(
+            const [ci, left, width] = help.rangeReduceIf(
                 0, 
                 col.len, 
                 0, 
@@ -103,6 +105,7 @@ export default class Table{
             let x1 = left;
             if (x > 0) x1 += width;
             if (scrollOffset.x !== x1) {
+                this.scrollIndexes[1] = x > 0 ? ci: 0;
                 cb(x1 - scrollOffset.x);// 将移动距离传入cb
                 scrollOffset.x = x1;
                 this.render();

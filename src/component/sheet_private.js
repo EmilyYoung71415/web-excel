@@ -215,6 +215,25 @@ function sheetInitEvent(){
             } 
         }
     })
+    bind(window,'mousewheel',(evt)=>{
+        if (!this.focusing) return;
+        const { table, row } = this;
+        const { top } = this.verticalScrollbar.scroll();
+        if (evt.deltaY > 0) {
+            // up
+            const ri = table.scrollIndexes[0] + 1;
+            if (ri < row.len) {
+              this.verticalScrollbar.move({ top: top + table.getRowHeight(ri) });
+            }
+        } 
+        else {
+            // down
+            const ri = table.scrollIndexes[0] - 1;
+            if (ri >= 0) {
+              this.verticalScrollbar.move({ top: ri === 0 ? 0 : top - table.getRowHeight(ri) });
+            }
+        }
+    })
 }
 
 export default {
