@@ -22,6 +22,7 @@ export default class Table{
         this.style = style;
         this.styles = []; // style特殊单元格
         this.borders = []; // border边框样式
+        this.selectRectIndexes = null;
     }
     render(){
         this.clear()
@@ -97,6 +98,7 @@ export default class Table{
             draw.line([x, 0], [x, row.height]);
         });
         draw.line([0, row.height], [this.colTotalWidth() + gLeftFixedCellWidth, row.height]);
+        this.renderSelectRect();// 高亮selector所在行&列的索引格
         // left-top-cell
         draw.attr({ fillStyle: '#fff' })
             .fillRect(0, 0, gLeftFixedCellWidth, row.height);
@@ -112,11 +114,31 @@ export default class Table{
     }
     // 根据鼠标坐标点，获得所在的cell矩形信息
     // (ri, ci, offsetX, offsetY, width, height)
-    getCellRectWithIndexes(x,y){
+    getCellRectWithIndexes(x,y,forSelector=true){
         const { ri, top, height } = this.getCellRowByY(y);
         const { ci, left, width } = this.getCellColByX(x);
+        // return {
+        //     ri, ci, left, top, width, height,
+        // };
+        const {row,col} = this;
+        // 鼠标坐标在 第一列 索引栏
+        // 如果是forSelector就是行选 返回的width是table_width
+        if (ri >= 0 && ci === 0){
+            const nwidth = forSelector ? this.colTotalWidth() : width;
+            const ntop = forSelector ? top - row.height : top;
+            return {
+                ri, ci, left: 0, top: ntop, width: nwidth, height,
+            };
+        }
+        if(ri === 0 && ci >= 0){
+            const nheight = forSelector ? this.rowTotalHeight() : height;
+            const nleft = forSelector ? left - col.indexWidth : left;
+            return {
+                ri, ci, left: nleft, top: 0, width, height: nheight,
+            };
+        }
         return {
-            ri, ci, left, top, width, height,
+            ri, ci, left: left - col.indexWidth, top: top - row.height, width, height,
         };
     }
     // offset = {x: , y: }
@@ -289,5 +311,56 @@ export default class Table{
     }
     rowSumHeight(min, max) {
         return help.rangeSum(min, max, i => this.getRowHeight(i));
+    }
+    // [startIndexes, endIndexes]
+    setSelectRectIndexes(index){
+        this.selectRectIndexes  = index;
+        return this;
+    }
+    //  高亮selector所在行&列的索引格
+    renderSelectRect() {
+        const {
+          draw, selectRectIndexes, row, col,
+        } = this;
+        if (selectRectIndexes) {
+            const {
+                left, top, height, width,
+            } = this.getSelectRect();
+            draw.save();
+            draw.attr({ fillStyle: 'rgba(44, 103, 212, 0.1)' })
+                // 行索引栏高亮 
+                .fillRect(left + col.indexWidth, 0, width, row.height)
+                // 列索引栏高亮
+                .fillRect(0, top + row.height, col.indexWidth, height);
+            draw.restore();
+        }
+    }
+    getSelectRect(){
+        const { scrollOffset } = this;
+        const [[sri, sci], [eri, eci]] = this.selectRectIndexes;
+        const { left, top } = this.cellPosition(sri - 1, sci - 1);
+        let height = this.rowSumHeight(sri - 1, eri);
+        let width = this.colSumWidth(sci - 1, eci);
+
+        if (eri >= 0 && eci === 0) {
+            width = this.colTotalWidth();
+        }
+        if (eri === 0 && eci >= 0) {
+            height = this.rowTotalHeight();
+        }
+
+        return {
+            left: left - scrollOffset.x,
+            top: top - scrollOffset.y,
+            height,
+            width,
+        };
+    }
+    cellPosition(ri, ci) {
+        const left = this.colSumWidth(0, ci);
+        const top = this.rowSumHeight(0, ri);
+        return {
+            left, top,
+        };
     }
 }
