@@ -32,8 +32,8 @@ function overlayerMousemove(ev){
     } = this;
     const tRect = tableEl.box();
     // 根据鼠标坐标点，获得所在的cell矩形信息
-    // (ri, ci, offsetX, offsetY, width, height)
-    const cRect = table.getCellRectWithIndexes(ev.offsetX, ev.offsetY);
+    // (ri, ci, offsetX, offsetY, width, height) false:非selector点击
+    const cRect = table.getCellRectWithIndexes(ev.offsetX, ev.offsetY,false);
     // 行的辅助线显示:鼠标在第一列move ri>=0 ci==0
     if(cRect.ri>=0&&cRect.ci==0){
         rowResizer.show(cRect,{
@@ -122,32 +122,40 @@ function selectorSetStart(evt){
     const {// 根据鼠标坐标获取单元格位置
         ri, ci, left, top, width, height,
     } = table.getCellRectWithIndexes(evt.offsetX, evt.offsetY);
-    const tOffset = this.getTableOffset();
-    if (ri > 0 && ci > 0) {
-        // 设置绝对位置将selector附着在逻辑索引的第ri,ci单元格上 
-        selector.set([ri, ci], {
-            left: left - tOffset.left, top: top - tOffset.top, width, height,
-        });
-    }
+    // const tOffset = this.getTableOffset();
+    // if (ri > 0 && ci > 0) {
+    //     // 设置绝对位置将selector附着在逻辑索引的第ri,ci单元格上 
+    //     selector.set([ri, ci], {
+    //         left: left - tOffset.left, top: top - tOffset.top, width, height,
+    //     });
+    // }
+    if(ri==0&&ci==0) return;
+    selector.set([ri,ci],{left,top,width,height});
+    // 传入[sIndexes,eIndexes]
+    table.setSelectRectIndexes([[ri, ci], [ri, ci]]).render();
 }
 
 function selectorSetEnd(evt){
     const { table, selector } = this;
     const {ri, ci} = table.getCellRectWithIndexes(evt.offsetX, evt.offsetY);
-    if(ri>0&&ci>0){
-        selector.setEnd([ri,ci],(startIndexes,endIndexes)=>{
-            const [srmin, scmin] = startIndexes;
-            const [ermax, ecmax] = endIndexes;
-            const left = table.colSumWidth(0, scmin - 1);
-            const top = table.rowSumHeight(0, srmin - 1);
-            const height = table.rowSumHeight(srmin - 1, ermax);
-            const width = table.colSumWidth(scmin - 1, ecmax);
-            return {
-                left, top, height, width,
-            };
-        })
-    }
-
+    // if(ri>0&&ci>0){
+    //     selector.setEnd([ri,ci],(startIndexes,endIndexes)=>{
+    //         const [srmin, scmin] = startIndexes;
+    //         const [ermax, ecmax] = endIndexes;
+    //         const left = table.colSumWidth(0, scmin - 1);
+    //         const top = table.rowSumHeight(0, srmin - 1);
+    //         const height = table.rowSumHeight(srmin - 1, ermax);
+    //         const width = table.colSumWidth(scmin - 1, ecmax);
+    //         return {
+    //             left, top, height, width,
+    //         };
+    //     })
+    // }
+    if(ri==0&&ci==0) return;
+    selector.setEnd([ri,ci],(startIndexes,endIndexes)=>{
+        table.setSelectRectIndexes([startIndexes, endIndexes]).render();
+        return table.getSelectRect();
+    })
 }
 
 export default class Sheet {
