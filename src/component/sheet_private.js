@@ -1,4 +1,5 @@
 import {mouseMoveUp } from '../events/event';
+import { bind } from '../events/event';
 /***
  * table类的私有方法
  * 只能由类内部调用 且 类调用时传入类的当前上下文this
@@ -173,6 +174,48 @@ function selectorMove(keycode){
     selector.set([ri, ci], table.getSelectRect());
 }
 
+function sheetInitEvent(){
+    this.overlayerEl.on('mousemove',evt=>{
+        overlayerMousemove.call(this, evt);
+    }).on('mousedown',(evt)=>{
+        overlayerMousedown.call(this, evt);
+    })
+    // resizer类在resize动作结束之后 将收集到的相关数据通过回调函数返回
+    // table使用数据改变行高列宽
+    this.rowResizer.finishedFn = (cRect,distance)=>{
+        rowResizerFinished.call(this,cRect,distance);
+    }
+    this.colResizer.finishedFn = (cRect,distance)=>{
+        colResizerFinished.call(this,cRect,distance);
+    }
+    // 滚动条滚动cb
+    this.verticalScrollbar.moveFn = (distance, evt) => {
+        verticalScrollbarMove.call(this, distance, evt);
+    };
+    this.horizontalScrollbar.moveFn = (distance, evt) => {
+        horizontalScrollbarMove.call(this, distance, evt);
+    };
+
+    bind(window, 'resize', () => {
+        this.reload();
+    });
+    bind(window,'click',(ev)=>{
+        this.focusing = this.overlayerEl.el.contains(ev.target);
+    })
+    bind(window,'keydown',(ev)=>{
+        if (ev.ctrlKey){
+           // todo:复制粘贴剪切 
+        }
+        else{
+            // 上下左右 tab enter
+            const directionCode = [37,38,39,40,9,13];
+            if(directionCode.includes(ev.keyCode)){
+                selectorMove.call(this,ev.keyCode);
+                ev.preventDefault();
+            } 
+        }
+    })
+}
 
 export default {
     sheetReset,
@@ -186,5 +229,6 @@ export default {
     overlayerMousedown,
     selectorSetStart,
     selectorSetEnd,
-    selectorMove
+    selectorMove,
+    sheetInitEvent
 }
