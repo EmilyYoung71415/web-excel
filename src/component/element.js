@@ -125,6 +125,18 @@ class Element {
         this.el.classList.toggle(name);
         return this;
     }
+    scroll(v) {
+        const { el } = this;
+        if (v !== undefined) {
+            if (v.left !== undefined) {
+                el.scrollLeft = v.left;
+            }
+            if (v.top !== undefined) {
+                el.scrollTop = v.top;
+            }
+        }
+        return { left: el.scrollLeft, top: el.scrollTop };
+    }
 }
 
 // 工厂模式 使用者可以无需new 直接使用模板函数h创建对象

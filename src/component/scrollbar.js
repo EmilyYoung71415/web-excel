@@ -29,4 +29,12 @@ export default class Scrollbar {
         }
         return this;
     }
+    move(v) {// 调用el.scroll触发scroll事件
+        this.el.scroll(v);
+        return this;
+    }
+    
+    scroll() {
+        return this.el.scroll();
+    }
 }
