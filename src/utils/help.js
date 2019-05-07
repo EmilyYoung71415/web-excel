@@ -41,8 +41,18 @@ const rangeReduceIf = (min,max,top,rowH,target,getv)=>{
     return [i,s-v,v];
 }
 
+// 传入table的其实索引 min max,获取每列宽度的函数
+// 返回当前范围 [index_colmin,index_max] 的列宽
+function rangeSum(min, max, getv) {
+    let s = 0;
+    for (let i = min; i < max; i += 1) {
+      s += getv(i);
+    }
+    return s;
+}
   
 export default{
     sum,
-    rangeReduceIf
+    rangeReduceIf,
+    rangeSum
 }

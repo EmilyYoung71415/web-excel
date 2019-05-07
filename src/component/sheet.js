@@ -3,7 +3,7 @@ import Scrollbar from './scrollbar';
 import Selector from './selector';
 import Table from './table';
 import { h } from './element';
-import { bind } from '../events/event';
+import { bind,mouseMoveUp } from '../events/event';
 /***
  * 独立于类的私有方法
  * 只能由类内部调用 且 类调用时传入类的当前上下文this
@@ -95,8 +95,29 @@ function horizontalScrollbarMove(distance) {
         selector.addLeft(-d);
     });
 }
-
 function overlayerMousedown(evt){
+    if (!evt.shiftKey) {
+        // 可能是对单个单元格的单击 
+        // 可能是单机start单元格 然后mousemove 到另一个单元格mouseup从而形成框选
+        selectorSetStart.call(this, evt);
+        // mouse move up
+        mouseMoveUp(window, (e) => {
+            if (e.buttons === 1 && !e.shiftKey) {
+                selectorSetEnd.call(this, e);
+            }
+        }, () => {
+            // ...
+        });
+    }
+    // 当shift+单击:前一次动作是点击单元格,(一个个的单击 连成框)
+    if (evt.buttons === 1) {
+        if (evt.shiftKey) {
+          selectorSetEnd.call(this, evt);
+        }
+    }
+}
+
+function selectorSetStart(evt){
     const { table, selector } = this;
     const {// 根据鼠标坐标获取单元格位置
         ri, ci, left, top, width, height,
@@ -108,6 +129,25 @@ function overlayerMousedown(evt){
             left: left - tOffset.left, top: top - tOffset.top, width, height,
         });
     }
+}
+
+function selectorSetEnd(evt){
+    const { table, selector } = this;
+    const {ri, ci} = table.getCellRectWithIndexes(evt.offsetX, evt.offsetY);
+    if(ri>0&&ci>0){
+        selector.setEnd([ri,ci],(startIndexes,endIndexes)=>{
+            const [srmin, scmin] = startIndexes;
+            const [ermax, ecmax] = endIndexes;
+            const left = table.colSumWidth(0, scmin - 1);
+            const top = table.rowSumHeight(0, srmin - 1);
+            const height = table.rowSumHeight(srmin - 1, ermax);
+            const width = table.colSumWidth(scmin - 1, ecmax);
+            return {
+                left, top, height, width,
+            };
+        })
+    }
+
 }
 
 export default class Sheet {

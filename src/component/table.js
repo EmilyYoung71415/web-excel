@@ -282,4 +282,12 @@ export default class Table{
         this.colm[index].width = width;
         this.render();
     }
+    colSumWidth(min, max) {
+        // 传入table的其实索引 min max,获取每列宽度的函数
+        // 返回当前范围 [index_colmin,index_max] 的列宽
+        return help.rangeSum(min, max, i => this.getColWidth(i));
+    }
+    rowSumHeight(min, max) {
+        return help.rangeSum(min, max, i => this.getRowHeight(i));
+    }
 }
