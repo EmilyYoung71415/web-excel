@@ -137,6 +137,13 @@ class Element {
         }
         return { left: el.scrollLeft, top: el.scrollTop };
     }
+    val(v) {
+        if (v !== undefined) {
+          this.el.value = v;
+          return this;
+        }
+        return this.el.value;
+    }
 }
 
 // 工厂模式 使用者可以无需new 直接使用模板函数h创建对象

@@ -174,11 +174,43 @@ function selectorMove(keycode){
     selector.set([ri, ci], table.getSelectRect());
 }
 
+function editorSet(evt){
+    // const {table} = this;
+    // this.editor.set(table.getSelectRect());
+    const {
+        table, row, col, data,
+    } = this;
+    const {
+        left, top, width, height,
+    } = table.getSelectRect();
+    const [ri, ci] = this.selector.indexes;
+    // 将当前单元格的信息提取出来 放在 输入框里
+    this.editor.set({
+        left: left + col.indexWidth, top: top + row.height, width, height,
+    }, table.cellmm[ri-1][ci-1]);
+}
+
+function setCellText(text){
+    const { selector, table } = this;
+    const [ri, ci] = selector.indexes;
+    table.cellmm[ri-1][ci-1]['text'] = text;
+    table.render();
+}
+
+
 function sheetInitEvent(){
     this.overlayerEl.on('mousemove',evt=>{
         overlayerMousemove.call(this, evt);
     }).on('mousedown',(evt)=>{
-        overlayerMousedown.call(this, evt);
+        if(evt.detail==2){
+            editorSet.call(this,evt);
+        }else{
+            this.editor.clear((itext) => {
+                //将itext绘制在表格里
+                setCellText.call(this, itext);
+            });
+            overlayerMousedown.call(this, evt);
+        }
     })
     // resizer类在resize动作结束之后 将收集到的相关数据通过回调函数返回
     // table使用数据改变行高列宽
