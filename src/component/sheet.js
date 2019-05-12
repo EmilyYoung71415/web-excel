@@ -2,6 +2,7 @@ import Resizer from './resizer';
 import Scrollbar from './scrollbar';
 import Selector from './selector';
 import Table from './table';
+import Editor from './editor';
 import { h } from './element';
 import _ from './sheet_private';
 export default class Sheet {
@@ -29,7 +30,7 @@ export default class Sheet {
                     this.selector.el,
                 ),
             );//绑定mousemove 和 mousedown事件
-            
+        this.editor = new Editor();
         // web-excel里push节点canvas、resizer
         this.el.children(
             this.tableEl,
@@ -38,6 +39,7 @@ export default class Sheet {
             this.colResizer.el,// z-index:11
             this.verticalScrollbar.el,// z-index:12
             this.horizontalScrollbar.el,
+            this.editor.el,
         );
         // 根节点载入组件节点
         targetEl.appendChild(this.el.el);
