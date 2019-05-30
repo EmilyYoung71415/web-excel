@@ -8,7 +8,7 @@ export default class Selector{
         this.areaEl = h('div', 'excel-selector-area').child(this.cornerEl);
         this.el = h('div', 'excel-selector').child(this.areaEl).hide()
           .on('click.stop', () => {});
-        this.offset = null;
+        this.offset = null;// 当前框选的selector的大小、位置
         this.indexes = null;
         this.sIndexes = null;// startIndexes 框线的起始索引
         this.eIndexes = null;// endIndexes
@@ -65,7 +65,7 @@ export default class Selector{
     addTop(top) {
         const { offset, areaEl, indexes } = this;
         if (indexes) {
-            offset.top += top;
+            offset.top += top;// 使用的相对变化 cb(y1 - scrollOffset.y);
             areaEl.offset({ top: offset.top });
         }
         return this;

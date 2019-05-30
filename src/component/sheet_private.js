@@ -6,15 +6,12 @@ import { bind } from '../events/event';
  */
 function sheetReset() {
     const {
-      tableEl,overlayerEl, overlayerCEl,
+      tableEl,overlayerEl, overlayerCEl,$viewdata
     } = this;
+
     const tableOffset = this.getTableOffset();
     const viewRect = this.getRect();
     tableEl.attr(viewRect)
-    // tableEl.attr({
-    //   width: el.box().width,
-    //   height: view.height(),
-    // });
     overlayerEl.offset(viewRect);// 包裹层
     overlayerCEl.offset(tableOffset);// table内容层
     verticalScrollbarSet.call(this);
@@ -24,12 +21,12 @@ function sheetReset() {
 function overlayerMousemove(ev){
     if(ev.buttons!==0) return;
     const {
-        table, rowResizer, colResizer, tableEl
+        table, rowResizer, colResizer, tableEl,$viewdata
     } = this;
     const tRect = tableEl.box();
     // 根据鼠标坐标点，获得所在的cell矩形信息
     // (ri, ci, offsetX, offsetY, width, height) false:非selector点击
-    const cRect = table.getCellRectWithIndexes(ev.offsetX, ev.offsetY,false);
+    const cRect = $viewdata.getCellRectWithIndexes(ev.offsetX, ev.offsetY,false);
     // 行的辅助线显示:鼠标在第一列move ri>=0 ci==0
     if(cRect.ri>=0&&cRect.ci==0){
         rowResizer.show(cRect,{
@@ -50,46 +47,51 @@ function overlayerMousemove(ev){
 
 function rowResizerFinished(cRect, distance) {
     const { ri,height } = cRect;
-    const { table,selector } = this;
-    table.setRowHeight(ri - 1, distance);
+    const { table,selector,$viewdata } = this;
+    $viewdata.setRowHeight(ri - 1, distance);
+    table.render();
     selector.addTopOrHeight(ri, distance - height);
     verticalScrollbarSet.call(this);
 }
   
 function colResizerFinished(cRect, distance) {
     const { ci,width } = cRect;
-    const { table,selector } = this;
-    table.setColWidth(ci - 1, distance);
+    const { table,selector,$viewdata} = this;
+    $viewdata.setColWidth(ci - 1, distance);
+    table.render();
     //当列收缩的时候 selector也会改变位置\大小
     selector.addLeftOrWidth(ci, distance - width);
     horizontalScrollbarSet.call(this);
 }
 function verticalScrollbarSet() {
     const {
-      table, verticalScrollbar, view, row,
+      table, verticalScrollbar, $viewdata
     } = this;
-    verticalScrollbar.set(view.height() - row.height, table.rowTotalHeight());
+    const {view, row} = $viewdata;
+    verticalScrollbar.set(view.height() - row.height, $viewdata.rowTotalHeight());
 }
 function horizontalScrollbarSet() {
     const {
-      table, horizontalScrollbar, el, col,
+      table, horizontalScrollbar, el,$viewdata
     } = this;
-    horizontalScrollbar.set(el.box().width - col.indexWidth, table.colTotalWidth());
+    horizontalScrollbar.set(el.box().width - $viewdata.col.indexWidth, $viewdata.colTotalWidth());
 }
 
-function verticalScrollbarMove(distance) {
-    const { table,selector } = this;
+function verticalScrollbarMove(scrollTop) {
+    const { $viewdata,selector,table } = this;
     // 滚动条 竖向滚动的时候 selector也要跟着那个单元格滚动
-    table.scroll({ y: distance },d=>{
+    $viewdata.scroll({ y: scrollTop },d=>{
         selector.addTop(-d);
     });
+    table.render()
 }
   
-function horizontalScrollbarMove(distance) {
-    const { table,selector } = this;
-    table.scroll({ x: distance },d=>{
+function horizontalScrollbarMove(scrollLeft) {
+    const { $viewdata,selector,table } = this;
+    $viewdata.scroll({ x: scrollLeft },d=>{
         selector.addLeft(-d);
     });
+    table.render()
 }
 function overlayerMousedown(evt){
     if (!evt.shiftKey) {
@@ -114,50 +116,33 @@ function overlayerMousedown(evt){
 }
 
 function selectorSetStart(evt){
-    const { table, selector } = this;
+    const {table,selector,$viewdata } = this;
     const {// 根据鼠标坐标获取单元格位置
         ri, ci, left, top, width, height,
-    } = table.getCellRectWithIndexes(evt.offsetX, evt.offsetY);
-    // const tOffset = this.getTableOffset();
-    // if (ri > 0 && ci > 0) {
-    //     // 设置绝对位置将selector附着在逻辑索引的第ri,ci单元格上 
-    //     selector.set([ri, ci], {
-    //         left: left - tOffset.left, top: top - tOffset.top, width, height,
-    //     });
-    // }
+    } = $viewdata.getCellRectWithIndexes(evt.offsetX, evt.offsetY);
     if(ri==0&&ci==0) return;
+    $viewdata.setSelectRectIndexes([[ri, ci], [ri, ci]])
+    table.render();
     selector.set([ri,ci],{left,top,width,height});
     // 传入[sIndexes,eIndexes]
-    table.setSelectRectIndexes([[ri, ci], [ri, ci]]).render();
 }
 
 function selectorSetEnd(evt){
-    const { table, selector } = this;
-    const {ri, ci} = table.getCellRectWithIndexes(evt.offsetX, evt.offsetY);
-    // if(ri>0&&ci>0){
-    //     selector.setEnd([ri,ci],(startIndexes,endIndexes)=>{
-    //         const [srmin, scmin] = startIndexes;
-    //         const [ermax, ecmax] = endIndexes;
-    //         const left = table.colSumWidth(0, scmin - 1);
-    //         const top = table.rowSumHeight(0, srmin - 1);
-    //         const height = table.rowSumHeight(srmin - 1, ermax);
-    //         const width = table.colSumWidth(scmin - 1, ecmax);
-    //         return {
-    //             left, top, height, width,
-    //         };
-    //     })
-    // }
+    const { table, selector,$viewdata } = this;
+    const {ri, ci} = $viewdata.getCellRectWithIndexes(evt.offsetX, evt.offsetY);
     if(ri==0&&ci==0) return;
     selector.setEnd([ri,ci],(startIndexes,endIndexes)=>{
-        table.setSelectRectIndexes([startIndexes, endIndexes]).render();
-        return table.getSelectRect();
+        $viewdata.setSelectRectIndexes([startIndexes, endIndexes])
+        table.render();
+        return $viewdata.getSelectRect();
     })
 }
 
 function selectorMove(keycode){
     const {
-        table, selector, col, row,
+        table, selector, $viewdata,
     } = this;
+    const {col,row} = $viewdata;
     let [ri, ci] = selector.indexes;
     const moveMap = {37:'left',38:'up',39:'right',40:'down',9:'right',12:'down'}
     const dir = moveMap[keycode]
@@ -170,48 +155,51 @@ function selectorMove(keycode){
     } else if (dir === 'down') {
         if (ri < row.len) ri += 1;
     }
-    table.setSelectRectIndexes([[ri, ci], [ri, ci]]).render();
-    selector.set([ri, ci], table.getSelectRect());
+    // render是将选择框对应的索引栏高亮
+    $viewdata.setSelectRectIndexes([[ri, ci], [ri, ci]])
+    table.render();
+    selector.set([ri, ci], $viewdata.getSelectRect());
 }
 
 function editorSet(evt){
-    // const {table} = this;
-    // this.editor.set(table.getSelectRect());
     const {
-        table, row, col, data,
+        table,$viewdata,
     } = this;
+    const {row, col} = $viewdata;
     const {
         left, top, width, height,
-    } = table.getSelectRect();
+    } = $viewdata.getSelectRect();
     const [ri, ci] = this.selector.indexes;
     // 将当前单元格的信息提取出来 放在 输入框里
     this.editor.set({
         left: left + col.indexWidth, top: top + row.height, width, height,
-    }, table.cellmm[ri-1][ci-1]);
+    }, $viewdata.cellmm[ri-1][ci-1]);
 }
 
 function setCellText(text){
-    const { selector, table } = this;
+    const { selector, table,$viewdata } = this;
     const [ri, ci] = selector.indexes;
-    table.cellmm[ri-1][ci-1]['text'] = text;
+    $viewdata.cellmm[ri-1][ci-1]['text'] = text;
     table.render();
 }
 
 
 function sheetInitEvent(){
-    this.overlayerEl.on('mousemove',evt=>{
-        overlayerMousemove.call(this, evt);
-    }).on('mousedown',(evt)=>{
-        if(evt.detail==2){
-            editorSet.call(this,evt);
-        }else{
-            this.editor.clear((itext) => {
-                //将itext绘制在表格里
-                setCellText.call(this, itext);
-            });
-            overlayerMousedown.call(this, evt);
-        }
-    })
+    this.overlayerEl
+        .on('mousemove',evt=>{
+            overlayerMousemove.call(this, evt);
+        })
+        .on('mousedown',(evt)=>{
+            if(evt.detail==2){
+                editorSet.call(this,evt);
+            }else{
+                this.editor.clear((itext) => {
+                    //将itext绘制在表格里
+                    setCellText.call(this, itext);
+                });
+                overlayerMousedown.call(this, evt);
+            }
+        })
     // resizer类在resize动作结束之后 将收集到的相关数据通过回调函数返回
     // table使用数据改变行高列宽
     this.rowResizer.finishedFn = (cRect,distance)=>{
@@ -221,11 +209,11 @@ function sheetInitEvent(){
         colResizerFinished.call(this,cRect,distance);
     }
     // 滚动条滚动cb
-    this.verticalScrollbar.moveFn = (distance, evt) => {
-        verticalScrollbarMove.call(this, distance, evt);
+    this.verticalScrollbar.moveFn = (scrollTop, evt) => {
+        verticalScrollbarMove.call(this, scrollTop, evt);
     };
-    this.horizontalScrollbar.moveFn = (distance, evt) => {
-        horizontalScrollbarMove.call(this, distance, evt);
+    this.horizontalScrollbar.moveFn = (scrollLeft, evt) => {
+        horizontalScrollbarMove.call(this, scrollLeft, evt);
     };
 
     bind(window, 'resize', () => {
@@ -247,22 +235,28 @@ function sheetInitEvent(){
             } 
         }
     })
+    // 滚动两种方式
+    // 1. 将鼠标放在滚动条上，移动scrollbar滚动 or 鼠标hover在滚动条上，鼠标滚轮滚动
+    //  ===> 都是触发 滚动条的滚动事件 由scrollbar类内部 监听scroll事件控制
+    // 2. 鼠标在window上 滚动，即触发 mousewheel 
+    // 所谓的滚动效果也是将鼠标的滚动距离转移到 滚动条上 手动触发滚动条滚动
     bind(window,'mousewheel',(evt)=>{
         if (!this.focusing) return;
-        const { table, row } = this;
+        const { table,$viewdata } = this;
+        const {row} = $viewdata;
         const { top } = this.verticalScrollbar.scroll();
         if (evt.deltaY > 0) {
             // up
-            const ri = table.scrollIndexes[0] + 1;
+            const ri = $viewdata.scrollIndexes[0] + 1;
             if (ri < row.len) {
-              this.verticalScrollbar.move({ top: top + table.getRowHeight(ri) });
+              this.verticalScrollbar.move({ top: top + $viewdata.getRowHeight(ri) });
             }
         } 
         else {
             // down
-            const ri = table.scrollIndexes[0] - 1;
+            const ri = $viewdata.scrollIndexes[0] - 1;
             if (ri >= 0) {
-              this.verticalScrollbar.move({ top: ri === 0 ? 0 : top - table.getRowHeight(ri) });
+              this.verticalScrollbar.move({ top: ri === 0 ? 0 : top - $viewdata.getRowHeight(ri) });
             }
         }
     })
