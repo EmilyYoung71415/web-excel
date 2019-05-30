@@ -5,65 +5,73 @@ import Table from './table';
 import Editor from './editor';
 import { h } from './element';
 import _ from './sheet_private';
+
+function initDom(targetEl){
+    const {row, col} = this.$viewdata;
+    this.el = h('div', 'web-excel');
+    this.tableEl = h('canvas', 'excel-table')
+    this.table = new Table(this.tableEl.el,this.$viewdata);
+    // resizer
+    this.rowResizer = new Resizer(false, row.height);
+    this.colResizer = new Resizer(true, col.minWidth);
+    // scrollbar
+    this.verticalScrollbar = new Scrollbar(true);
+    this.horizontalScrollbar = new Scrollbar(false);
+    // selector
+    this.selector = new Selector();
+    this.overlayerEl = h('div', 'excel-overlayer').children(
+        this.overlayerCEl = h('div', 'excel-overlayer-content').children(
+            this.selector.el,
+        ),
+    );//绑定mousemove 和 mousedown事件
+    this.editor = new Editor();
+    this.el.children(
+        this.tableEl.el,
+        this.overlayerEl.el,// z-index:10
+        this.rowResizer.el,
+        this.colResizer.el,// z-index:11
+        this.verticalScrollbar.el,// z-index:12
+        this.horizontalScrollbar.el,
+        this.editor.el,
+    );
+    // 根节点载入组件节点
+    targetEl.appendChild(this.el.el);
+}
+
 export default class Sheet {
-    constructor(targetEl, options = {}){
-        this.el = h('div', 'web-excel');//创建div标签
-        const {
-            row, col, style, view,
-        } = options;
-        this.col = col;
-        this.row = row;
-        this.view = view;
+    // 组件挂载节点 和 配置信息
+    constructor(targetEl, viewdata){
+        this.$viewdata = viewdata;
         this.focusing = false;// table当前是否为focus状态
-        this.tableEl = h('canvas', 'excel-table')
-        this.table = new Table(this.tableEl.el, row, col, style);
-        // resizer
-        this.rowResizer = new Resizer(false, row.height);
-        this.colResizer = new Resizer(true, col.minWidth);
-        // scrollbar
-        this.verticalScrollbar = new Scrollbar(true);
-        this.horizontalScrollbar = new Scrollbar(false);
-        // selector
-        this.selector = new Selector();
-        this.overlayerEl = h('div', 'excel-overlayer').children(
-                this.overlayerCEl = h('div', 'excel-overlayer-content').children(
-                    this.selector.el,
-                ),
-            );//绑定mousemove 和 mousedown事件
-        this.editor = new Editor();
-        // web-excel里push节点canvas、resizer
-        this.el.children(
-            this.tableEl,
-            this.overlayerEl.el,// z-index:10
-            this.rowResizer.el,
-            this.colResizer.el,// z-index:11
-            this.verticalScrollbar.el,// z-index:12
-            this.horizontalScrollbar.el,
-            this.editor.el,
-        );
-        // 根节点载入组件节点
-        targetEl.appendChild(this.el.el);
+        initDom.call(this,targetEl);
+        this.initRender();
         //overlayerEl:mousemove&mousedown; | window.resize | window.keydown
         _.sheetInitEvent.call(this);
         _.sheetReset.call(this);
     }
+    initRender(){
+        // toolbar,context...
+        this.table.render();
+    }
     loadData(data){
-        const { table } = this;
-        table.loadData(data);
-        table.render();
+        this.$viewdata.loadData(data);
+        this.table.render();
     }
     reload(){
         _.sheetReset.call(this);
         this.table.render();
     }
     getRect() {
+        // ??? 为什么宽高不一致呢 初始化来源
+        // getRectBounding 是得到可视化高度 
+        // 便于窗口变化的时候 resize 调整窗口大小
         const { width } = this.el.box();
-        const height = this.view.height();
+        const height = this.$viewdata.view.height();
         return { width, height };
       }
-    
+    // table内容页 空出了 索引栏空间
     getTableOffset() {
-        const { row, col } = this;
+        const { row, col } = this.$viewdata;
         const { width, height } = this.getRect();
         return {
             width: width - col.indexWidth,

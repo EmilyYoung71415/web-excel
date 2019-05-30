@@ -1,5 +1,6 @@
 import { sheetOptions } from "./config/sheetOptions";
 import Sheet from './component/sheet';
+import ViewData from './config/viewdata';
 import './index.less';
 /*
   el: element in document
@@ -13,9 +14,9 @@ import './index.less';
 */
 class Webexcel {
   constructor(el, options = {}) {
-    this.el = el;
-    this.options = Object.assign(sheetOptions, options);
-    this.sheet = new Sheet(el,this.options);
+    const configOptions = Object.assign(sheetOptions, options);
+    this.$viewData = new ViewData(configOptions);
+    this.sheet = new Sheet(el,this.$viewData);
   }
   loadData(data) {
     this.sheet.loadData(data);

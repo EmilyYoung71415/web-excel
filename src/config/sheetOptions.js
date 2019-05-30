@@ -5,8 +5,6 @@ const sheetOptions = {
         height:()=>window.innerHeight,
         width:()=>window.innerWidth
     },
-    formats: [], //单元格格式化
-    formula: [], // 公式
     row: { // 表格初始化 10行 每行25px高
         len: 40,
         height: 25,

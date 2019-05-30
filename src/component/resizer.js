@@ -16,9 +16,10 @@ export default class Resizer{
     }
     hide() {
         this.el.offset({
-          left: 0,
-          top: 0,
-        }).hide();
+                left: 0,
+                top: 0,
+            })
+            .hide();
     }
     // rect : {top, left, width, height}
     // line : {width, height}
