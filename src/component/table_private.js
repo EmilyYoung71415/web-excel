@@ -1,6 +1,5 @@
 import alphabet from '../config/alphabet';
 import {DrawBox} from '../draw/canvas';
-// import help from '../utils/help';
 const gLeftFixedCellWidth = 60;
 const gCellPaddingWidth = 5;
 
@@ -121,37 +120,6 @@ function getDrawBox(rindex, cindex){
     });
     return new DrawBox(x, y, width, height, gCellPaddingWidth);
 }
-    
-// function getCellRowByY(y){// 根据y坐标获得所在行号
-//     const { row,scrollOffset } = this;
-//     const [ri, top, height] = help.rangeReduceIf(
-//         0,
-//         row.len,
-//         row.height - scrollOffset.y,// top
-//         row.height,// 行高
-//         y,
-//         i => this.getRowHeight(i)//传入获取第i行行高的cb函数
-//     );
-//     if (top <= 0) {
-//         return { ri: 0, top: 0, height };
-//     }
-//     return { ri, top, height };
-// }
-// function getCellColByX(x){
-//     const { col, scrollOffset } = this;
-//     const [ci, left, width] = help.rangeReduceIf(
-//         0,
-//         col.len,
-//         col.indexWidth - scrollOffset.x,
-//         col.indexWidth,
-//         x,
-//         i => this.getColWidth(i),
-//     );
-//     if (left <= 0) {
-//         return { ci: 0, left: 0, width: col.indexWidth };
-//     }
-//     return { ci, left, width };
-// }
 //  高亮selector所在行&列的索引格
 function renderSelectRect() {
     const {
@@ -178,7 +146,5 @@ export default {
     renderContent,
     renderCell,
     getDrawBox,
-    // getCellRowByY,
-    // getCellColByX,
     renderSelectRect,
 }
