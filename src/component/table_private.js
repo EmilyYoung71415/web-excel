@@ -72,7 +72,7 @@ function renderContent(){
     const { cellmm } = this.$viewdata;
     Object.keys(cellmm).forEach((rindex) => {
         Object.keys(cellmm[rindex]).forEach((cindex) => {
-            renderCell.call(this,rindex, cindex, cellmm[rindex][rindex]);
+            renderCell.call(this,rindex, cindex, cellmm[rindex][cindex]);
         });
     });
 }
@@ -86,10 +86,10 @@ function renderCell(rindex,cindex,cell){
     const style = styles[cell.si];
     //传入逻辑索引返回得到单元格坐标、长宽,以此来生成drawbox
     const dbox = getDrawBox.call(this,rindex, cindex);
-    const {
-        bgcolor
-    } = style;
-    dbox.bgcolor = bgcolor;
+    if(style){
+        dbox.bgcolor = style.bgcolor;
+    }
+    dbox.setBorders([0.5, 'solid', '#d0d0d0'])//border-style:dotted solid double dashed; 
     draw.save().translate(gLeftFixedCellWidth, row.height)
                 .translate(-scrollOffset.x, -scrollOffset.y);
     draw.rect(dbox);
@@ -97,7 +97,7 @@ function renderCell(rindex,cindex,cell){
     const cellText = cell.text;// TODO:格式化
     const $viewDataStyle = this.$viewdata.style;
     const wrapText = (style && style.wrapText) ||  $viewDataStyle.wrapText;
-    const font = Object.assign({},  $viewDataStyle.font, style.font);
+    const font = (style && style.font) ||  $viewDataStyle.font;
     draw.text(cellText, dbox, {
         align: (style && style.align) ||  $viewDataStyle.align,
         valign: (style && style.align) ||  $viewDataStyle.valign,

@@ -171,15 +171,16 @@ function editorSet(evt){
     } = $viewdata.getSelectRect();
     const [ri, ci] = this.selector.indexes;
     // 将当前单元格的信息提取出来 放在 输入框里
+
     this.editor.set({
         left: left + col.indexWidth, top: top + row.height, width, height,
-    }, $viewdata.cellmm[ri-1][ci-1]);
+    }, $viewdata.getCell(ri-1,ci-1));
 }
 
 function setCellText(text){
     const { selector, table,$viewdata } = this;
     const [ri, ci] = selector.indexes;
-    $viewdata.cellmm[ri-1][ci-1]['text'] = text;
+    $viewdata.setCellText(ri - 1, ci - 1, text);
     table.render();
 }
 

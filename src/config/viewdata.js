@@ -247,4 +247,16 @@ export default class ViewData{
             top: row.height,
         };
     }
+    getCell(ri,ci){
+        if(this.cellmm[ri]&&this.cellmm[ri][ci]){
+            return this.cellmm[ri][ci];
+        }
+        return null;
+    }
+    setCellText(ri,ci,itext){
+        const {cellmm} = this;
+        cellmm[ri] = cellmm[ri]||{};
+        cellmm[ri][ci] = cellmm[ri][ci] || {};
+        cellmm[ri][ci].text = itext;
+    }
 }

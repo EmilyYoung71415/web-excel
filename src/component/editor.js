@@ -52,7 +52,6 @@ export default class Editor {
         let text = '';
         const {
             textEl,
-            textlineEl
         } = this;
         if (cell) {
             text = cell.text || '';
