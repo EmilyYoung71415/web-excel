@@ -39,6 +39,7 @@ export default class Editor {
         
         if (cell) {
             textEl.val(cell.text || '');
+            editorSetTextareaRange.call(this, cell.text.length);
         }
 
         el.offset({
@@ -49,6 +50,5 @@ export default class Editor {
             width: width - 9,
             height: height - 3
         });
-        editorSetTextareaRange.call(this, text.length);
     }
 }

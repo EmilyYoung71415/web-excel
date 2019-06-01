@@ -210,6 +210,16 @@ function sheetInitEvent(){
         if(!this.focusing) return;
         if (ev.ctrlKey){
             switch (ev.keyCode) {
+                case 90:
+                    // undo: ctrl + z
+                    this.$viewdata.undo();
+                    ev.preventDefault();
+                break;
+                case 89:
+                    // redo: ctrl + y
+                    this.$viewdata.redo();
+                    ev.preventDefault();
+                break;
                 case 67:
                     // ctrl + c
                     this.$viewdata.copy();

@@ -45,6 +45,7 @@ export default class Sheet {
         this.focusing = false;// table当前是否为focus状态
         initDom.call(this,targetEl);
         this.initRender();
+        this.$viewdata.addDepSub(()=>this.table.render())
         //overlayerEl:mousemove&mousedown; | window.resize | window.keydown
         _.sheetInitEvent.call(this);
         _.sheetReset.call(this);

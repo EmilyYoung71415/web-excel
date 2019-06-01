@@ -15,7 +15,74 @@ const defaultViewData = {
 
 class Selector{}
 class Scroll{}
-class History{}
+class History{
+    constructor() {
+        this.undoItems = [];
+        this.redoItems = [];
+    }
+    undopeek(){
+        return this.undoItems[this.undoItems.length-1];
+    }
+    redopeek(){
+        return this.redoItems[this.redoItems.length-1];
+    }
+    add(viewdata) {
+        let data = JSON.stringify(viewdata);
+        if(data == this.undopeek()) return;
+        this.undoItems.push(data);
+        this.redoItems = [];
+    }
+    
+    canUndo() {
+        return this.undoItems.length > 0;
+    }
+    
+    canRedo() {
+        return this.redoItems.length > 0;
+    }
+    
+    undo(viewdata, cb) {
+        let data = JSON.stringify(viewdata);
+        const { undoItems, redoItems } = this;
+        if (this.canUndo()) {
+          (data!=this.redopeek())&&redoItems.push(data);
+          cb(JSON.parse(undoItems.pop()))
+        }
+    }
+    
+    redo(viewdata, cb) {
+        let data = JSON.stringify(viewdata);
+        const { undoItems, redoItems } = this;
+        if (this.canRedo()) {
+            (data!=this.undopeek())&&undoItems.push(data);
+            cb(JSON.parse(redoItems.pop()));
+        }
+    }
+}
+
+class Dep{
+    constructor(){
+        this.subs = [];
+    }
+    addSub(func){
+        if (this.subs.indexOf(func) === -1) {
+            //避免重复添加
+            this.subs.push(func);
+        }
+    }
+    removeSub(func){
+        const index = this.subs.indexOf(func);
+        if (index > -1) {
+            this.subs.splice(index, 1);
+        }
+    }
+    notify(viewdata) {
+        //将事件放入 dep队列里 然后 依次执行事件
+        this.subs.forEach(sub => {
+            sub(viewdata); 
+        });
+    }
+}
 class ClipBoard{
     constructor() {
         this.fromIndexes = [];
@@ -74,24 +141,25 @@ function proxyData(data){
     });
 }
 
-function changeHandler(path, value, previousValue){
-    // this 完整的viewdata对象
-    // 将历史记录放入 dep 将table的render放入
-    // 而且历史记录应该是存放全部数据，
-    // table render是重绘表格内容 
-    // spreadsheet 会重绘toolbar的 toolbar怎么
-    console.log(this)
-}
 export default class ViewData{
     // sheet defaultoptions
-    constructor(options){
-        this.data = Object.assign(defaultViewData,options); 
-        this.viewdata = onchange(this.data,changeHandler);
+    constructor(options) {
+        this.data = Object.assign(defaultViewData, options);
+        this.history = new History();
+        this.viewdata = onchange(this.data, () => this.viewChangeWatcher(this.viewdata));
+        this.dep = new Dep();
+        this.addDepSub((viewdata)=>this.history.add(viewdata))
         this.clipboard = new ClipBoard();
-        proxyData.call(this,this.viewdata)// this.data.row 都可以通过 this.row访问
+        proxyData.call(this, this.viewdata) // this.data.row 都可以通过 this.row访问
     }
-    loadData(data){
-        this.data =  Object.assign(this.data,data);
+    loadData(data) {
+        this.data = Object.assign(this.data, data);
+    }
+    addDepSub(sub) {
+        this.dep.addSub(sub)
+    }
+    viewChangeWatcher(curviewdata) {
+        this.dep.notify(curviewdata)
     }
     colTotalWidth(){
         const { col, colm } = this;
@@ -334,5 +402,15 @@ export default class ViewData{
         if(clipboard.isCut()){
             this.cellmm[sri-1][sci-1] = null;
         }
+    }
+    undo(){// ctrl + z
+        this.history.undo(this.viewdata,backdata=>{
+            this.viewdata = backdata;
+        })
+    }
+    redo(){//
+        this.history.redo(this.viewdata,backdata=>{
+            this.viewdata = backdata;
+        })
     }
 }
