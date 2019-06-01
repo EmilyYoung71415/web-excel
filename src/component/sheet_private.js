@@ -162,25 +162,9 @@ function selectorMove(keycode){
     selector.render()
 }
 
-function editorSet(evt){
-    const {
-        table,$viewdata,
-    } = this;
-    const {row, col} = $viewdata;
-    const {
-        left, top, width, height,
-    } = $viewdata.getSelectRect();
-    const [ri, ci] = this.selector.indexes;
-    // 将当前单元格的信息提取出来 放在 输入框里
-
-    this.editor.set({
-        left: left + col.indexWidth, top: top + row.height, width, height,
-    }, $viewdata.getCell(ri-1,ci-1));
-}
-
 function setCellText(text){
-    const { selector, table,$viewdata } = this;
-    const [ri, ci] = selector.indexes;
+    const {table,$viewdata } = this;
+    const [[ri, ci]] = $viewdata.selectRectIndexes;
     $viewdata.setCellText(ri - 1, ci - 1, text);
     table.render();
 }
@@ -193,7 +177,7 @@ function sheetInitEvent(){
         })
         .on('mousedown',(evt)=>{
             if(evt.detail==2){
-                editorSet.call(this,evt);
+                this.editor.render()
             }else{
                 this.editor.clear((itext) => {
                     //将itext绘制在表格里
