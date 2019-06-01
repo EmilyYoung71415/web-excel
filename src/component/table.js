@@ -1,5 +1,4 @@
-import { Draw,DrawBox } from '../draw/canvas';
-import help from '../utils/help';
+import { Draw } from '../draw/canvas';
 import _ from './table_private';
 
 export default class Table{
