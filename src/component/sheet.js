@@ -24,7 +24,7 @@ function initDom(targetEl){
             this.selector.el,
         ),
     );//绑定mousemove 和 mousedown事件
-    this.editor = new Editor();
+    this.editor = new Editor(this.$viewdata);
     this.el.children(
         this.tableEl.el,
         this.overlayerEl.el,// z-index:10

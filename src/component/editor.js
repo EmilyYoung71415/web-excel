@@ -12,28 +12,14 @@ function editorSetTextareaRange(position) {
     }, 0);
 }
 
-function editorReset() {
-    const {offset,textEl,el,} = this;
-    if (offset) {
-        const {left,top,width,height} = offset;
-        el.offset({left, top}).show();
-        textEl.offset({
-            width: width - 9,
-            height: height - 3
-        });
-    }
-}
-
 export default class Editor {
-    constructor() {
+    constructor(viewdata) {
         this.el = h('div', 'excel-editor').children(
             this.textEl = h('textarea', '')
             .on('input', evt => editorInputEventHandler.call(this, evt)),
             this.textlineEl = h('div', 'textline'),
         );
-
-        this.offset = null;
-        this.cell = null;
+        this.$viewdata = viewdata;
         this.inputText = '';
     }
 
@@ -41,24 +27,28 @@ export default class Editor {
         if (!/^\s*$/.test(this.inputText)) {
             change(this.inputText);
         }
-        this.cell = null;
         this.inputText = '';
         this.el.hide();
         this.textEl.val('');
     }
-
-    set(offset, cell) {
-        this.offset = offset;
-        let text = '';
-        const {
-            textEl,
-        } = this;
+    render(){
+        const {textEl,el,$viewdata} = this;
+        const [[ri, ci]] = $viewdata.selectRectIndexes;
+        const cell = $viewdata.getCell(ri-1,ci-1)
+        const {left, top, width, height} = $viewdata.getSelectRect();
+        
         if (cell) {
-            text = cell.text || '';
-            this.cell = cell;
-            textEl.val(text);
+            textEl.val(cell.text || '');
         }
-        editorReset.call(this);
+
+        el.offset({
+            left:left+$viewdata.col.indexWidth,
+            top:top+$viewdata.row.height
+        }).show();
+        textEl.offset({
+            width: width - 9,
+            height: height - 3
+        });
         editorSetTextareaRange.call(this, text.length);
     }
 }
