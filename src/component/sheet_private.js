@@ -65,17 +65,15 @@ function colResizerFinished(cRect, distance) {
 function verticalScrollbarMove(scrollTop) {
     const { $viewdata,selector,table } = this;
     // 滚动条 竖向滚动的时候 selector也要跟着那个单元格滚动
-    $viewdata.scroll({ y: scrollTop },d=>{
-        selector.render()
-    });
+    $viewdata.scroll({ y: scrollTop })
+    selector.render()
     table.render()
 }
   
-function horizontalScrollbarMove(scrollLeft) {
+function horizontalScrollbarMove(scrollLeft){
     const { $viewdata,selector,table } = this;
-    $viewdata.scroll({ x: scrollLeft },d=>{
-        selector.render()
-    });
+    $viewdata.scroll({ x: scrollLeft })
+    selector.render()
     table.render()
 }
 function overlayerMousedown(evt){

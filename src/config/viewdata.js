@@ -121,7 +121,7 @@ export default class ViewData{
             left, top,
         };
     }
-    scroll(offset,cb=()=>{}){
+    scroll(offset){
         const { x, y } = offset;// 滚动条在浏览器中 横向滚动距离 和 竖向滚动距离
         const { scrollOffset, col, row } = this; 
         // y:y>0 都要产生滚动距离 按照滚动区间来 划分真正的滚动距离
@@ -144,7 +144,7 @@ export default class ViewData{
             if (scrollOffset.y !== y1) {
                 this.scrollIndexes[0] = y > 0 ? ri : 0;// ri+1是最新第一行索引
                 // 这次与上次滚动的相对移动距离
-                cb(y1 - scrollOffset.y);
+                // cb(y1 - scrollOffset.y);
                 scrollOffset.y = y1;
                 // this.render();  
             }
@@ -162,7 +162,7 @@ export default class ViewData{
             if (x > 0) x1 += width;
             if (scrollOffset.x !== x1) {
                 this.scrollIndexes[1] = x > 0 ? ci: 0;
-                cb(x1 - scrollOffset.x);// 将移动距离传入cb
+                // cb(x1 - scrollOffset.x);// 将移动距离传入cb
                 scrollOffset.x = x1;
                 // this.render();
             }
