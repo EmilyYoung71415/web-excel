@@ -82,7 +82,7 @@ function renderCell(rindex,cindex,cell){
     const {
         styles, row,scrollOffset
     } = $viewdata;
-
+    if(!cell) return;
     const style = styles[cell.si];
     //传入逻辑索引返回得到单元格坐标、长宽,以此来生成drawbox
     const dbox = getDrawBox.call(this,rindex, cindex);

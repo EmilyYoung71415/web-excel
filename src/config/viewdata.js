@@ -16,6 +16,49 @@ const defaultViewData = {
 class Selector{}
 class Scroll{}
 class History{}
+class ClipBoard{
+    constructor() {
+        this.fromIndexes = [];
+        this.state = 'clear';
+      }
+    
+      copy(sIndexes, eIndexes) {
+        this.set(sIndexes, eIndexes, 'copy');
+        return this;
+      }
+    
+      cut(sIndexes, eIndexes) {
+        this.set(sIndexes, eIndexes, 'cut');
+        return this;
+      }
+    
+      isCopy() {
+        return this.state === 'copy';
+      }
+    
+      isCut() {
+        return this.state === 'cut';
+      }
+    
+      set(sIndexes, eIndexes, state) {
+        this.fromIndexes = [sIndexes,eIndexes];
+        this.state = state;
+        return this;
+      }
+    
+      get() {
+        return this.fromIndexes;
+      }
+    
+      isClear() {
+        return this.state === 'clear';
+      }
+    
+      clear() {
+        this.fromIndexes = [];
+        this.state = 'clear';
+      }
+}
 
 
 function proxyData(data){
@@ -44,6 +87,7 @@ export default class ViewData{
     constructor(options){
         this.data = Object.assign(defaultViewData,options); 
         this.viewdata = onchange(this.data,changeHandler);
+        this.clipboard = new ClipBoard();
         proxyData.call(this,this.viewdata)// this.data.row 都可以通过 this.row访问
     }
     loadData(data){
@@ -268,5 +312,27 @@ export default class ViewData{
         cellmm[ri] = cellmm[ri]||{};
         cellmm[ri][ci] = cellmm[ri][ci] || {};
         cellmm[ri][ci].text = itext;
+    }
+    copy(){
+        const [sIndexes,eIndexes] = this.selectRectIndexes;
+        this.clipboard.copy(sIndexes,eIndexes);
+    }
+    cut(){
+        const [sIndexes,eIndexes] = this.selectRectIndexes;
+        this.clipboard.cut(sIndexes,eIndexes);
+    }
+    paste(){
+        const { clipboard } = this;
+        if (clipboard.isClear()) return;
+        const [[sri, sci], [eri, eci]] = clipboard.get();
+        const [[dsri, dsci], [deri, deci]] =  this.selectRectIndexes;//目标单元格
+        if (clipboard.isCopy()||clipboard.isCut()){
+            this.cellmm[dsri] = this.cellmm[dsri] || {};
+            this.cellmm[dsri-1][dsci-1] = this.cellmm[sri-1][sci-1];
+            clipboard.clear();
+        }
+        if(clipboard.isCut()){
+            this.cellmm[sri-1][sci-1] = null;
+        }
     }
 }

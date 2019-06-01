@@ -111,9 +111,9 @@ function selectorSetStart(evt){
 
 function selectorSetEnd(evt){
     const { table, selector,$viewdata } = this;
-    const {ri:eri, ci:eci} = $viewdata.getCellRectWithIndexes(evt.offsetX, evt.offsetY);
+    let {ri:eri, ci:eci} = $viewdata.getCellRectWithIndexes(evt.offsetX, evt.offsetY);
     if(eri==0&&eci==0) return;    
-    const [[sri,sci]] = $viewdata.selectRectIndexes;
+    let [[sri,sci]] = $viewdata.selectRectIndexes;
     if (sri >= eri) {
         [sri,eri] = [eri,sri]
     }
@@ -207,8 +207,28 @@ function sheetInitEvent(){
         this.focusing = this.overlayerEl.el.contains(ev.target);
     })
     bind(window,'keydown',(ev)=>{
+        if(!this.focusing) return;
         if (ev.ctrlKey){
-           // todo:复制粘贴剪切 
+            switch (ev.keyCode) {
+                case 67:
+                    // ctrl + c
+                    this.$viewdata.copy();
+                    ev.preventDefault();
+                break;
+                case 88:
+                    // ctrl + x
+                    this.$viewdata.cut();
+                    ev.preventDefault();
+                break;
+                case 86:
+                    // ctrl + v
+                    this.$viewdata.paste();
+                    this.table.render();
+                    ev.preventDefault();
+                break;
+                    default:
+                break;
+            }    
         }
         else{
             // 上下左右 tab enter
