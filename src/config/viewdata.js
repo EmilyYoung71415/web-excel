@@ -1,4 +1,5 @@
 import help from '../utils/help';
+import onchange from '../utils/onchange';
 const defaultViewData = {
     rowm: {}, // Map<int, Row>, len
     colm: {}, // Map<int, Row>, len
@@ -30,11 +31,20 @@ function proxyData(data){
     });
 }
 
+function changeHandler(path, value, previousValue){
+    // this 完整的viewdata对象
+    // 将历史记录放入 dep 将table的render放入
+    // 而且历史记录应该是存放全部数据，
+    // table render是重绘表格内容 
+    // spreadsheet 会重绘toolbar的 toolbar怎么
+    console.log(this)
+}
 export default class ViewData{
     // sheet defaultoptions
     constructor(options){
-        this.data = Object.assign(defaultViewData,options); // TODO:拦截器
-        proxyData.call(this,this.data)// this.data.row 都可以通过 this.row访问
+        this.data = Object.assign(defaultViewData,options); 
+        this.viewdata = onchange(this.data,changeHandler);
+        proxyData.call(this,this.viewdata)// this.data.row 都可以通过 this.row访问
     }
     loadData(data){
         this.data =  Object.assign(this.data,data);
