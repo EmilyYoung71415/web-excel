@@ -15,8 +15,8 @@ import './index.less';
 class Webexcel {
   constructor(el, options = {}) {
     const configOptions = Object.assign(sheetOptions, options);
-    this.$viewData = new ViewData(configOptions);
-    this.sheet = new Sheet(el,this.$viewData);
+    let $viewdata = new ViewData(configOptions);
+    this.sheet = new Sheet(el,$viewdata);
   }
   loadData(data) {
     this.sheet.loadData(data);
