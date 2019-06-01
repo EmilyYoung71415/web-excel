@@ -15,10 +15,10 @@ function initDom(targetEl){
     this.rowResizer = new Resizer(false, row.height);
     this.colResizer = new Resizer(true, col.minWidth);
     // scrollbar
-    this.verticalScrollbar = new Scrollbar(true);
-    this.horizontalScrollbar = new Scrollbar(false);
+    this.verticalScrollbar = new Scrollbar(true,this.$viewdata);
+    this.horizontalScrollbar = new Scrollbar(false,this.$viewdata);
     // selector
-    this.selector = new Selector();
+    this.selector = new Selector(this.$viewdata);
     this.overlayerEl = h('div', 'excel-overlayer').children(
         this.overlayerCEl = h('div', 'excel-overlayer-content').children(
             this.selector.el,

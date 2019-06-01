@@ -6,16 +6,15 @@ import { bind } from '../events/event';
  */
 function sheetReset() {
     const {
-      tableEl,overlayerEl, overlayerCEl,$viewdata
+      tableEl,overlayerEl, overlayerCEl,verticalScrollbar,horizontalScrollbar
     } = this;
-
     const tableOffset = this.getTableOffset();
     const viewRect = this.getRect();
     tableEl.attr(viewRect)
     overlayerEl.offset(viewRect);// 包裹层
     overlayerCEl.offset(tableOffset);// table内容层
-    verticalScrollbarSet.call(this);
-    horizontalScrollbarSet.call(this);
+    verticalScrollbar.render();
+    horizontalScrollbar.render();
 }
 
 function overlayerMousemove(ev){
@@ -47,41 +46,27 @@ function overlayerMousemove(ev){
 
 function rowResizerFinished(cRect, distance) {
     const { ri,height } = cRect;
-    const { table,selector,$viewdata } = this;
+    const { table,selector,$viewdata,verticalScrollbar } = this;
     $viewdata.setRowHeight(ri - 1, distance);
     table.render();
-    selector.addTopOrHeight(ri, distance - height);
-    verticalScrollbarSet.call(this);
+    selector.render()
+    verticalScrollbar.render();
 }
   
 function colResizerFinished(cRect, distance) {
     const { ci,width } = cRect;
-    const { table,selector,$viewdata} = this;
+    const { table,selector,$viewdata,horizontalScrollbar} = this;
     $viewdata.setColWidth(ci - 1, distance);
     table.render();
-    //当列收缩的时候 selector也会改变位置\大小
-    selector.addLeftOrWidth(ci, distance - width);
-    horizontalScrollbarSet.call(this);
-}
-function verticalScrollbarSet() {
-    const {
-      table, verticalScrollbar, $viewdata
-    } = this;
-    const {view, row} = $viewdata;
-    verticalScrollbar.set(view.height() - row.height, $viewdata.rowTotalHeight());
-}
-function horizontalScrollbarSet() {
-    const {
-      table, horizontalScrollbar, el,$viewdata
-    } = this;
-    horizontalScrollbar.set(el.box().width - $viewdata.col.indexWidth, $viewdata.colTotalWidth());
+    selector.render()
+    horizontalScrollbar.render();
 }
 
 function verticalScrollbarMove(scrollTop) {
     const { $viewdata,selector,table } = this;
     // 滚动条 竖向滚动的时候 selector也要跟着那个单元格滚动
     $viewdata.scroll({ y: scrollTop },d=>{
-        selector.addTop(-d);
+        selector.render()
     });
     table.render()
 }
@@ -89,7 +74,7 @@ function verticalScrollbarMove(scrollTop) {
 function horizontalScrollbarMove(scrollLeft) {
     const { $viewdata,selector,table } = this;
     $viewdata.scroll({ x: scrollLeft },d=>{
-        selector.addLeft(-d);
+        selector.render()
     });
     table.render()
 }
@@ -118,24 +103,28 @@ function overlayerMousedown(evt){
 function selectorSetStart(evt){
     const {table,selector,$viewdata } = this;
     const {// 根据鼠标坐标获取单元格位置
-        ri, ci, left, top, width, height,
+        ri, ci
     } = $viewdata.getCellRectWithIndexes(evt.offsetX, evt.offsetY);
     if(ri==0&&ci==0) return;
     $viewdata.setSelectRectIndexes([[ri, ci], [ri, ci]])
     table.render();
-    selector.set([ri,ci],{left,top,width,height});
-    // 传入[sIndexes,eIndexes]
+    selector.render();
 }
 
 function selectorSetEnd(evt){
     const { table, selector,$viewdata } = this;
-    const {ri, ci} = $viewdata.getCellRectWithIndexes(evt.offsetX, evt.offsetY);
-    if(ri==0&&ci==0) return;
-    selector.setEnd([ri,ci],(startIndexes,endIndexes)=>{
-        $viewdata.setSelectRectIndexes([startIndexes, endIndexes])
-        table.render();
-        return $viewdata.getSelectRect();
-    })
+    const {ri:eri, ci:eci} = $viewdata.getCellRectWithIndexes(evt.offsetX, evt.offsetY);
+    if(eri==0&&eci==0) return;    
+    const [[sri,sci]] = $viewdata.selectRectIndexes;
+    if (sri >= eri) {
+        [sri,eri] = [eri,sri]
+    }
+    if (sci >= eci) {
+        [sci,eci] = [eci,sci];
+    }
+    $viewdata.setSelectRectIndexes([[sri,sci],[eri,eci]]);
+    selector.render()
+    table.render();
 }
 
 function selectorMove(keycode){
@@ -143,22 +132,34 @@ function selectorMove(keycode){
         table, selector, $viewdata,
     } = this;
     const {col,row} = $viewdata;
-    let [ri, ci] = selector.indexes;
+    let [[sri,sci],[eri,eci]] = $viewdata.selectRectIndexes;
     const moveMap = {37:'left',38:'up',39:'right',40:'down',9:'right',12:'down'}
     const dir = moveMap[keycode]
     if (dir === 'left') {
-        if (ci > 1) ci -= 1;
+        if (sci > 1){
+            sci -= 1;
+            eci -= 1;
+        } 
     } else if (dir === 'right') {
-        if (ci < col.len) ci += 1;
+        if (eci < col.len){
+            sci += 1;
+            eci += 1;
+        } 
     } else if (dir === 'up') {
-        if (ri > 1) ri -= 1;
+        if (sri > 1){
+            sri -= 1;
+            eri -= 1;
+        } 
     } else if (dir === 'down') {
-        if (ri < row.len) ri += 1;
+        if (eri < row.len){
+            sri += 1;
+            eri += 1;
+        } 
     }
     // render是将选择框对应的索引栏高亮
-    $viewdata.setSelectRectIndexes([[ri, ci], [ri, ci]])
+    $viewdata.setSelectRectIndexes([[sri,sci],[eri,eci]])
     table.render();
-    selector.set([ri, ci], $viewdata.getSelectRect());
+    selector.render()
 }
 
 function editorSet(evt){
@@ -268,8 +269,6 @@ export default {
     overlayerMousemove,
     rowResizerFinished,
     colResizerFinished,
-    verticalScrollbarSet,
-    horizontalScrollbarSet,
     verticalScrollbarMove,
     horizontalScrollbarMove,
     overlayerMousedown,
