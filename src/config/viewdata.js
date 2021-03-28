@@ -34,18 +34,17 @@ function proxyData(data){
 function changeHandler(path, value, previousValue){
     // this 完整的viewdata对象
     // 将历史记录放入 dep 将table的render放入
-    // 而且历史记录应该是存放全部数据，
-    // table render是重绘表格内容 
-    // spreadsheet 会重绘toolbar的 toolbar怎么
     console.log(this)
 }
-export default class ViewData{
+export default class ViewData {
     // sheet defaultoptions
     constructor(options){
         this.data = Object.assign(defaultViewData,options); 
         this.viewdata = onchange(this.data,changeHandler);
+        // viewdata的访问代理
         proxyData.call(this,this.viewdata)// this.data.row 都可以通过 this.row访问
     }
+    // 在constructor 和 loaddata里 都分别调用了render()
     loadData(data){
         this.data =  Object.assign(this.data,data);
     }
@@ -85,17 +84,25 @@ export default class ViewData{
         const { row, rowm } = this;
         return rowm[`${index}`] ? rowm[`${index}`].height : row.height;
     }
-    colSumWidth(min, max) {
-        // 传入table的其实索引 min max,获取每列宽度的函数
+    // 计算选中的这一坨列的宽度
+    colSumWidth(starIndex, endIndex) {
+        // 传入table的索引 min max,获取每列宽度的函数
         // 返回当前范围 [index_colmin,index_max] 的列宽
-        return help.rangeSum(min, max, i => this.getColWidth(i));
+        return help.rangeSum(starIndex, endIndex, i => this.getColWidth(i));
     }
-    rowSumHeight(min, max) {
-        return help.rangeSum(min, max, i => this.getRowHeight(i));
+    rowSumHeight(starIndex, endIndex) {
+        return help.rangeSum(starIndex, endIndex, i => this.getRowHeight(i));
     }
+    /**
+     * 根据当前selector的 逻辑索引 [start单元格(行index，列index)， end单元格（行index，列index）]
+     * 得到selector逻辑索引对应的 物理left\top
+     * @returns 
+     */
     getSelectRect(){
         const { scrollOffset } = this;
-        const [[sri, sci], [eri, eci]] = this.selectRectIndexes;
+        // FIX: 初始化未产生选中框时 selector会报undefined is not iterable
+        if (!this.selectRectIndexes) return;
+        const [[sri, sci], [eri, eci]] = this.selectRectIndexes || [];
         const { left, top } = this.cellPosition(sri - 1, sci - 1);
         let height = this.rowSumHeight(sri - 1, eri);
         let width = this.colSumWidth(sci - 1, eci);
@@ -106,7 +113,6 @@ export default class ViewData{
         if (eri === 0 && eci >= 0) {
             height = this.rowTotalHeight();
         }
-
         return {
             left: left - scrollOffset.x,
             top: top - scrollOffset.y,
@@ -114,6 +120,12 @@ export default class ViewData{
             width,
         };
     }
+    /**
+     * 单元格逻辑索引 ->  物理定位 left、top
+     * @param {*} ri 行index
+     * @param {*} ci 列index
+     * @returns 当前单元格物理定位
+     */
     cellPosition(ri, ci) {
         const left = this.colSumWidth(0, ci);
         const top = this.rowSumHeight(0, ri);
@@ -121,7 +133,12 @@ export default class ViewData{
             left, top,
         };
     }
-    scroll(offset,cb=()=>{}){
+    /**
+     * 维护变量：最新第一行索引=ri+1 scrollIndexes [ri, ci]
+     * @param {*} offset 滚动的距离
+     * @param {*} cb= distance => {} // 此次滚动记录回调出去
+     */
+    scroll(offset, cb =() => {}) {
         const { x, y } = offset;// 滚动条在浏览器中 横向滚动距离 和 竖向滚动距离
         const { scrollOffset, col, row } = this; 
         // y:y>0 都要产生滚动距离 按照滚动区间来 划分真正的滚动距离
@@ -263,6 +280,7 @@ export default class ViewData{
         }
         return null;
     }
+    // 编辑完成 input的文字放进canvas里
     setCellText(ri,ci,itext){
         const {cellmm} = this;
         cellmm[ri] = cellmm[ri]||{};

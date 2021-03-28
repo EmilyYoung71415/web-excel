@@ -1,9 +1,21 @@
+/**
+ * @file table canvas类的私有方法
+ * 只能由类内部调用 且 类调用时传入类的当前上下文this
+ * export: 
+ *  renderContentGrid：画出画布需要的每行每列的单元格-列总宽 & 行总高
+ *  renderFixedHeaders：表格的索引栏， 行列
+ *  renderContent：给每个单元格赋值上：样式、数据
+ */
 import alphabet from '../config/alphabet';
 import {DrawBox} from '../draw/canvas';
 const gLeftFixedCellWidth = 60;
 const gCellPaddingWidth = 5;
 
-function renderContentGrid(){
+/**
+ * 画出画布需要的每行每列的单元格-列总宽 & 行总高
+ */
+
+export function renderContentGrid(){
     const {draw,$viewdata} = this;
     const {row, col,scrollOffset} = $viewdata;
     draw.save();
@@ -27,7 +39,11 @@ function renderContentGrid(){
     draw.restore();
 }
 
-function renderFixedHeaders(){// 表格的索引栏 有浅灰色的背景颜色
+/**
+ * 表格的索引栏 有浅灰色的背景颜色
+ */
+
+export function renderFixedHeaders(){
     const {draw,$viewdata} = this;
     const {row, col,scrollOffset} = $viewdata;
     draw.save();
@@ -68,7 +84,11 @@ function renderFixedHeaders(){// 表格的索引栏 有浅灰色的背景颜色
     draw.restore();
 }
 
-function renderContent(){
+/**
+ * 给每个单元格赋值数据上：样式、文本
+ */
+
+export function renderContent(){
     const { cellmm } = this.$viewdata;
     Object.keys(cellmm).forEach((rindex) => {
         Object.keys(cellmm[rindex]).forEach((cindex) => {
@@ -77,6 +97,16 @@ function renderContent(){
     });
 }
 
+/**
+ * 绘制具体每个的单元格
+ * @param rindex 逻辑行索引
+ * @param cindex 逻辑列索引
+ * @param cell 业务层传递进来的表格数据
+ * 
+ * 根据传入逻辑索引返回得到单元格坐标、长宽
+ * 将画笔移动到物理坐标上进行绘制
+ */
+
 function renderCell(rindex,cindex,cell){
     const {draw,$viewdata} = this;
     const {
@@ -84,7 +114,7 @@ function renderCell(rindex,cindex,cell){
     } = $viewdata;
 
     const style = styles[cell.si];
-    //传入逻辑索引返回得到单元格坐标、长宽,以此来生成drawbox
+    // 传入逻辑索引返回得到单元格坐标、长宽,以此来生成drawbox
     const dbox = getDrawBox.call(this,rindex, cindex);
     if(style){
         dbox.bgcolor = style.bgcolor;
@@ -95,21 +125,29 @@ function renderCell(rindex,cindex,cell){
     draw.rect(dbox);
     // render cell数据
     const cellText = cell.text;// TODO:格式化
-    const $viewDataStyle = this.$viewdata.style;
-    const wrapText = (style && style.wrapText) ||  $viewDataStyle.wrapText;
-    const font = (style && style.font) ||  $viewDataStyle.font;
-    draw.text(cellText, dbox, {
-        align: (style && style.align) ||  $viewDataStyle.align,
-        valign: (style && style.align) ||  $viewDataStyle.valign,
-        font,
-        color: (style && style.color) ||  $viewDataStyle.color,
-    }, wrapText);
+    if (cellText) {
+        const $viewDataStyle = this.$viewdata.style;
+        const isWrapText = (style && style.wrapText) ||  $viewDataStyle.wrapText;
+        const font = (style && style.font) ||  $viewDataStyle.font;
+        draw.text(cellText, dbox, {
+            align: (style && style.align) ||  $viewDataStyle.align,
+            valign: (style && style.align) ||  $viewDataStyle.valign,
+            font,
+            color: (style && style.color) ||  $viewDataStyle.color,
+        }, isWrapText);
+    }
     draw.restore();
 }
 
-    
+/**
+ * 传入逻辑索引返回得到物理坐标：单元格坐标、长宽, 以此来生成drawbox
+ * @param {*} rindex 
+ * @param {*} cindex 
+ * @returns DrawBox 专门负责单元格的 样式、border，文字还是交给draw负责
+ */
+
 function getDrawBox(rindex, cindex){
-    let x,y,width,height;//x.y 坐标值
+    let x,y,width,height;// x.y 坐标值
     this.$viewdata.rowEach(rindex, (i, y1, rowHeight) => {
         y = y1;
         height = rowHeight;
@@ -120,7 +158,11 @@ function getDrawBox(rindex, cindex){
     });
     return new DrawBox(x, y, width, height, gCellPaddingWidth);
 }
-//  高亮selector所在行&列的索引格
+
+/**
+ * 高亮selector所在行 & 列的索引格
+ */
+
 function renderSelectRect() {
     const {
       draw,$viewdata
@@ -138,13 +180,4 @@ function renderSelectRect() {
             .fillRect(0, top + row.height, col.indexWidth, height);
         draw.restore();
     }
-}
-
-export default {
-    renderContentGrid,
-    renderFixedHeaders,
-    renderContent,
-    renderCell,
-    getDrawBox,
-    renderSelectRect,
 }

@@ -1,21 +1,20 @@
+/**
+ * @file sheet类的私有方法
+ * 只能由类内部调用 且 类调用时传入类的当前上下文this
+ * export: sheetInitEvent、sheetReset
+ * 
+ * sheetInitEvent：用户交互监听
+ *      overlayerEl 框选、双击选中出现editor
+ *      resizer：伸缩行列
+ *      滚动条
+ *      window.resize
+ *      keydown
+ * 
+ * sheetReset: sheet表格渲染态就绪
+ */
+
 import {mouseMoveUp } from '../events/event';
 import { bind } from '../events/event';
-/***
- * table类的私有方法
- * 只能由类内部调用 且 类调用时传入类的当前上下文this
- */
-function sheetReset() {
-    const {
-      tableEl,overlayerEl, overlayerCEl,verticalScrollbar,horizontalScrollbar
-    } = this;
-    const tableOffset = this.getTableOffset();
-    const viewRect = this.getRect();
-    tableEl.attr(viewRect)
-    overlayerEl.offset(viewRect);// 包裹层
-    overlayerCEl.offset(tableOffset);// table内容层
-    verticalScrollbar.render();
-    horizontalScrollbar.render();
-}
 
 function overlayerMousemove(ev){
     if(ev.buttons!==0) return;
@@ -78,6 +77,7 @@ function horizontalScrollbarMove(scrollLeft) {
     });
     table.render()
 }
+
 function overlayerMousedown(evt){
     if (!evt.shiftKey) {
         // 可能是对单个单元格的单击 
@@ -113,9 +113,10 @@ function selectorSetStart(evt){
 
 function selectorSetEnd(evt){
     const { table, selector,$viewdata } = this;
-    const {ri:eri, ci:eci} = $viewdata.getCellRectWithIndexes(evt.offsetX, evt.offsetY);
-    if(eri==0&&eci==0) return;    
-    const [[sri,sci]] = $viewdata.selectRectIndexes;
+    let {ri:eri, ci:eci} = $viewdata.getCellRectWithIndexes(evt.offsetX, evt.offsetY);
+    if(eri==0&&eci==0) return;
+    // 保证选中框的[start单元格， end单元格] 顺序是：左上-右下
+    let [[sri,sci]] = $viewdata.selectRectIndexes;
     if (sri >= eri) {
         [sri,eri] = [eri,sri]
     }
@@ -128,6 +129,7 @@ function selectorSetEnd(evt){
 }
 
 function selectorMove(keycode){
+    // FIXME: 编辑状态时 应直接return;
     const {
         table, selector, $viewdata,
     } = this;
@@ -169,21 +171,46 @@ function setCellText(text){
     table.render();
 }
 
+/**
+ * sheet表格渲染态就绪：
+ *      overlayer位置
+ *      滚动条位置 
+ */
+export function sheetReset() {
+    const {
+      tableEl,overlayerEl, overlayerCEl,verticalScrollbar,horizontalScrollbar
+    } = this;
+    const tableOffset = this.getTableOffset();
+    const viewRect = this.getRect();
+    tableEl.attr(viewRect)
+    overlayerEl.offset(viewRect);// 包裹层
+    overlayerCEl.offset(tableOffset);// table内容层
+    verticalScrollbar.render();
+    horizontalScrollbar.render();
+}
 
-function sheetInitEvent(){
+export function sheetInitEvent(){
     this.overlayerEl
         .on('mousemove',evt=>{
             overlayerMousemove.call(this, evt);
         })
         .on('mousedown',(evt)=>{
-            if(evt.detail==2){
-                this.editor.render()
-            }else{
+            // TODO: 回车完成编辑
+            if (evt.detail !== 2) {
+                // 退出编辑状态，editor将输入框的信息itext返回给sheet
                 this.editor.clear((itext) => {
                     //将itext绘制在表格里
                     setCellText.call(this, itext);
                 });
+                // 退出编辑之后 再 发生 mousedown，高亮下一个selector
                 overlayerMousedown.call(this, evt);
+            }
+            // evt.detail == 2 双击进入编辑
+            else {
+                // 获取当前选中框位置信息，将input附着在selector上
+                // 提取单元格信息到input上
+                // 双击一定在mousedown之后，so此时一定有selector了
+                this.editor.render();
             }
         })
     // resizer类在resize动作结束之后 将收集到的相关数据通过回调函数返回
@@ -215,7 +242,7 @@ function sheetInitEvent(){
         else{
             // 上下左右 tab enter
             const directionCode = [37,38,39,40,9,13];
-            if(directionCode.includes(ev.keyCode)){
+            if (directionCode.includes(ev.keyCode)) {
                 selectorMove.call(this,ev.keyCode);
                 ev.preventDefault();
             } 
@@ -226,7 +253,7 @@ function sheetInitEvent(){
     //  ===> 都是触发 滚动条的滚动事件 由scrollbar类内部 监听scroll事件控制
     // 2. 鼠标在window上 滚动，即触发 mousewheel 
     // 所谓的滚动效果也是将鼠标的滚动距离转移到 滚动条上 手动触发滚动条滚动
-    bind(window,'mousewheel',(evt)=>{
+    bind(window, 'mousewheel', (evt) => {
         if (!this.focusing) return;
         const { table,$viewdata } = this;
         const {row} = $viewdata;
@@ -246,18 +273,4 @@ function sheetInitEvent(){
             }
         }
     })
-}
-
-export default {
-    sheetReset,
-    overlayerMousemove,
-    rowResizerFinished,
-    colResizerFinished,
-    verticalScrollbarMove,
-    horizontalScrollbarMove,
-    overlayerMousedown,
-    selectorSetStart,
-    selectorSetEnd,
-    selectorMove,
-    sheetInitEvent
 }

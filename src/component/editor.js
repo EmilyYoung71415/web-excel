@@ -1,4 +1,5 @@
 import { h } from './element';
+
 function editorInputEventHandler(evt) {
     const v = evt.target.value;
     this.inputText = v;
@@ -15,15 +16,15 @@ function editorSetTextareaRange(position) {
 export default class Editor {
     constructor(viewdata) {
         this.el = h('div', 'excel-editor').children(
-            this.textEl = h('textarea', '')
-            .on('input', evt => editorInputEventHandler.call(this, evt)),
-            this.textlineEl = h('div', 'textline'),
-        );
+                        this.textEl = h('textarea', '').on('input', evt => editorInputEventHandler.call(this, evt)),
+                        this.textlineEl = h('div', 'textline'),
+                    ).hide();
         this.$viewdata = viewdata;
         this.inputText = '';
     }
 
     clear(change) {
+        // FIXME: 编辑时清除当前单元格为空 会清除失败
         if (!/^\s*$/.test(this.inputText)) {
             change(this.inputText);
         }
@@ -45,10 +46,14 @@ export default class Editor {
             left:left+$viewdata.col.indexWidth,
             top:top+$viewdata.row.height
         }).show();
+
         textEl.offset({
             width: width - 9,
             height: height - 3
         });
-        editorSetTextareaRange.call(this, text.length);
+
+        // 单元格的文字初始化编辑单元格的初始文字
+        // input里的光标放在文字末尾
+        editorSetTextareaRange.call(this, cell && cell.text && cell.text.length);
     }
 }

@@ -114,9 +114,9 @@ class Draw {
                 italic: false,
             }
         }
-        wrapText: wrap text
+        isWrapText: wrap text
     */
-    text(txt, box, attr = {}, wrapText = true){
+    text(txt, box, attr = {}, isWrapText = true){
         const { ctx } = this;
         const {
             align, valign, font, color,
@@ -132,13 +132,14 @@ class Draw {
         });    
         const txtWidth = ctx.measureText(txt).width;
         // canvas的手动换行处理 笔触提笔重新开头
-        if (wrapText && txtWidth > box.innerWidth()) {
+        if (isWrapText && txtWidth > box.innerWidth()) {
             //len：当前串的像素长度 start:新一行以哪个字符开始
             const textLine = { len: 0, start: 0 };
             for (let i = 0; i < txt.length; i += 1) {
                 textLine.len += ctx.measureText(txt[i]).width;
                 if (textLine.len >= box.innerWidth()) {
-                    ctx.fillText(txt.substring(textLine.start, i), tx, ty);
+                    const cutTxt = txt.substring(textLine.start, i);
+                    ctx.fillText(cutTxt, tx, ty);
                     ty += font.size + 2;
                     textLine.len = 0;
                     textLine.start = i;
@@ -155,6 +156,12 @@ class Draw {
         return this;
     }
 }
+
+/**
+ * 生成一个单元格canvas块: 用于收敛box的内部绘制计算方法，实际绘制还是交给draw实现
+ * @param：传入x横坐标、y纵坐标、单元格宽度、单元格高度、单元格padding
+ * 基本用法： draw.rect(dbox); draw.text()
+ */
   
 class DrawBox{// 生成一个块
   constructor(x, y, w, h, padding = 0){

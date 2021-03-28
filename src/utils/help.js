@@ -51,7 +51,7 @@ function rangeSum(min, max, getv) {
     return s;
 }
   
-export default{
+export default {
     sum,
     rangeReduceIf,
     rangeSum

@@ -1,5 +1,5 @@
 import { Draw } from '../draw/canvas';
-import _ from './table_private';
+import * as _ from './table_private';
 
 export default class Table{
     constructor(el,viewData){

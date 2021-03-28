@@ -49,6 +49,13 @@ const shallowClone = value => {
 
 const proxyTarget = Symbol('ProxyTarget');
 
+/**
+ * 传入需要检测变化的obj，和变化之后的回调函数
+ * @param {*} object 
+ * @param {*} onChange 
+ * @param {*} options 
+ * @returns 
+ */
 const onChange = (object, onChange, options = {}) => {
 	let inApply = false;
 	let changed = false;
