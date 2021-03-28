@@ -15,6 +15,9 @@ module.exports = {
       template: './index.html',
       title: 'web-excel',
     }),
+    new MiniCssExtractPlugin({
+      filename: `styles/[name].css`
+    })
   ],
   output: {
     filename: '[name].js',
