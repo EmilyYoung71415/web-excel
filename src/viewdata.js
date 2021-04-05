@@ -68,18 +68,20 @@ export default class ViewData {
         let y = 0;
         for (let i = 0; i <= rowLen; i += 1) {
             const rowHeight = this.getRowHeight(i);
-            cb(i, y, rowHeight);
+            cb && cb(i, y, rowHeight);
             y += rowHeight;
         }
+        return y;
     }
     colEach(colLen, cb) {
         let x = 0;
         for (let i = 0; i <= colLen; i += 1) {
             const colWidth = this.getColWidth(i);// 当前列的列宽
             // 列索引 当前一笔的起始点 当前列的列宽
-            cb(i, x, colWidth);
+            cb && cb(i, x, colWidth);
             x += colWidth;
         }
+        return x;
     }
     getColWidth(index) {// 如果当前列未在特殊样式列 就是normal-size
         const {col, colm} = this;

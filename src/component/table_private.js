@@ -116,6 +116,18 @@ function renderCell(rindex, cindex, cell) {
     const {
         styles, row, scrollOffset, fixedColWidth,
     } = $viewdata;
+    // FIXME: renderCell是在索引栏时 就不要再画了
+    // 修正方案
+    //      way1:  判断，当前绘制的单元格 是否在滚动之外了，如果是 则直接return；
+    //      way2： scroll滚动 不是靠笔触移动 还是 rendertext的变化
+    const {x: scrollOffsetX, y: scrollOffsetY} = scrollOffset;
+    if (scrollOffsetX || scrollOffsetY) {
+        const marginLeft = $viewdata.colEach(cindex);
+        const marginTop = $viewdata.rowEach(rindex);
+        if (marginLeft <= scrollOffsetX || marginTop <= scrollOffsetY) {
+            return;
+        }
+    }
 
     const style = styles[cell.si];
     // 传入逻辑索引返回得到单元格坐标、长宽,以此来生成drawbox
@@ -124,10 +136,9 @@ function renderCell(rindex, cindex, cell) {
         dbox.bgcolor = style.bgcolor;
     }
     dbox.setBorders([0.5, 'solid', '#d0d0d0']);// border-style:dotted solid double dashed;
-    // FIXME: renderCell是在索引栏时 就不要再画了
     draw.save()
         .translate(fixedColWidth, row.height)
-        .translate(-scrollOffset.x, -scrollOffset.y);
+        .translate(-scrollOffsetX, -scrollOffsetY);
     draw.rect(dbox);
     // render cell数据
     const cellText = cell.text;// TODO:格式化
