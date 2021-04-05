@@ -14,45 +14,47 @@
 const sum = (objOrAry, cb = value => value) => {
     let total = 0;
     let size = 0;
-    Object.keys(objOrAry).forEach((key) => {
-      total += cb(objOrAry[key], key);
-      size += 1;
+    Object.keys(objOrAry).forEach(key => {
+        total += cb(objOrAry[key], key);
+        size += 1;
     });
     return [total, size];
 };
 
-/****
+/** **
  * 传入taget坐标值 返回坐标值对应的单元格子
- * @param min页面最小格子数 max页面当前的格子数 
+ * @param min页面最小格子数 max页面当前的格子数
  *        top:可视窗口的top值  rowH：行高
- *        target目标坐标值 getv根据格子索引得到当前格子的行高   
+ *        target目标坐标值 getv根据格子索引得到当前格子的行高
  * 比如传入y坐标 返回y坐标所在的行号及位置
  * @return [ri,top,height]
  */
-const rangeReduceIf = (min,max,top,rowH,target,getv)=>{
-    let i = min,
-        s = top,
-        v = rowH;
-    for(;i<max;i++){
-        if(s>target) break;
+const rangeReduceIf = (min, max, top, rowH, target, getv) => {
+    let i = min;
+    let s = top;
+    let v = rowH;
+    for (;i < max; i++) {
+        if (s > target) {
+            break;
+        }
         v = getv(i);
         s += v;
     }
-    return [i,s-v,v];
-}
+    return [i, s - v, v];
+};
 
 // 传入table的其实索引 min max,获取每列宽度的函数
 // 返回当前范围 [index_colmin,index_max] 的列宽
 function rangeSum(min, max, getv) {
     let s = 0;
     for (let i = min; i < max; i += 1) {
-      s += getv(i);
+        s += getv(i);
     }
     return s;
 }
-  
+
 export default {
     sum,
     rangeReduceIf,
-    rangeSum
-}
+    rangeSum,
+};

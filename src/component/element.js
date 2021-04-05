@@ -10,9 +10,10 @@ class Element {
     }
     child(node) {
         let temp = node;
-        if (typeof node == 'string') {
+        if (typeof node === 'string') {
             temp = document.createTextNode(node);
-        } else if (node instanceof Element) {
+        }
+        else if (node instanceof Element) {
             temp = node.el;
         }
         this.el.append(temp);
@@ -20,8 +21,8 @@ class Element {
     }
     // TODO
     on(eventName, handler) {
-        // on('mousemove',ev=>{})
-        // resizer-hover .on('mousedown.stop', evt =>{})
+    // on('mousemove',ev=>{})
+    // resizer-hover .on('mousedown.stop', evt =>{})
         const [event, ...infos] = eventName.split('.');
         this.el.addEventListener(event, evt => {
             for (let i = 0; i < infos.length; i++) {
@@ -35,28 +36,28 @@ class Element {
                     return;
                 }
                 if (info === 'stop') {
-                    evt.stopPropagation();//阻止冒泡
+                    evt.stopPropagation();// 阻止冒泡
                 }
             }
             handler(evt);
-        })
+        });
         return this;
     }
-    /***
+    /** *
      * exp: ('display','none')
      *      ({
      *         'display':'none',
-     *         'color':'red'     
+     *         'color':'red'
      *      })
      */
     css(name, value) {
         if (Array.isArray(name)) {
-            Object.keys(name).forEach((k) => {
+            Object.keys(name).forEach(k => {
                 this.el.style[k] = name[k];
             });
             return this;
         }
-        if (value != undefined) {
+        if (value !== undefined) {
             this.el.style[name] = value;
             return this;
         }
@@ -70,20 +71,20 @@ class Element {
         if (typeof value === 'string') {
             return this.el.getAttribute(key);
         }
-        Object.keys(key).forEach((k) => {
+        Object.keys(key).forEach(k => {
             this.el.setAttribute(k, key[k]);
         });
         return this;
     }
     // 接受obj设置元素的 top left  width height
-    offset(obj){
+    offset(obj) {
         const {
             offsetTop, offsetLeft, offsetHeight, offsetWidth,
         } = this.el;
-        if(obj){
-            Object.keys(obj).forEach(key=>{
-                this.css(key,`${obj[key]}px`);
-            })
+        if (obj) {
+            Object.keys(obj).forEach(key => {
+                this.css(key, `${obj[key]}px`);
+            });
             return this;
         }
         return {
@@ -91,7 +92,7 @@ class Element {
             left: offsetLeft,
             height: offsetHeight,
             width: offsetWidth,
-        }
+        };
     }
     hide() {
         this.css('display', 'none');
@@ -126,7 +127,7 @@ class Element {
         return this;
     }
     scroll(v) {
-        const { el } = this;
+        const {el} = this;
         if (v !== undefined) {
             if (v.left !== undefined) {
                 el.scrollLeft = v.left;
@@ -135,12 +136,12 @@ class Element {
                 el.scrollTop = v.top;
             }
         }
-        return { left: el.scrollLeft, top: el.scrollTop };
+        return {left: el.scrollLeft, top: el.scrollTop};
     }
     val(v) {
         if (v !== undefined) {
-          this.el.value = v;
-          return this;
+            this.el.value = v;
+            return this;
         }
         return this.el.value;
     }
@@ -150,5 +151,5 @@ class Element {
 const h = (tag, className = '') => new Element(tag, className);
 export {
     Element,
-    h
-}
+    h,
+};

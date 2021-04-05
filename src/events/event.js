@@ -8,7 +8,7 @@ export function unbind(target, name, fn) {
 export function mouseMoveUp(target, movefunc, upfunc) {
     bind(target, 'mousemove', movefunc);
     bind(target, 'mouseup', movefinished);
-    function movefinished(evt){
+    function movefinished(evt) {
         unbind(target, 'mousemove', movefunc);
         unbind(target, 'mouseup', movefinished);
         upfunc(evt);
