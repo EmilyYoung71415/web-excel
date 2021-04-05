@@ -1,12 +1,18 @@
-import {Draw} from '../draw/canvas';
+import {Draw} from '../baserender/canvas';
+import {h} from '../baserender/element';
 import * as _ from './table_private';
 
 export default class Table {
-    constructor(el, viewData) {
-        this.el = el;
+    constructor(viewData) {
+        this.$box = h('canvas', 'excel-table');
+        const el = this.$box.el;
         this.context = el.getContext('2d');
         this.draw = new Draw(el);// canvas操作的类
+        this.el = el;
         this.$viewdata = viewData;
+    }
+    init(sheetRect) {
+        this.$box.attr(sheetRect);
     }
     render() {
         this.clear();
@@ -16,5 +22,8 @@ export default class Table {
     }
     clear() {
         this.draw.clear();
+    }
+    getRect() {
+        return this.$box.box();
     }
 }

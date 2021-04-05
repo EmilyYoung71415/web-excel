@@ -1,4 +1,4 @@
-import {h} from './element';
+import {h} from '../baserender/element';
 
 export default class Scrollbar {
     constructor(vertical = true, $viewdata) {
@@ -7,6 +7,7 @@ export default class Scrollbar {
         this.$viewdata = $viewdata;
         this.el = h('div', `excel-scrollbar ${vertical ? 'vertical' : 'horizontal'}`)
             .child(this.contentEl = h('div', ''))
+            // 滚动方式1:鼠标在滚动条上移动
             .on('scroll.stop', ev => {
                 // 移动距离
                 const {scrollTop, scrollLeft} = ev.target;

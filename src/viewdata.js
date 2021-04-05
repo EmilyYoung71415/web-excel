@@ -1,6 +1,8 @@
-import help from '../utils/help';
-import onchange from '../utils/onchange';
+import help from './utils/help';
+import onchange from './utils/onchange';
 const defaultViewData = {
+    fixedColWidth: 60,
+    // fixedRowHeight: 160,
     rowm: {}, // Map<int, Row>, len
     colm: {}, // Map<int, Row>, len
     cellmm: {}, // Map<int, Map<int, Cell>>
@@ -32,7 +34,7 @@ function proxyData(data) {
 function changeHandler(path, value, previousValue) {
     // this 完整的viewdata对象
     // 将历史记录放入 dep 将table的render放入
-    console.log(this);
+    // console.log(this);
 }
 export default class ViewData {
     // sheet defaultoptions
@@ -56,7 +58,20 @@ export default class ViewData {
         const [rmTotal, rmSize] = help.sum(rowm, v => v.height || 0);
         return ((row.len - rmSize) * row.height) + rmTotal;
     }
-    // 列个数
+    /**
+     * 从表头开始遍历，到第rowlen行
+     * 每经过一行，返回当前行：行index、行offsetY,当前行的行高
+     * @param {*} rowLen 第rowLen行
+     * @param {*} cb(index, offsetY, curRowHeight)
+     */
+    rowEach(rowLen, cb) {
+        let y = 0;
+        for (let i = 0; i <= rowLen; i += 1) {
+            const rowHeight = this.getRowHeight(i);
+            cb(i, y, rowHeight);
+            y += rowHeight;
+        }
+    }
     colEach(colLen, cb) {
         let x = 0;
         for (let i = 0; i <= colLen; i += 1) {
@@ -64,14 +79,6 @@ export default class ViewData {
             // 列索引 当前一笔的起始点 当前列的列宽
             cb(i, x, colWidth);
             x += colWidth;
-        }
-    }
-    rowEach(rowLen, cb) {
-        let y = 0;
-        for (let i = 0; i <= rowLen; i += 1) {
-            const rowHeight = this.getRowHeight(i);
-            cb(i, y, rowHeight);
-            y += rowHeight;
         }
     }
     getColWidth(index) {// 如果当前列未在特殊样式列 就是normal-size

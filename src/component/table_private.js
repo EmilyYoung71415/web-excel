@@ -7,8 +7,7 @@
  *  renderContent：给每个单元格赋值上：样式、数据
  */
 import alphabet from '../config/alphabet';
-import {DrawBox} from '../draw/canvas';
-const gLeftFixedCellWidth = 60;
+import {DrawBox} from '../baserender/canvas';
 const gCellPaddingWidth = 5;
 
 /**
@@ -17,13 +16,13 @@ const gCellPaddingWidth = 5;
 
 export function renderContentGrid() {
     const {draw, $viewdata} = this;
-    const {row, col, scrollOffset} = $viewdata;
+    const {row, col, scrollOffset, fixedColWidth} = $viewdata;
     draw.save();
     draw.attr({
         lineWidth: 0.5,
         strokeStyle: '#d0d0d0',
     });
-    draw.translate(gLeftFixedCellWidth, row.height);
+    draw.translate(fixedColWidth, row.height);
     //  移动canvas
     draw.translate(-scrollOffset.x, -scrollOffset.y);// 画笔向上移动
     const colSumWidth = $viewdata.colTotalWidth();// 全部列总宽
@@ -45,13 +44,13 @@ export function renderContentGrid() {
 
 export function renderFixedHeaders() {
     const {draw, $viewdata} = this;
-    const {row, col, scrollOffset} = $viewdata;
+    const {row, col, scrollOffset, fixedColWidth} = $viewdata;
     draw.save();
     // 背景颜色
     draw.attr({fillStyle: '#f4f5f8'})
     // 填充背景
-        .fillRect(0, 0, gLeftFixedCellWidth, $viewdata.rowTotalHeight() + row.height)
-        .fillRect(0, 0, $viewdata.colTotalWidth() + gLeftFixedCellWidth, row.height);
+        .fillRect(0, 0, fixedColWidth, $viewdata.rowTotalHeight() + row.height)
+        .fillRect(0, 0, $viewdata.colTotalWidth() + fixedColWidth, row.height);
     draw.attr({
         textAlign: 'center',
         textBaseline: 'middle',
@@ -63,28 +62,28 @@ export function renderFixedHeaders() {
     // 第一列 生成行索引
     $viewdata.rowEach(row.len, (i, y1, rowHeight) => {
         const y = y1 + row.height - scrollOffset.y;
-        const [tx, ty] = [0 + (gLeftFixedCellWidth / 2), y + (rowHeight / 2)];
+        const [tx, ty] = [0 + (fixedColWidth / 2), y + (rowHeight / 2)];
         if (i !== row.len) {
             draw.fillText(i + 1, tx, ty);
         }
         // 分割线
-        draw.line([0, y], [gLeftFixedCellWidth, y]);
+        draw.line([0, y], [fixedColWidth, y]);
     });
-    draw.line([gLeftFixedCellWidth, 0], [gLeftFixedCellWidth, $viewdata.rowTotalHeight() + row.height]);
+    draw.line([fixedColWidth, 0], [fixedColWidth, $viewdata.rowTotalHeight() + row.height]);
     // 第一行 生成列索引
     $viewdata.colEach(col.len, (i, x1, colWidth) => {
-        const x = x1 + gLeftFixedCellWidth - scrollOffset.x;
+        const x = x1 + fixedColWidth - scrollOffset.x;
         const [tx, ty] = [x + (colWidth / 2), 0 + (row.height / 2)];
         if (i !== col.len) {
             draw.fillText(alphabet.stringAt(i), tx, ty);
         }
         draw.line([x, 0], [x, row.height]);
     });
-    draw.line([0, row.height], [$viewdata.colTotalWidth() + gLeftFixedCellWidth, row.height]);
+    draw.line([0, row.height], [$viewdata.colTotalWidth() + fixedColWidth, row.height]);
     renderSelectRect.call(this);// 高亮selector所在行&列的索引格
     // left-top-cell
     draw.attr({fillStyle: '#fff'})
-        .fillRect(0, 0, gLeftFixedCellWidth, row.height);
+        .fillRect(0, 0, fixedColWidth, row.height);
     draw.restore();
 }
 
@@ -114,7 +113,7 @@ export function renderContent() {
 function renderCell(rindex, cindex, cell) {
     const {draw, $viewdata} = this;
     const {
-        styles, row, scrollOffset,
+        styles, row, scrollOffset, fixedColWidth,
     } = $viewdata;
 
     const style = styles[cell.si];
@@ -124,7 +123,8 @@ function renderCell(rindex, cindex, cell) {
         dbox.bgcolor = style.bgcolor;
     }
     dbox.setBorders([0.5, 'solid', '#d0d0d0']);// border-style:dotted solid double dashed;
-    draw.save().translate(gLeftFixedCellWidth, row.height)
+    draw.save()
+        .translate(fixedColWidth, row.height)
         .translate(-scrollOffset.x, -scrollOffset.y);
     draw.rect(dbox);
     // render cell数据
@@ -179,10 +179,8 @@ function renderSelectRect() {
         } = $viewdata.getSelectRect();
         draw.save();
         draw.attr({fillStyle: 'rgba(44, 103, 212, 0.1)'})
-        // 行索引栏高亮
-            .fillRect(left + col.indexWidth, 0, width, row.height)
-        // 列索引栏高亮
-            .fillRect(0, top + row.height, col.indexWidth, height);
+            .fillRect(left + col.indexWidth, 0, width, row.height) // 行索引栏高亮
+            .fillRect(0, top + row.height, col.indexWidth, height);// 列索引栏高亮
         draw.restore();
     }
 }

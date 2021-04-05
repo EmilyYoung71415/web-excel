@@ -1,5 +1,5 @@
-import {h} from './element';
-import {mouseMoveUp} from '../events/event';
+import {h} from '../baserender/element';
+import {mouseMoveUp} from '../event/index';
 export default class Resizer {
     constructor(vertical = false, minDistance) {
         this.el = h('div', `excel-resizer ${vertical ? 'vertical' : 'horizontal'}`)

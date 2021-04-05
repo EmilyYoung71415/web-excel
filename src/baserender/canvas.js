@@ -1,4 +1,5 @@
-class Draw {
+// 封装了canvas的draw
+export class Draw {
     constructor(el) {
         this.el = el;
         this.ctx = el.getContext('2d');
@@ -165,7 +166,7 @@ class Draw {
  * 基本用法： draw.rect(dbox); draw.text()
  */
 
-class DrawBox {// 生成一个块
+export class DrawBox {// 生成一个块
     constructor(x, y, w, h, padding = 0) {
         this.x = x;
         this.y = y;
@@ -231,10 +232,3 @@ class DrawBox {// 生成一个块
         return y;
     }
 }
-
-
-export default {};
-export {
-    Draw, // 封装了canvas的draw
-    DrawBox, // draw上面 针对 box的draw
-};

@@ -1,4 +1,4 @@
-import {h} from './element';
+import {h} from '../baserender/element';
 
 function editorInputEventHandler(evt) {
     const v = evt.target.value;

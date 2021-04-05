@@ -1,6 +1,6 @@
 import {sheetOptions} from './config/sheetOptions';
 import Sheet from './component/sheet';
-import ViewData from './config/viewdata';
+import ViewData from './viewdata.js';
 import './index.less';
 /*
   el: element in document

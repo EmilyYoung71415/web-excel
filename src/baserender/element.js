@@ -63,7 +63,7 @@ class Element {
         }
         return this.el.style[name];
     }
-    // exp: tableEl.attr({width:100px})
+    // exp: xxel.attr({width:100px})
     attr(key, value) {
         if (value !== undefined) {
             this.el.setAttribute(key, value);

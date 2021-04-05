@@ -4,7 +4,7 @@
  * export: sheetInitEvent、sheetReset
  *
  * sheetInitEvent：用户交互监听
- *      overlayerEl 框选、双击选中出现editor
+ *      overlayer 框选、双击选中出现editor
  *      resizer：伸缩行列
  *      滚动条
  *      window.resize
@@ -13,20 +13,31 @@
  * sheetReset: sheet表格渲染态就绪
  */
 
-import {mouseMoveUp} from '../events/event';
-import {bind} from '../events/event';
+import {mouseMoveUp, bind} from '../event/index';
 
+/**
+ * 行列伸缩的辅助视觉效果
+ * start：鼠标在索引栏mousemove => 对应的索引栏小方块高亮
+ * mousedown：辅助线
+ * @param {*} ev
+ * @returns
+ */
 function overlayerMousemove(ev) {
+    const [evOffsetX, evOffsetY] = [ev.offsetX, ev.offsetY];
+    const {
+        table, rowResizer, colResizer, $viewdata,
+    } = this;
+    // 如果鼠标不是在索引栏，则return;
+    if (evOffsetX > $viewdata.fixedColWidth && evOffsetY > $viewdata.row.height) {
+        return;
+    }
     if (ev.buttons !== 0) {
         return;
     }
-    const {
-        table, rowResizer, colResizer, tableEl, $viewdata,
-    } = this;
-    const tRect = tableEl.box();
+    const tRect = table.getRect();
     // 根据鼠标坐标点，获得所在的cell矩形信息
     // (ri, ci, offsetX, offsetY, width, height) false:非selector点击
-    const cRect = $viewdata.getCellRectWithIndexes(ev.offsetX, ev.offsetY, false);
+    const cRect = $viewdata.getCellRectWithIndexes(evOffsetX, evOffsetY, false);
     // 行的辅助线显示:鼠标在第一列move ri>=0 ci==0
     if (cRect.ri >= 0 && cRect.ci === 0) {
         rowResizer.show(cRect, {
@@ -65,6 +76,10 @@ function colResizerFinished(cRect, distance) {
     horizontalScrollbar.render();
 }
 
+/**
+ * 当滚动条滚动的时候 带动selector滚动、table视图滚动
+ * @param {*} scrollTop 竖向滚动条滚动距离
+ */
 function verticalScrollbarMove(scrollTop) {
     const {$viewdata, selector, table} = this;
     // 滚动条 竖向滚动的时候 selector也要跟着那个单元格滚动
@@ -82,6 +97,10 @@ function horizontalScrollbarMove(scrollLeft) {
     table.render();
 }
 
+/**
+ * 选中单元格，根据当前鼠标的物理坐标，计算出选中的单元格逻辑索引
+ * @param {*} evt 鼠标当前物理坐标
+ */
 function overlayerMousedown(evt) {
     if (!evt.shiftKey) {
     // 可能是对单个单元格的单击
@@ -145,29 +164,21 @@ function selectorMove(keycode) {
     let [[sri, sci], [eri, eci]] = $viewdata.selectRectIndexes;
     const moveMap = {37: 'left', 38: 'up', 39: 'right', 40: 'down', 9: 'right', 12: 'down'};
     const dir = moveMap[keycode];
-    if (dir === 'left') {
-        if (sci > 1) {
-            sci -= 1;
-            eci -= 1;
-        }
+    if (dir === 'left' && sci > 1) {
+        sci -= 1;
+        eci -= 1;
     }
-    else if (dir === 'right') {
-        if (eci < col.len) {
-            sci += 1;
-            eci += 1;
-        }
+    else if (dir === 'right' && eci < col.len) {
+        sci += 1;
+        eci += 1;
     }
-    else if (dir === 'up') {
-        if (sri > 1) {
-            sri -= 1;
-            eri -= 1;
-        }
+    else if (dir === 'up' && sri > 1) {
+        sri -= 1;
+        eri -= 1;
     }
-    else if (dir === 'down') {
-        if (eri < row.len) {
-            sri += 1;
-            eri += 1;
-        }
+    else if (dir === 'down' && eri < row.len) {
+        sri += 1;
+        eri += 1;
     }
     // render是将选择框对应的索引栏高亮
     $viewdata.setSelectRectIndexes([[sri, sci], [eri, eci]]);
@@ -183,25 +194,26 @@ function setCellText(text) {
 }
 
 /**
- * sheet表格渲染态就绪：
+ * 初始化载入 & window.resize时触发:
+ * sheet表格初始化渲染：
  *      overlayer位置
  *      滚动条位置
  */
 export function sheetReset() {
     const {
-        tableEl, overlayerEl, overlayerCEl, verticalScrollbar, horizontalScrollbar,
+        table, overlayer, verticalScrollbar, horizontalScrollbar,
     } = this;
-    const tableOffset = this.getTableOffset();
-    const viewRect = this.getRect();
-    tableEl.attr(viewRect);
-    overlayerEl.offset(viewRect);// 包裹层
-    overlayerCEl.offset(tableOffset);// table内容层
+    const sheetRect = this.getSheetRect();
+    const tableInnerRect = this.getTableInnerOffset();
+    table.init(sheetRect);
+    overlayer.init({sheetRect, tableInnerRect});
     verticalScrollbar.render();
     horizontalScrollbar.render();
 }
 
 export function sheetInitEvent() {
-    this.overlayerEl
+    this.overlayer
+        // 索引栏上的resizer
         .on('mousemove', evt => {
             overlayerMousemove.call(this, evt);
         })
@@ -214,6 +226,7 @@ export function sheetInitEvent() {
                     setCellText.call(this, itext);
                 });
                 // 退出编辑之后 再 发生 mousedown，高亮下一个selector
+                // 选中单元格
                 overlayerMousedown.call(this, evt);
             }
             // evt.detail == 2 双击进入编辑
@@ -241,10 +254,10 @@ export function sheetInitEvent() {
     };
 
     bind(window, 'resize', () => {
-        this.reload();
+        this.sheetReload();
     });
     bind(window, 'click', ev => {
-        this.focusing = this.overlayerEl.el.contains(ev.target);
+        this.focusing = this.overlayer.checkFocusing(ev);
     });
     bind(window, 'keydown', ev => {
         if (ev.ctrlKey) {
