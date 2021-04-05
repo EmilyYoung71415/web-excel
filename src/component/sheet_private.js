@@ -83,17 +83,15 @@ function colResizerFinished(cRect, distance) {
 function verticalScrollbarMove(scrollTop) {
     const {$viewdata, selector, table} = this;
     // 滚动条 竖向滚动的时候 selector也要跟着那个单元格滚动
-    $viewdata.scroll({y: scrollTop}, d => {
-        selector.render();
-    });
+    $viewdata.scroll({y: scrollTop});
+    selector.render();
     table.render();
 }
 
 function horizontalScrollbarMove(scrollLeft) {
     const {$viewdata, selector, table} = this;
-    $viewdata.scroll({x: scrollLeft}, d => {
-        selector.render();
-    });
+    $viewdata.scroll({x: scrollLeft});
+    selector.render();
     table.render();
 }
 
@@ -275,25 +273,25 @@ export function sheetInitEvent() {
     // 滚动两种方式
     // 1. 将鼠标放在滚动条上，移动scrollbar滚动 or 鼠标hover在滚动条上，鼠标滚轮滚动
     //  ===> 都是触发 滚动条的滚动事件 由scrollbar类内部 监听scroll事件控制
-    // 2. 鼠标在window上 滚动，即触发 mousewheel
-    // 所谓的滚动效果也是将鼠标的滚动距离转移到 滚动条上 手动触发滚动条滚动
+    // 2. 鼠标滚轮滚动
+    //  ===> 计算出鼠标滚动的距离，滚一点计算成一格，让scrollbar滚动，从而归一到moveFn事件
     bind(window, 'mousewheel', evt => {
         if (!this.focusing) {
             return;
         }
-        const {table, $viewdata} = this;
+        const {$viewdata} = this;
         const {row} = $viewdata;
         const {top} = this.verticalScrollbar.scroll();
         if (evt.deltaY > 0) {
             // up
-            const ri = $viewdata.scrollIndexes[0] + 1;
+            const ri = $viewdata.scrollIndexes[0];
             if (ri < row.len) {
                 this.verticalScrollbar.move({top: top + $viewdata.getRowHeight(ri)});
             }
         }
         else {
             // down
-            const ri = $viewdata.scrollIndexes[0] - 1;
+            const ri = $viewdata.scrollIndexes[0];
             if (ri >= 0) {
                 this.verticalScrollbar.move({top: ri === 0 ? 0 : top - $viewdata.getRowHeight(ri)});
             }

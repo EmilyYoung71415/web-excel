@@ -8,8 +8,8 @@ const defaultViewData = {
     cellmm: {}, // Map<int, Map<int, Cell>>
     styles: [],
     borders: [],
-    scrollOffset: {x: 0, y: 0}, // 滚动距离
-    scrollIndexes: [0, 0],
+    scrollOffset: {x: 0, y: 0}, // 滚动物理距离
+    scrollIndexes: [0, 0], // 由滚动的物理距离计算出 滚动了多少单元格个数（行个数、列个数）
     selectRectIndexes: null,
     render: () => { }, // viewData改变之后 视图重新渲染
     addHistory: () => { },
@@ -143,40 +143,33 @@ export default class ViewData {
     /**
      * 维护变量：最新第一行索引=ri+1 scrollIndexes [ri, ci]
      * @param {*} offset 滚动的距离
-     * @param {*} cb= distance => {} // 此次滚动记录回调出去
      */
-    scroll(offset, cb = () => { }) {
+    scroll(offset) {
         const {x, y} = offset;// 滚动条在浏览器中 横向滚动距离 和 竖向滚动距离
         const {scrollOffset, col, row} = this;
         // y:y>0 都要产生滚动距离 按照滚动区间来 划分真正的滚动距离
         if (y || y === 0) {
-            // 由滚动距离计算出
-            // 隐藏的内容里，最后一行的逻辑索引、视口高度、最后一行的行高
-            // [1,0,25],[2,25,150]
+            // 由实际滚动距离算出，应该滚动的距离（帮用户按照一行一行地滚）
             // 每次滚动是一格一格的滚动 不存在中间差
-            // top是不加上当前height的滚动距离 实际上 top+height是真正的滚动距离
-            const [ri, top, height] = help.rangeReduceIf(
+            // top是不加上当前rowheight的滚动距离 实际上 top+height是真正的滚动距离
+            const [ri, top, curRowHeight] = help.rangeReduceIf(
                 0,
                 row.len,
                 0,
                 0,
-                y,
+                y, // 要达到y: scrollTop的滚动距离 需要滚动多少单元行
                 i => this.getRowHeight(i)
             );
             let y1 = top;
             if (y > 0) {
-                y1 += height;
-            }// 只要产生了滚动都至少会滚动一行
-            if (scrollOffset.y !== y1) {
-                this.scrollIndexes[0] = y > 0 ? ri : 0;// ri+1是最新第一行索引
-                // 这次与上次滚动的相对移动距离
-                cb(y1 - scrollOffset.y);
-                scrollOffset.y = y1;
-                // this.render();
+                y1 += curRowHeight;
             }
+            // 只要产生了滚动都至少会滚动一行
+            this.scrollIndexes[0] = y > 0 ? ri : 0;// ri+1是最新第一行索引
+            scrollOffset.y = y1;
         }
         if (x || x === 0) {
-            const [ci, left, width] = help.rangeReduceIf(
+            const [ci, left, curColWidth] = help.rangeReduceIf(
                 0,
                 col.len,
                 0,
@@ -186,14 +179,10 @@ export default class ViewData {
             );
             let x1 = left;
             if (x > 0) {
-                x1 += width;
+                x1 += curColWidth;
             }
-            if (scrollOffset.x !== x1) {
-                this.scrollIndexes[1] = x > 0 ? ci : 0;
-                cb(x1 - scrollOffset.x);// 将移动距离传入cb
-                scrollOffset.x = x1;
-                // this.render();
-            }
+            this.scrollIndexes[1] = x > 0 ? ci : 0;
+            scrollOffset.x = x1;
         }
 
     }

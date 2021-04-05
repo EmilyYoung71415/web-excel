@@ -24,6 +24,7 @@ export function renderContentGrid() {
     });
     draw.translate(fixedColWidth, row.height);
     //  移动canvas
+    // TODO: 把移动笔触 改为 定位数据改变
     draw.translate(-scrollOffset.x, -scrollOffset.y);// 画笔向上移动
     const colSumWidth = $viewdata.colTotalWidth();// 全部列总宽
     const rowSumHeight = $viewdata.rowTotalHeight();// 全部行总高
@@ -123,6 +124,7 @@ function renderCell(rindex, cindex, cell) {
         dbox.bgcolor = style.bgcolor;
     }
     dbox.setBorders([0.5, 'solid', '#d0d0d0']);// border-style:dotted solid double dashed;
+    // FIXME: renderCell是在索引栏时 就不要再画了
     draw.save()
         .translate(fixedColWidth, row.height)
         .translate(-scrollOffset.x, -scrollOffset.y);

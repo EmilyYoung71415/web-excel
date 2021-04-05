@@ -27,7 +27,6 @@ export default class Selector {
             return;
         }
         const {left, top, width, height} = selectCoord;
-        // FIXME: 滚动单元格附着有点误差
         this.areaEl.offset({
             width: width - gSelectorHeightBorderWidth,
             height: height - gSelectorHeightBorderWidth,
