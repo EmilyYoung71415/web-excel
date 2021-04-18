@@ -2,6 +2,12 @@ import help from './utils/help';
 import onchange from './utils/onchange';
 // 表格基础设置：行总数、高度；表格基本样式
 const sheetOptions = {
+    status: {
+        peaceful: true,   // 静静地展示
+        focusing: false,  // 聚焦
+        editing: false,   // 编辑中： 在聚焦前提下
+        scrolling: false, // 滚动中
+    },
     pixelRatio: 1, // window.devicePixelRatio || 1,
     viewRect: { // 整个表格容器大小 = canvas大小
         height: window.innerHeight,

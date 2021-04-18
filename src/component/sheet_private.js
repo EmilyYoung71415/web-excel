@@ -158,10 +158,12 @@ function selectorSetEnd(evt) {
 }
 
 function selectorMove(keycode) {
-    // FIXME: 编辑状态时 应直接return;
     const {
         table, selector, $viewdata,
     } = this;
+    if ($viewdata.status.editing) {
+        return;
+    };
     const {col, row} = $viewdata;
     let [[sri, sci], [eri, eci]] = $viewdata.selectRectIndexes;
     const moveMap = {
@@ -224,6 +226,7 @@ export function sheetInitEvent() {
             if (evt.detail !== 2) {
                 // 退出编辑状态，editor将输入框的信息itext返回给sheet
                 this.editor.clear(itext => {
+                    this.$viewdata.status.editing = false;
                     // 将itext绘制在表格里
                     setCellText.call(this, itext);
                 });
@@ -236,6 +239,7 @@ export function sheetInitEvent() {
                 // 获取当前选中框位置信息，将input附着在selector上
                 // 提取单元格信息到input上
                 // 双击一定在mousedown之后，so此时一定有selector了
+                this.$viewdata.status.editing = true;
                 this.editor.render();
             }
         });
@@ -259,7 +263,7 @@ export function sheetInitEvent() {
         this.sheetReload();
     });
     bind(window, 'click', ev => {
-        this.focusing = this.overlayer.checkFocusing(ev);
+        this.$viewdata.status.focusing = !!this.overlayer.checkFocusing(ev);
     });
     bind(window, 'keydown', ev => {
         if (ev.ctrlKey) {
@@ -280,7 +284,7 @@ export function sheetInitEvent() {
     // 2. 鼠标滚轮滚动
     //  ===> 计算出鼠标滚动的距离，滚一点计算成一格，让scrollbar滚动，从而归一到moveFn事件
     bind(window, 'mousewheel', evt => {
-        if (!this.focusing) {
+        if (!this.$viewdata.status.focusing) {
             return;
         }
         const {$viewdata} = this;

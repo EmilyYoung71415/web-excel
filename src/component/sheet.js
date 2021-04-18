@@ -41,7 +41,6 @@ export default class Sheet {
     // 组件挂载节点 和 配置信息
     constructor($target, viewdata) {
         this.$viewdata = viewdata;
-        this.focusing = false;// table当前是否为focus状态
         initDom.call(this, $target);
         // 给dom绑定事件：overlayer: (mousemove & mousedown) | window.resize | window.keydown
         _.sheetInitEvent.call(this);
