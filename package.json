@@ -1,49 +1,53 @@
 {
-  "name": "web-excel",
-  "version": "1.0.0",
-  "description": "web excel component",
-  "scripts": {
-    "dev": "webpack-dev-server --open --config webpack.dev.js",
-    "build": "webpack --config webpack.prod.js",
-    "deploy": "npm run build && sh deploy.sh",
-    "lint": "eslint --fix ./"
-  },
-  "keywords": [
-    "javascript",
-    "excel"
-  ],
-  "author": "EmilyYoung71415",
-  "email": "yxy4work@163.com",
-  "license": "MIT",
-  "devDependencies": {
-    "@babel/eslint-parser": "^7.13.14",
-    "@babel/eslint-plugin": "^7.13.10",
-    "@ecomfe/eslint-config": "^7.1.0",
-    "babel-core": "^6.26.3",
-    "babel-eslint": "^10.1.0",
-    "babel-loader": "^8.0.2",
-    "babel-preset-env": "^1.7.0",
-    "clean-webpack-plugin": "^0.1.19",
-    "css-loader": "^1.0.0",
-    "eslint": "^7.23.0",
-    "file-loader": "^2.0.0",
-    "html-webpack-plugin": "^3.2.0",
-    "husky": "^6.0.0",
-    "less": "^3.8.1",
-    "less-loader": "^4.1.0",
-    "mini-css-extract-plugin": "^0.4.4",
-    "style-loader": "^0.23.0",
-    "webpack": "^4.17.2",
-    "webpack-cli": "^3.1.0",
-    "webpack-dev-server": "^3.1.7",
-    "webpack-merge": "^4.1.4"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
+    "name": "x-web-excel",
+    "version": "0.6.0",
+    "description": "web excel component",
+    "main": "src/index.js",
+    "scripts": {
+        "start": "webpack-dev-server --open --config webpack.dev.js",
+        "build": "webpack --config webpack.prod.js",
+        "deploy": "npm run build && sh deploy.sh",
+        "lint": "eslint --fix ./"
+    },
+    "keywords": [
+        "javascript",
+        "excel"
+    ],
+    "author": "EmilyYoung71415 <yxy4work#163.com>",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/EmilyYoung71415/web-excel"
+    },
+    "devDependencies": {
+        "@babel/eslint-parser": "^7.13.14",
+        "@babel/eslint-plugin": "^7.13.10",
+        "@ecomfe/eslint-config": "^7.1.0",
+        "babel-core": "^6.26.3",
+        "babel-eslint": "^10.1.0",
+        "babel-loader": "^8.0.2",
+        "babel-preset-env": "^1.7.0",
+        "clean-webpack-plugin": "^0.1.19",
+        "css-loader": "^1.0.0",
+        "eslint": "^7.23.0",
+        "file-loader": "^2.0.0",
+        "html-webpack-plugin": "^3.2.0",
+        "husky": "^6.0.0",
+        "less": "^3.8.1",
+        "less-loader": "^4.1.0",
+        "mini-css-extract-plugin": "^0.4.4",
+        "style-loader": "^0.23.0",
+        "webpack": "^4.17.2",
+        "webpack-cli": "^3.1.0",
+        "webpack-dev-server": "^3.1.7",
+        "webpack-merge": "^4.1.4"
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "lint-staged"
+        }
+    },
+    "lint-staged": {
+        "*.js": "npm run lint"
     }
-  },
-  "lint-staged": {
-    "*.js": "npm run lint"
-  }
 }

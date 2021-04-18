@@ -11,6 +11,7 @@ export default class Selector {
             .on('click.stop', () => {});
         this.$viewdata = viewdata;
     }
+
     /**
      * 触发：overlayer的mousemove，单击表格单元格
      * 决定指标：
@@ -26,7 +27,9 @@ export default class Selector {
         if (!selectCoord) {
             return;
         }
-        const {left, top, width, height} = selectCoord;
+        const {
+            left, top, width, height,
+        } = selectCoord;
         this.areaEl.offset({
             width: width - gSelectorHeightBorderWidth,
             height: height - gSelectorHeightBorderWidth,

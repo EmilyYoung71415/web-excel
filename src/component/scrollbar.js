@@ -16,15 +16,17 @@ export default class Scrollbar {
                 }
             });
     }
+
     render() {
-        const {view, row} = this.$viewdata;
+        const {viewRect, row} = this.$viewdata;
         if (this.vertical) {
-            this.set(view.height() - row.height, this.$viewdata.rowTotalHeight());// 竖滚动条
+            this.set(viewRect.height - row.height, this.$viewdata.rowTotalHeight());// 竖滚动条
         }
         else {
             this.set(document.documentElement.clientWidth, this.$viewdata.colTotalWidth());// 横滚动条
         }
     }
+
     // 决定什么时候显示滚动条 viewDis 躺在 contentDis里
     set(viewDis, contentDis) {
         if (contentDis > viewDis) {
@@ -40,7 +42,8 @@ export default class Scrollbar {
         }
         return this;
     }
-    move(v) {// 调用el.scroll触发scroll事件
+
+    move(v) { // 调用el.scroll触发scroll事件
         this.el.scroll(v);
         return this;
     }

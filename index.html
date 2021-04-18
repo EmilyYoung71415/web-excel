@@ -1,36 +1,41 @@
 <!DOCTYPE html>
 <html style="font-size:20px">
+
 <head>
-  <meta charset="utf-8">
-  <title><%= htmlWebpackPlugin.options.title %></title>
+    <meta charset="utf-8">
+    <title>
+        <%= htmlWebpackPlugin.options.title %>
+    </title>
 </head>
+
 <body onload="load()">
     <div id="app">
         <div id="webexcel"></div>
     </div>
-  <script>
-    function load(){
-        webexcel(document.getElementById('webexcel'))
-        .loadData({
-            borders: [
-                [1, 'dashed', '#0366d6'],
-            ],
-            styles: [
-                { bgcolor: 'rgb(82, 196, 26)', bi: 0, color: '#FFF' },
-            ],
-            rowm:{// 特殊列 列高
-                1:{height:150}
-            },
-            colm:{
-                4:{width:40}
-            },
-            cellmm: {
-                1: {
-                    1: { text: '测试输入一些字符helloword', si: 0 },
-                },
-            },
-        })
-    }
-  </script>
+    <script>
+        function load() {
+            webexcel(document.getElementById('webexcel'))
+                .loadData({
+                    borders: [
+                        [1, 'dashed', '#0366d6'],
+                    ],
+                    styles: [
+                        { bgcolor: 'rgb(82, 196, 26)', bi: 0, color: '#FFF' },
+                    ],
+                    rowm: {// 特殊列 列高
+                        1: { height: 150 }
+                    },
+                    colm: {
+                        4: { width: 40 }
+                    },
+                    cellmm: {
+                        1: {
+                            1: { text: '测试输入一些字符helloword', si: 0 },
+                        },
+                    },
+                })
+        }
+    </script>
 </body>
+
 </html>

@@ -1,22 +1,52 @@
 import help from './utils/help';
 import onchange from './utils/onchange';
+// 表格基础设置：行总数、高度；表格基本样式
+const sheetOptions = {
+    pixelRatio: 1, // window.devicePixelRatio || 1,
+    viewRect: { // 整个表格容器大小 = canvas大小
+        height: window.innerHeight,
+        width: window.innerWidth,
+    },
+    row: { // 表格初始化 10行 每行25px高
+        len: 300,
+        height: 25,
+    },
+    col: {
+        len: 25,
+        width: 100,
+        indexWidth: 60, // 列索引栏宽度
+        minWidth: 60, // 伸缩最小宽度
+    },
+    style: {
+        bgcolor: '#ffffff',
+        align: 'left',
+        valign: 'top',
+        wrapText: true, // 文字分行
+        textDecoration: 'normal',
+        color: '#333333',
+        font: {
+            family: 'Arial',
+            size: 14,
+            bold: false,
+            italic: false,
+        },
+    },
+};
+// 表格状态数据：单元格数据、特殊行列setting、选区、滚动
 const defaultViewData = {
     fixedColWidth: 60,
     // fixedRowHeight: 160,
     rowm: {}, // Map<int, Row>, len
     colm: {}, // Map<int, Row>, len
     cellmm: {}, // Map<int, Map<int, Cell>>
-    styles: [],
-    borders: [],
+    styles: [], // RangeMan
+    borders: [], // // RangeMan
     scrollOffset: {x: 0, y: 0}, // 滚动物理距离
-    scrollIndexes: [0, 0], // 由滚动的物理距离计算出 滚动了多少单元格个数（行个数、列个数）
-    selectRectIndexes: null,
-    render: () => { }, // viewData改变之后 视图重新渲染
-    addHistory: () => { },
+    scrollIndexes: [0, 0], // [ri, ci] rowi, coli 由滚动的物理距离计算出 滚动了多少单元格个数（行个数、列个数）
+    selectRectIndexes: null, // [[sri, sci],[eri, eci]] startRowI,
+    // render: () => { }, // viewData改变之后 视图重新渲染
+    // addHistory: () => { },
 };
-
-// TODO:
-class History { }
 
 function proxyData(data) {
     Object.keys(data).forEach(key => {
@@ -39,25 +69,29 @@ function changeHandler(path, value, previousValue) {
 export default class ViewData {
     // sheet defaultoptions
     constructor(options) {
-        this.data = Object.assign(defaultViewData, options);
+        this.data = Object.assign(sheetOptions, defaultViewData, options);
         this.viewdata = onchange(this.data, changeHandler);
         // viewdata的访问代理
         proxyData.call(this, this.viewdata);// this.data.row 都可以通过 this.row访问
     }
+
     // 在constructor 和 loaddata里 都分别调用了render()
     loadData(data) {
         this.data = Object.assign(this.data, data);
     }
+
     colTotalWidth() {
         const {col, colm} = this;
         const [cmTotal, cmSize] = help.sum(colm, v => v.width || 0);
         return ((col.len - cmSize) * col.width) + cmTotal;
     }
+
     rowTotalHeight() {
         const {row, rowm} = this;
         const [rmTotal, rmSize] = help.sum(rowm, v => v.height || 0);
         return ((row.len - rmSize) * row.height) + rmTotal;
     }
+
     /**
      * 从表头开始遍历，到第rowlen行
      * 每经过一行，返回当前行：行index、行offsetY,当前行的行高
@@ -73,6 +107,7 @@ export default class ViewData {
         }
         return y;
     }
+
     colEach(colLen, cb) {
         let x = 0;
         for (let i = 0; i <= colLen; i += 1) {
@@ -83,23 +118,28 @@ export default class ViewData {
         }
         return x;
     }
-    getColWidth(index) {// 如果当前列未在特殊样式列 就是normal-size
+
+    getColWidth(index) { // 如果当前列未在特殊样式列 就是normal-size
         const {col, colm} = this;
         return colm[`${index}`] ? colm[`${index}`].width : col.width;
     }
+
     getRowHeight(index) {
         const {row, rowm} = this;
         return rowm[`${index}`] ? rowm[`${index}`].height : row.height;
     }
+
     // 计算选中的这一坨列的宽度
     colSumWidth(starIndex, endIndex) {
     // 传入table的索引 min max,获取每列宽度的函数
     // 返回当前范围 [index_colmin,index_max] 的列宽
         return help.rangeSum(starIndex, endIndex, i => this.getColWidth(i));
     }
+
     rowSumHeight(starIndex, endIndex) {
         return help.rangeSum(starIndex, endIndex, i => this.getRowHeight(i));
     }
+
     /**
      * 根据当前selector的 逻辑索引 [start单元格(行index，列index)， end单元格（行index，列index）]
      * 得到selector逻辑索引对应的 物理left\top
@@ -129,6 +169,7 @@ export default class ViewData {
             width,
         };
     }
+
     /**
      * 单元格逻辑索引 ->  物理定位 left、top
      * @param {*} ri 行index
@@ -142,6 +183,7 @@ export default class ViewData {
             left, top,
         };
     }
+
     /**
      * 维护变量：最新第一行索引=ri+1 scrollIndexes [ri, ci]
      * @param {*} offset 滚动的距离
@@ -186,8 +228,8 @@ export default class ViewData {
             this.scrollIndexes[1] = x > 0 ? ci : 0;
             scrollOffset.x = x1;
         }
-
     }
+
     // 根据鼠标坐标点，获得所在的cell矩形信息
     // (ri, ci, offsetX, offsetY, width, height)
     getCellRectWithIndexes(x, y, forSelector = true) {
@@ -214,7 +256,8 @@ export default class ViewData {
             ri, ci, left: left - col.indexWidth, top: top - row.height, width, height,
         };
     }
-    getCellRowByY(y) {// 根据y坐标获得所在行号
+
+    getCellRowByY(y) { // 根据y坐标获得所在行号
         const {row, scrollOffset} = this;
         const [ri, top, height] = help.rangeReduceIf(
             0,
@@ -222,13 +265,14 @@ export default class ViewData {
             row.height - scrollOffset.y, // top
             row.height, // 行高
             y,
-            i => this.getRowHeight(i)// 传入获取第i行行高的cb函数
+            i => this.getRowHeight(i) // 传入获取第i行行高的cb函数
         );
         if (top <= 0) {
             return {ri: 0, top: 0, height};
         }
         return {ri, top, height};
     }
+
     getCellColByX(x) {
         const {col, scrollOffset} = this;
         const [ci, left, width] = help.rangeReduceIf(
@@ -244,26 +288,31 @@ export default class ViewData {
         }
         return {ci, left, width};
     }
+
     setRowHeight(index, height) {
         this.rowm[index] = this.rowm[index] || {};
         this.rowm[index].height = height;
     // this.render();
     }
+
     setColWidth(index, width) {
         this.colm[index] = this.colm[index] || {};
         this.colm[index].width = width;
     // this.render();
     }
+
     setSelectRectIndexes(index) {
         this.selectRectIndexes = index;
         return this;
     }
+
     getCell(ri, ci) {
         if (this.cellmm[ri] && this.cellmm[ri][ci]) {
             return this.cellmm[ri][ci];
         }
         return null;
     }
+
     // 编辑完成 input的文字放进canvas里
     setCellText(ri, ci, itext) {
         const {cellmm} = this;

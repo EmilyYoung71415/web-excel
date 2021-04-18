@@ -1,5 +1,6 @@
 import {h} from '../baserender/element';
 import {mouseMoveUp} from '../event/index';
+
 export default class Resizer {
     constructor(vertical = false, minDistance) {
         this.el = h('div', `excel-resizer ${vertical ? 'vertical' : 'horizontal'}`)
@@ -14,6 +15,7 @@ export default class Resizer {
         this.vertical = vertical;
         this.moving = false;// 状态记录
     }
+
     hide() {
         this.el.offset({
             left: 0,
@@ -21,6 +23,7 @@ export default class Resizer {
         })
             .hide();
     }
+
     // rect : {top, left, width, height}
     // line : {width, height}
     show(rect, line) {
@@ -47,6 +50,7 @@ export default class Resizer {
             height: vertical ? line.height : 0,
         });
     }
+
     mousedownHandler(evt) {
         let startEvt = evt;
         const {

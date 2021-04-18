@@ -4,40 +4,49 @@ export class Draw {
         this.el = el;
         this.ctx = el.getContext('2d');
     }
+
     clear() {
         const {width, height} = this.el;
         this.ctx.clearRect(0, 0, width, height);
         return this;
     }
+
     attr(options) {
         Object.assign(this.ctx, options);
         return this;
     }
+
     save() {
         this.ctx.save();
         this.ctx.beginPath();
         return this;
     }
+
     restore() {
         this.ctx.restore();
         return this;
     }
+
     beginPath() {
         this.ctx.beginPath();
         return this;
     }
+
     translate(x, y) {
         this.ctx.translate(x, y);
         return this;
     }
+
     fillRect(x, y, w, h) {
         this.ctx.fillRect(x, y, w, h);
         return this;
     }
+
     fillText(text, x, y) {
         this.ctx.fillText(text, x, y);
         return this;
     }
+
     lineStyle(width, lineDash, color) {
         this.attr({
             lineWidth: width - 0.5,
@@ -46,6 +55,7 @@ export class Draw {
         this.ctx.setLineDash(lineDash);
         return this;
     }
+
     line(...xys) {
         const {ctx} = this;
         if (xys.length > 1) {
@@ -58,9 +68,12 @@ export class Draw {
             ctx.stroke();
         }
     }
+
     rect(box) {
         const {ctx} = this;
-        const {x, y, width, height, bgcolor} = box;
+        const {
+            x, y, width, height, bgcolor,
+        } = box;
         ctx.save();
         ctx.beginPath();
         ctx.rect(x, y, width, height);
@@ -93,6 +106,7 @@ export class Draw {
         }
         ctx.restore();
     }
+
     border(width, style, color) {
         const {ctx} = this;
         ctx.lineWidth = width - 0.5;
@@ -102,6 +116,7 @@ export class Draw {
         }
         return this;
     }
+
     /*
         txt: render text
         box: DrawBox
@@ -181,12 +196,15 @@ export class DrawBox {// 生成一个块
         this.borderBottom = null;
         this.borderLeft = null;
     }
+
     innerWidth() {
         return this.width - (this.padding * 2);
     }
+
     innerHeight() {
         return this.height - (this.padding * 2);
     }
+
     setBorders(b, bt, br, bb, bl) {
         this.border = b;// [1, 'dashed', '#0366d6']
         if (bt) {
@@ -202,6 +220,7 @@ export class DrawBox {// 生成一个块
             this.borderLeft = bl;
         }
     }
+
     // 根据对齐方式 返回在box书写的起点
     textx(align) {
         const {width, padding} = this;
@@ -217,6 +236,7 @@ export class DrawBox {// 生成一个块
         }
         return x;
     }
+
     texty(align) {
         const {height} = this;
         let {y} = this;

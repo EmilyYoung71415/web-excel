@@ -15,15 +15,26 @@ export default class OverLayer {
         this.el = this.$box.el;
         this.$viewdata = viewData;
     }
-    init({sheetRect, tableInnerRect}) {
-        this.$box.offset(sheetRect);// 包裹层
-        this.$innerbox.offset(tableInnerRect);// table内容层
+
+    render() {
+        const {row, col, viewRect} = this.$viewdata;
+        const {width, height} = viewRect;
+        const tableInnerRect = {
+            width: width - col.indexWidth,
+            height: height - row.height,
+            left: col.indexWidth,
+            top: row.height,
+        };
+        this.$box.offset(viewRect); // 包裹层
+        this.$innerbox.offset(tableInnerRect); // table内容层
     }
+
     on(...args) {
         this.$box.on(...args);
         return this;
     }
+
     checkFocusing(ev = {}) {
         return this.$box.el.contains(ev.target);
     }
-};
+}

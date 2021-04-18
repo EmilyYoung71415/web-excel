@@ -4,10 +4,12 @@ class Element {
         this.el.className = className;
         this.data = {};
     }
+
     children(...nodes) {
         nodes.forEach(node => this.child(node));
         return this;
     }
+
     child(node) {
         let temp = node;
         if (typeof node === 'string') {
@@ -19,6 +21,7 @@ class Element {
         this.el.append(temp);
         return this;
     }
+
     // TODO
     on(eventName, handler) {
     // on('mousemove',ev=>{})
@@ -43,6 +46,7 @@ class Element {
         });
         return this;
     }
+
     /** *
      * exp: ('display','none')
      *      ({
@@ -63,6 +67,7 @@ class Element {
         }
         return this.el.style[name];
     }
+
     // exp: xxel.attr({width:100px})
     attr(key, value) {
         if (value !== undefined) {
@@ -76,6 +81,7 @@ class Element {
         });
         return this;
     }
+
     // 接受obj设置元素的 top left  width height
     offset(obj) {
         const {
@@ -94,38 +100,48 @@ class Element {
             width: offsetWidth,
         };
     }
+
     hide() {
         this.css('display', 'none');
         return this;
     }
+
     show() {
         this.css('display', 'block');
         return this;
     }
+
     box() {
         return this.el.getBoundingClientRect();
     }
+
     parent() {
         return this.el.parentNode;
     }
+
     className() {
         return this.el.className;
     }
+
     addClass(name) {
         this.el.classList.add(name);
         return this;
     }
+
     hasClass(name) {
         return this.el.classList.contains(name);
     }
+
     removeClass(name) {
         this.el.classList.remove(name);
         return this;
     }
+
     toggleClass(name) {
         this.el.classList.toggle(name);
         return this;
     }
+
     scroll(v) {
         const {el} = this;
         if (v !== undefined) {
@@ -138,6 +154,7 @@ class Element {
         }
         return {left: el.scrollLeft, top: el.scrollTop};
     }
+
     val(v) {
         if (v !== undefined) {
             this.el.value = v;

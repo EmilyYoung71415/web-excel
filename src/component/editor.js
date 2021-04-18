@@ -32,11 +32,14 @@ export default class Editor {
         this.el.hide();
         this.textEl.val('');
     }
+
     render() {
         const {textEl, el, $viewdata} = this;
         const [[ri, ci]] = $viewdata.selectRectIndexes;
         const cell = $viewdata.getCell(ri - 1, ci - 1);
-        const {left, top, width, height} = $viewdata.getSelectRect();
+        const {
+            left, top, width, height,
+        } = $viewdata.getSelectRect();
 
         if (cell) {
             textEl.val(cell.text || '');

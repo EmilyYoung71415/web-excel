@@ -47,29 +47,14 @@ export default class Sheet {
         _.sheetInitEvent.call(this);
         _.sheetReset.call(this);
     }
+
     loadData(data) {
         this.$viewdata.loadData(data);
         this.table.render();
     }
+
     // resize时，视窗发生变化，重新reload
     sheetReload() {
         _.sheetReset.call(this);
-    }
-    // sheet的宽高
-    getSheetRect() {
-        const {width} = this.$el.box();
-        const height = this.$viewdata.view.height();
-        return {width, height};
-    }
-    // table内容页 空出了 索引栏空间
-    getTableInnerOffset() {
-        const {row, col} = this.$viewdata;
-        const {width, height} = this.getSheetRect();
-        return {
-            width: width - col.indexWidth,
-            height: height - row.height,
-            left: col.indexWidth,
-            top: row.height,
-        };
     }
 }

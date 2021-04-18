@@ -2,12 +2,13 @@
  * @file table canvas类的私有方法
  * 只能由类内部调用 且 类调用时传入类的当前上下文this
  * export:
- *  renderContentGrid：画出画布需要的每行每列的单元格-列总宽 & 行总高
+ *  renderContentGrid： 画出画布需要的每行每列的单元格-列总宽 & 行总高
  *  renderFixedHeaders：表格的索引栏， 行列
- *  renderContent：给每个单元格赋值上：样式、数据
+ *  renderContent：     给每个单元格赋值上：样式、数据
  */
 import alphabet from '../config/alphabet';
 import {DrawBox} from '../baserender/canvas';
+
 const gCellPaddingWidth = 5;
 
 /**
@@ -16,7 +17,9 @@ const gCellPaddingWidth = 5;
 
 export function renderContentGrid() {
     const {draw, $viewdata} = this;
-    const {row, col, scrollOffset, fixedColWidth} = $viewdata;
+    const {
+        row, col, scrollOffset, fixedColWidth,
+    } = $viewdata;
     draw.save();
     draw.attr({
         lineWidth: 0.5,
@@ -45,7 +48,9 @@ export function renderContentGrid() {
 
 export function renderFixedHeaders() {
     const {draw, $viewdata} = this;
-    const {row, col, scrollOffset, fixedColWidth} = $viewdata;
+    const {
+        row, col, scrollOffset, fixedColWidth,
+    } = $viewdata;
     draw.save();
     // 背景颜色
     draw.attr({fillStyle: '#f4f5f8'})
@@ -116,19 +121,7 @@ function renderCell(rindex, cindex, cell) {
     const {
         styles, row, scrollOffset, fixedColWidth,
     } = $viewdata;
-    // FIXME: renderCell是在索引栏时 就不要再画了
-    // 修正方案
-    //      way1:  判断，当前绘制的单元格 是否在滚动之外了，如果是 则直接return；
-    //      way2： scroll滚动 不是靠笔触移动 还是 rendertext的变化
     const {x: scrollOffsetX, y: scrollOffsetY} = scrollOffset;
-    if (scrollOffsetX || scrollOffsetY) {
-        const marginLeft = $viewdata.colEach(cindex);
-        const marginTop = $viewdata.rowEach(rindex);
-        if (marginLeft <= scrollOffsetX || marginTop <= scrollOffsetY) {
-            return;
-        }
-    }
-
     const style = styles[cell.si];
     // 传入逻辑索引返回得到单元格坐标、长宽,以此来生成drawbox
     const dbox = getDrawBox.call(this, rindex, cindex);

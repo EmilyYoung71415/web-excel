@@ -1,4 +1,3 @@
-import {sheetOptions} from './config/sheetOptions';
 import Sheet from './component/sheet';
 import ViewData from './viewdata.js';
 import './index.less';
@@ -14,13 +13,9 @@ import './index.less';
 */
 class Webexcel {
     constructor(el, options = {}) {
-        // 表格的基础设置；单元格初始大小、数量等
-        const configOptions = Object.assign(sheetOptions, options);
         // 数据模型层model：viewdata
         // 拦截监听变化 & 访问代理
-        let $viewdata = new ViewData(configOptions);
-        // 根据sheetoption &  userdata
-        // 渲染出 初始化的表格
+        const $viewdata = new ViewData(options);
         /**
          * 1、initDom创建容器：
          *  div.id=webexcel
@@ -39,6 +34,7 @@ class Webexcel {
          */
         this.sheet = new Sheet(el, $viewdata);
     }
+
     loadData(data) {
         this.sheet.loadData(data);
         return this;
@@ -52,3 +48,6 @@ if (window) {
 }
 
 export default webexcel;
+export {
+    webexcel,
+};

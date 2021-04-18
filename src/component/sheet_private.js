@@ -59,8 +59,10 @@ function overlayerMousemove(ev) {
 }
 
 function rowResizerFinished(cRect, distance) {
-    const {ri, height} = cRect;
-    const {table, selector, $viewdata, verticalScrollbar} = this;
+    const {ri} = cRect;
+    const {
+        table, selector, $viewdata, verticalScrollbar,
+    } = this;
     $viewdata.setRowHeight(ri - 1, distance);
     table.render();
     selector.render();
@@ -68,8 +70,10 @@ function rowResizerFinished(cRect, distance) {
 }
 
 function colResizerFinished(cRect, distance) {
-    const {ci, width} = cRect;
-    const {table, selector, $viewdata, horizontalScrollbar} = this;
+    const {ci} = cRect;
+    const {
+        table, selector, $viewdata, horizontalScrollbar,
+    } = this;
     $viewdata.setColWidth(ci - 1, distance);
     table.render();
     selector.render();
@@ -123,7 +127,7 @@ function overlayerMousedown(evt) {
 
 function selectorSetStart(evt) {
     const {table, selector, $viewdata} = this;
-    const {// 根据鼠标坐标获取单元格位置
+    const { // 根据鼠标坐标获取单元格位置
         ri, ci,
     } = $viewdata.getCellRectWithIndexes(evt.offsetX, evt.offsetY);
     if (ri === 0 && ci === 0) {
@@ -160,7 +164,9 @@ function selectorMove(keycode) {
     } = this;
     const {col, row} = $viewdata;
     let [[sri, sci], [eri, eci]] = $viewdata.selectRectIndexes;
-    const moveMap = {37: 'left', 38: 'up', 39: 'right', 40: 'down', 9: 'right', 12: 'down'};
+    const moveMap = {
+        37: 'left', 38: 'up', 39: 'right', 40: 'down', 9: 'right', 12: 'down',
+    };
     const dir = moveMap[keycode];
     if (dir === 'left' && sci > 1) {
         sci -= 1;
@@ -201,10 +207,8 @@ export function sheetReset() {
     const {
         table, overlayer, verticalScrollbar, horizontalScrollbar,
     } = this;
-    const sheetRect = this.getSheetRect();
-    const tableInnerRect = this.getTableInnerOffset();
-    table.init(sheetRect);
-    overlayer.init({sheetRect, tableInnerRect});
+    table.render();
+    overlayer.render();
     verticalScrollbar.render();
     horizontalScrollbar.render();
 }

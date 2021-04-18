@@ -1,7 +1,6 @@
 /** *
  * forked from：https://github.com/sindresorhus/on-change
  */
-'use strict';
 
 const PATH_SEPARATOR = '.';
 
@@ -44,7 +43,7 @@ const shallowClone = value => {
         return value.slice();
     }
 
-    return Object.assign({}, value);
+    return {...value};
 };
 
 const proxyTarget = Symbol('ProxyTarget');
