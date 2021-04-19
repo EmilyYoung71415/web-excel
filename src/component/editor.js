@@ -24,10 +24,7 @@ export default class Editor {
     }
 
     clear(change) {
-    // FIXME: 编辑时清除当前单元格为空 会清除失败
-        if (!/^\s*$/.test(this.inputText)) {
-            change(this.inputText);
-        }
+        change(this.inputText);
         this.inputText = '';
         this.el.hide();
         this.textEl.val('');
@@ -42,7 +39,9 @@ export default class Editor {
         } = $viewdata.getSelectRect();
 
         if (cell) {
-            textEl.val(cell.text || '');
+            const rendertext = cell.text || '';
+            this.inputText = rendertext;
+            textEl.val(rendertext);
         }
 
         el.offset({

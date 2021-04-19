@@ -201,6 +201,16 @@ function setCellText(text) {
     table.render();
 }
 
+function handleEditFinished() {
+    if (this.$viewdata.status.editing) {
+        this.editor.clear(itext => {
+            this.$viewdata.status.editing = false;
+            // 将itext绘制在表格里
+            setCellText.call(this, itext);
+        });
+    }
+}
+
 /**
  * 初始化载入 & window.resize时触发:
  * sheet表格初始化渲染：
@@ -224,14 +234,9 @@ export function sheetInitEvent() {
             overlayerMousemove.call(this, evt);
         })
         .on('mousedown', evt => {
-            // TODO: 回车完成编辑
             if (evt.detail !== 2) {
                 // 退出编辑状态，editor将输入框的信息itext返回给sheet
-                this.editor.clear(itext => {
-                    this.$viewdata.status.editing = false;
-                    // 将itext绘制在表格里
-                    setCellText.call(this, itext);
-                });
+                handleEditFinished.call(this);
                 // 退出编辑之后 再 发生 mousedown，高亮下一个selector
                 // 选中单元格
                 overlayerMousedown.call(this, evt);
@@ -268,15 +273,20 @@ export function sheetInitEvent() {
         this.$viewdata.status.focusing = !!this.overlayer.checkFocusing(ev);
     });
     bind(window, 'keydown', ev => {
+        const keyCode = ev.keyCode;
         if (ev.ctrlKey) {
             // todo:复制粘贴剪切
         }
         else {
             // 上下左右 tab enter
             const directionCode = [37, 38, 39, 40, 9, 13];
-            if (directionCode.includes(ev.keyCode)) {
-                selectorMove.call(this, ev.keyCode);
+            if (directionCode.includes(keyCode)) {
+                selectorMove.call(this, keyCode);
                 ev.preventDefault();
+            }
+            // 回车
+            if (keyCode === 13) {
+                handleEditFinished.call(this);
             }
         }
     });
