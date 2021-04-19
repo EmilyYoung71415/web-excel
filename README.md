@@ -46,7 +46,7 @@
 
 option配置
 
-```json
+```js
 // default options
 {
     rowm: {// 特殊列 列高
