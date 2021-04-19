@@ -33,8 +33,9 @@ export default class Table {
             this.isUpdating = true;
         }
         this.clear();
-        _.renderContentGrid.call(this); // 绘制content格子
-        _.renderContent.call(this); // 将表格数据填充进单元格
+        // 绘制顺序决定渲染层次(顶层->底层)：fixedheader > grid > content
+        _.renderContent.call(this);      // 将表格数据填充进单元格
+        _.renderContentGrid.call(this);  // 绘制content格子
         _.renderFixedHeaders.call(this); // 绘制第0行/第0列的 索引栏
     }
 
