@@ -20,8 +20,7 @@ export default class Resizer {
         this.el.offset({
             left: 0,
             top: 0,
-        })
-            .hide();
+        }).hide();
     }
 
     // rect : {top, left, width, height}

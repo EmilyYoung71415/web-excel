@@ -29,6 +29,8 @@ function overlayerMousemove(ev) {
     } = this;
     // 如果鼠标不是在索引栏，则return;
     if (evOffsetX > $viewdata.fixedColWidth && evOffsetY > $viewdata.row.height) {
+        colResizer.hide();
+        rowResizer.hide();
         return;
     }
     if (ev.buttons !== 0) {
