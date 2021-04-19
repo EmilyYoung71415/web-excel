@@ -18,12 +18,12 @@ export default class Scrollbar {
     }
 
     render() {
-        const {viewRect, row} = this.$viewdata;
+        const {viewRect} = this.$viewdata;
         if (this.vertical) {
-            this.set(viewRect.height - row.height, this.$viewdata.rowTotalHeight());// 竖滚动条
+            this.set(viewRect.height, this.$viewdata.rowTotalHeight());// 竖滚动条
         }
         else {
-            this.set(document.documentElement.clientWidth, this.$viewdata.colTotalWidth());// 横滚动条
+            this.set(viewRect.width, this.$viewdata.colTotalWidth());// 横滚动条
         }
     }
 

@@ -33,7 +33,7 @@ function initDom($target) {
         this.horizontalScrollbar.el,
         this.editor.el
     );
-    const scrollbarpadding = 10;
+    const scrollbarpadding = 12;
     this.$el.css({
         width: `${viewRect.width + scrollbarpadding}px`,
         height: `${viewRect.height + scrollbarpadding}px`,
@@ -55,7 +55,7 @@ export default class Sheet {
 
     loadData(data) {
         this.$viewdata.loadData(data);
-        this.table.render();
+        _.sheetReset.call(this);
     }
 
     // resize时，视窗发生变化，重新reload
