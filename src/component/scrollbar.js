@@ -29,6 +29,7 @@ export default class Scrollbar {
 
     // 决定什么时候显示滚动条 viewDis 躺在 contentDis里
     set(viewDis, contentDis) {
+        // TODO:  viewrect.height >= clientHeight， 横向滚动条fixed视图bottom定位
         if (contentDis > viewDis) {
             const longKey = this.vertical ? 'height' : 'width';
             const shortKey = this.vertical ? 'width' : 'height';

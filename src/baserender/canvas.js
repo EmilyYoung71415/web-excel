@@ -125,7 +125,7 @@ export class Draw {
     }
 
     /*
-        txt: render text
+        txt: 'xxxx测试测试'
         box: DrawBox
         attr: {
             align: left | center | right
@@ -141,6 +141,13 @@ export class Draw {
         }
         isWrapText: wrap text
     */
+    /**
+     * @param {*} txt           渲染文本
+     * @param {*} box           box实例
+     * @param {*} attr          属性：对齐、字体
+     * @param {*} isWrapText    换行
+     * TODO:  之后分离成单独的文字排版类，支持超出省略、溢出截断等
+     */
     text(txt, box, attr = {}, isWrapText = true) {
         const {ctx} = this;
         const {
@@ -157,22 +164,27 @@ export class Draw {
         });
         const txtWidth = ctx.measureText(txt).width;
         // canvas的手动换行处理 笔触提笔重新开头
-        if (isWrapText && txtWidth > box.innerWidth()) {
+        const boxWidth = box.innerWidth();
+        if (isWrapText && txtWidth > boxWidth) {
             // len：当前串的像素长度 start:新一行以哪个字符开始
-            const textLine = {len: 0, start: 0};
-            for (let i = 0; i < txt.length; i += 1) {
+            const textLine = {len: 0, start: 0, height: 0};
+            const textLineHeight = font.size + 2;
+            for (let i = 0; i < txt.length; i++) {
                 textLine.len += ctx.measureText(txt[i]).width;
-                if (textLine.len >= box.innerWidth()) {
+                textLine.height += ctx.measureText(txt[i]).height;
+                if (textLine.len >= boxWidth) { // 换行渲染剩余文字
                     const cutTxt = txt.substring(textLine.start, i);
                     ctx.fillText(cutTxt, tx, ty);
-                    ty += font.size + 2;
+                    ty += textLineHeight;
                     textLine.len = 0;
+                    textLine.height += textLineHeight;
                     textLine.start = i;
                 }
             }
             if (textLine.len > 0) {
                 ctx.fillText(txt.substring(textLine.start), tx, ty);
             }
+            // TODO:超出单元格的高度则文字省略: 首次渲染时是截断的，但是当动态的input编辑输入回调时是未截断
         }
         else {
             ctx.fillText(txt, tx, ty);

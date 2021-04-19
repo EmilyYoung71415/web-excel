@@ -85,10 +85,11 @@ export function renderFixedHeaders() {
     } = fitWithPixelRatio($viewdata);
     draw.save();
     // 背景颜色
+    // TODO: fixedheader 背景rect应该是当前视图内的 表格列的列总宽
     draw.attr({fillStyle: style.fixedheaderstyle.bgcolor})
     // 填充背景
-        .fillRect(0, 0, fixedColWidth, $viewdata.rowTotalHeight() * gPixelRatio + row.height)
-        .fillRect(0, 0, $viewdata.colTotalWidth() * gPixelRatio + fixedColWidth, row.height);
+        .fillRect(0, 0, fixedColWidth, $viewdata.viewRect.height * gPixelRatio)
+        .fillRect(0, 0, $viewdata.viewRect.width * gPixelRatio, row.height);
     // 字体
     draw.attr(style.fixedheaderstyle);
     // 第一列 生成行索引

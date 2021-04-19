@@ -285,6 +285,7 @@ export function sheetInitEvent() {
                 ev.preventDefault();
             }
             // 回车
+            // FIXME: 编辑时：回车结束编辑 or 回车是富文本的回车？ 业界做法option + 回车才是编辑回车
             if (keyCode === 13) {
                 handleEditFinished.call(this);
             }

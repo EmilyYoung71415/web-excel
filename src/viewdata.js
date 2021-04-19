@@ -10,11 +10,11 @@ const sheetOptions = {
     },
     pixelRatio: window.devicePixelRatio || 1,
     viewRect: { // 整个表格容器大小 = canvas大小
-        height: window.innerHeight,
-        width: window.innerWidth,
+        height: 400, // window.innerHeight,
+        width: 800, // window.innerWidth,
     },
     row: { // 表格初始化 10行 每行25px高
-        len: 10,
+        len: 20,
         height: 25,
     },
     col: {
