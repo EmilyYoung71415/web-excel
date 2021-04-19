@@ -1,5 +1,6 @@
 @border-style: 1px solid #e0e2e4;
 @icon-size: 18px;
+
 // <div id="app">
 //     <div id="webexcel">
 //         <div class="web-excel">
@@ -32,6 +33,7 @@ body {
 }
 
 .web-excel {
+    position: relative;
     font-size: 14px;
     line-height: normal;
     user-select: none;
@@ -39,12 +41,13 @@ body {
     font-family: Roboto, Helvetica, Arial, sans-serif;
     box-sizing: content-box;
     background: #fff;
+    border: 2px solid red;
 }
 
 .excel-table {
     position: relative;
     overflow: hidden;
-    height: 100%;
+    // height: 100%;
     line-height: 0;
 }
 
@@ -52,65 +55,77 @@ body {
 .excel-resizer {
     position: absolute;
     z-index: 11;
-    
+
     .excel-resizer-hover {
-      background-color: rgba(75, 137, 255, .25);
+        background-color: rgba(75, 137, 255, .25);
     }
+
     .excel-resizer-line {
-      position: absolute;
+        position: absolute;
     }
-    
+
     &.horizontal {
-      cursor: row-resize;
-      .excel-resizer-line {
-        border-bottom: 2px dashed rgb(75, 137, 255);
-        left: 0;
-        bottom: 0;
-      }
+        cursor: row-resize;
+
+        .excel-resizer-line {
+            border-bottom: 2px dashed rgb(75, 137, 255);
+            left: 0;
+            bottom: 0;
+        }
     }
+
     &.vertical {
-      cursor: col-resize;
-      .excel-resizer-line {
-        border-right: 2px dashed rgb(75, 137, 255);
-        top: 0;
-        right: 0;
-      }
+        cursor: col-resize;
+
+        .excel-resizer-line {
+            border-right: 2px dashed rgb(75, 137, 255);
+            top: 0;
+            right: 0;
+        }
     }
 }
-body::-webkit-scrollbar{
-    background:transparent;
+
+body::-webkit-scrollbar {
+    background: transparent;
 }
+
 /* scrollbar */
 .excel-scrollbar {
     position: absolute;
-    bottom: 0;
-    right: 0;
     opacity: 0.85;
     z-index: 12;
-    &::-webkit-scrollbar{
+
+    &::-webkit-scrollbar {
         width: 8px;
         height: 8px;
         background: rgba(75, 137, 255, 0.2);
     }
+
     &::-webkit-scrollbar-thumb {
         background: rgb(75, 137, 255);
         border-radius: 6px;
     }
+
     &::-webkit-scrollbar-corner {
-        background: rgba(75, 137, 255,.2);
+        background: rgba(75, 137, 255, .2);
     }
+
     &.horizontal {
-      // right: 15px;
-      overflow-x: scroll;
-      overflow-y: hidden;
+        bottom: 0;
+        left: 0;
+        overflow-x: scroll;
+        overflow-y: hidden;
     }
+
     &.vertical {
-      // bottom: 15px;
-      overflow-x: hidden;
-      overflow-y: scroll;
+        top: 0;
+        right: 0;
+        overflow-x: hidden;
+        overflow-y: scroll;
     }
+
     &:hover {
-      opacity: .85;
+        opacity: .85;
     }
 }
 
@@ -120,6 +135,7 @@ body::-webkit-scrollbar{
     left: 0;
     top: 0;
     z-index: 10;
+
     .excel-overlayer-content {
         position: absolute;
         overflow: hidden;
@@ -128,18 +144,21 @@ body::-webkit-scrollbar{
         height: 100%;
     }
 }
+
 /* excel-selector */
 .excel-selector {
     position: absolute;
     left: 0;
     top: 0;
     z-index: 11;
+
     .excel-selector-area {
         position: absolute;
         border: 2px solid rgb(75, 137, 255);
         background: rgba(75, 137, 255, .1);
         pointer-events: none;
     }
+
     .excel-selector-corner {
         position: absolute;
         cursor: crosshair;
@@ -161,7 +180,7 @@ body::-webkit-scrollbar{
     border: 2px solid rgb(75, 137, 255);
     line-height: 0;
     z-index: 100;
-  
+
     textarea {
         box-sizing: content-box;
         border: none;

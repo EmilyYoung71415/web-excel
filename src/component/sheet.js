@@ -8,7 +8,7 @@ import {h} from '../baserender/element';
 import * as _ from './sheet_private';
 
 function initDom($target) {
-    const {row, col} = this.$viewdata;
+    const {row, col, viewRect} = this.$viewdata;
     this.$el = h('div', 'web-excel');
     this.table = new Table(this.$viewdata);
     // resizer
@@ -33,6 +33,12 @@ function initDom($target) {
         this.horizontalScrollbar.el,
         this.editor.el
     );
+    const scrollbarpadding = 10;
+    this.$el.css({
+        width: `${viewRect.width + scrollbarpadding}px`,
+        height: `${viewRect.height + scrollbarpadding}px`,
+        overflow: 'hidden',
+    });
     // 根节点载入组件节点
     $target.appendChild(this.$el.el);
 }

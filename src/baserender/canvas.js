@@ -12,7 +12,14 @@ export class Draw {
     }
 
     attr(options) {
-        Object.assign(this.ctx, options);
+        let renderfont = '';
+        if (options.font) {
+            const font = options.font;
+            renderfont = `${font.italic ? 'italic' : ''} ${font.bold ? 'bold' : ''} ${font.size}px ${font.name}`;
+        };
+        Object.assign(this.ctx, options, {
+            font: renderfont,
+        });
         return this;
     }
 

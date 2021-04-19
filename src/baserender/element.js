@@ -1,3 +1,4 @@
+import {isObj} from '../utils';
 class Element {
     constructor(tag, className = '') {
         this.el = document.createElement(tag);
@@ -55,7 +56,7 @@ class Element {
      *      })
      */
     css(name, value) {
-        if (Array.isArray(name)) {
+        if (isObj(name)) {
             Object.keys(name).forEach(k => {
                 this.el.style[k] = name[k];
             });

@@ -8,17 +8,17 @@ const sheetOptions = {
         editing: false,   // 编辑中： 在聚焦前提下
         scrolling: false, // 滚动中
     },
-    pixelRatio: 1, // window.devicePixelRatio || 1,
+    pixelRatio: window.devicePixelRatio || 1,
     viewRect: { // 整个表格容器大小 = canvas大小
         height: window.innerHeight,
         width: window.innerWidth,
     },
     row: { // 表格初始化 10行 每行25px高
-        len: 300,
+        len: 10,
         height: 25,
     },
     col: {
-        len: 25,
+        len: 15,
         width: 100,
         indexWidth: 60, // 列索引栏宽度
         minWidth: 60, // 伸缩最小宽度
@@ -30,6 +30,20 @@ const sheetOptions = {
         wrapText: true, // 文字分行
         textDecoration: 'normal',
         color: '#333333',
+        contentLineSize: 0.5,
+        contentLineColor: '#d0d0d0',
+        fixedheaderstyle: {
+            bgcolor: '#f4f5f8',
+            textAlign: 'center',
+            textBaseline: 'middle',
+            font: {
+                size: 12,
+                family: 'sans-serif',
+            },
+            fillStyle: '#585757',
+            lineWidth: 0.5,
+            strokeStyle: '#d0d0d0',
+        },
         font: {
             family: 'Arial',
             size: 14,
@@ -78,7 +92,7 @@ export default class ViewData {
         this.data = Object.assign(sheetOptions, defaultViewData, options);
         this.viewdata = onchange(this.data, changeHandler);
         // viewdata的访问代理
-        proxyData.call(this, this.viewdata);// this.data.row 都可以通过 this.row访问
+        proxyData.call(this, this.data);// this.data.row 都可以通过 this.row访问
     }
 
     // 在constructor 和 loaddata里 都分别调用了render()
@@ -216,7 +230,7 @@ export default class ViewData {
             }
             // 只要产生了滚动都至少会滚动一行
             this.scrollIndexes[0] = y > 0 ? ri : 0;// ri+1是最新第一行索引
-            scrollOffset.y = y1;
+            scrollOffset.y = y1 * this.pixelRatio;
         }
         if (x || x === 0) {
             const [ci, left, curColWidth] = help.rangeReduceIf(
@@ -232,7 +246,7 @@ export default class ViewData {
                 x1 += curColWidth;
             }
             this.scrollIndexes[1] = x > 0 ? ci : 0;
-            scrollOffset.x = x1;
+            scrollOffset.x = x1 * this.pixelRatio;
         }
     }
 
@@ -298,13 +312,11 @@ export default class ViewData {
     setRowHeight(index, height) {
         this.rowm[index] = this.rowm[index] || {};
         this.rowm[index].height = height;
-    // this.render();
     }
 
     setColWidth(index, width) {
         this.colm[index] = this.colm[index] || {};
         this.colm[index].width = width;
-    // this.render();
     }
 
     setSelectRectIndexes(index) {

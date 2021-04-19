@@ -14,14 +14,16 @@ export default class Table {
     }
 
     init() {
-        // 将canvas2倍屏 然后css缩小scale
-        // TODO: canvas高清处理
         const {pixelRatio, viewRect} = this.$viewdata;
+        // 根据pixelRatio进行高清适配
         const cssText = [
             `transform:scale(${1 / pixelRatio})`,
             'transform-origin:0 0',
         ].join(';');
-        this.$box.attr(viewRect);
+        this.$box.attr({
+            width: viewRect.width * pixelRatio,
+            height: viewRect.height * pixelRatio,
+        });
         this.$box.css('cssText', cssText);
     }
 
