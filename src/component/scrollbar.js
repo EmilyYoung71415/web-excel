@@ -1,4 +1,5 @@
 import {h} from '../baserender/element';
+import {throttle} from '../utils';
 
 export default class Scrollbar {
     constructor(vertical = true, $viewdata) {
@@ -8,13 +9,13 @@ export default class Scrollbar {
         this.el = h('div', `excel-scrollbar ${vertical ? 'vertical' : 'horizontal'}`)
             .child(this.contentEl = h('div', ''))
             // 滚动方式1:鼠标在滚动条上移动
-            .on('scroll.stop', ev => {
+            .on('scroll.stop', throttle(ev => {
                 // 移动距离
                 const {scrollTop, scrollLeft} = ev.target;
                 if (this.moveFn) {
                     this.moveFn(this.vertical ? scrollTop : scrollLeft, ev);
                 }
-            });
+            }));
     }
 
     render() {
