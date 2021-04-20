@@ -34,7 +34,9 @@ export default class Table {
         }
         this.clear();
         // 绘制顺序决定渲染层次(顶层->底层)：fixedheader > grid > content
+        performance.mark('tablerender-content0');
         _.renderContent.call(this);      // 将表格数据填充进单元格
+        performance.measure('表格绘制', 'tablerender-content0');
         _.renderContentGrid.call(this);  // 绘制content格子
         _.renderFixedHeaders.call(this); // 绘制第0行/第0列的 索引栏
     }

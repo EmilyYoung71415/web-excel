@@ -1,7 +1,9 @@
 import help from './utils/help';
 import onchange from './utils/onchange';
+import {performanceLog} from './utils/log';
 // 表格基础设置：行总数、高度；表格基本样式
 const sheetOptions = {
+    triggerLoaded: false,
     status: {
         peaceful: true,   // 静静地展示
         focusing: false,  // 聚焦
@@ -14,7 +16,7 @@ const sheetOptions = {
         width: 800, // window.innerWidth,
     },
     row: { // 表格初始化 10行 每行25px高
-        len: 20,
+        len: 300,
         height: 25,
     },
     col: {
@@ -81,23 +83,33 @@ function proxyData(data) {
     });
 }
 
-function changeHandler(path, value, previousValue) {
+function changeHandler(path, value, prevValue) {
+    if (!this.triggerLoaded) {
+        return;
+    }
     // this 完整的viewdata对象
     // 将历史记录放入 dep 将table的render放入
-    // console.log(this);
+    console.log('%c viewdatachanged', 'color:blue', {
+        path,
+        value: JSON.stringify(value),
+        prevValue: JSON.stringify(prevValue),
+    });
+    performanceLog();
 }
 export default class ViewData {
     // sheet defaultoptions
     constructor(options) {
-        this.data = Object.assign(sheetOptions, defaultViewData, options);
-        this.viewdata = onchange(this.data, changeHandler);
+        const data = Object.assign(sheetOptions, defaultViewData, options);
+        this.data = onchange(data, changeHandler);
         // viewdata的访问代理
         proxyData.call(this, this.data);// this.data.row 都可以通过 this.row访问
     }
 
     // 在constructor 和 loaddata里 都分别调用了render()
     loadData(data) {
-        this.data = Object.assign(this.data, data);
+        this.data = Object.assign(this.data, data, {
+            triggerLoaded: true,
+        });
     }
 
     colTotalWidth() {
