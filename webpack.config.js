@@ -7,11 +7,10 @@ const resolve = dir => path.join(__dirname, '..', dir);
 
 module.exports = {
     entry: {
-        webexcel: './src/index.js',
+        xexcel: './src/index.ts',
     },
     plugins: [
         new CleanWebpackPlugin(['dist']),
-        //  you should know that the HtmlWebpackPlugin by default will generate its own index.html
         new HtmlWebpackPlugin({
             template: './index.html',
             title: 'web-excel',
@@ -24,14 +23,12 @@ module.exports = {
         filename: '[name].js',
         path: path.resolve(__dirname, 'dist'),
     },
+    devtool: 'inline-source-map',
     module: {
         rules: [
             {
-                test: /\.js$/,
-                use: [
-                    'babel-loader',
-                ],
-                include: [resolve('src'), resolve('test')],
+                test: /\.ts$/,
+                use: 'babel-loader',
             },
             {
                 test: /\.css$/,
@@ -49,18 +46,9 @@ module.exports = {
                     'less-loader',
                 ],
             },
-            {
-                test: /\.(png|svg|jpg|gif)$/,
-                use: [
-                    'file-loader',
-                ],
-            },
-            {
-                test: /\.(woff|woff2|eot|ttf|otf)$/,
-                use: [
-                    'file-loader',
-                ],
-            },
         ],
+    },
+    resolve: {
+        extensions: ['.ts', '.js'],
     },
 };

@@ -1,17 +1,14 @@
 <!DOCTYPE html>
-<html style="font-size:20px">
-
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>
-        <%= htmlWebpackPlugin.options.title %>
-    </title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
 </head>
-
 <body onload="load()">
-    <div id="app">
-        <div id="webexcel"></div>
-    </div>
+    <div id="app"></div>
+    <script src="xexcel.js"></script>
     <script>
         function load() {
             webexcel(document.getElementById('webexcel'))
@@ -38,5 +35,4 @@
         }
     </script>
 </body>
-
 </html>

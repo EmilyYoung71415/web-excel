@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "target": "ES2015",
+        "module": "commonJS",
+        "removeComments": true,
+        "sourceMap": false,
+        "declaration": true,
+        "declarationMap": false,
+        // Compile to lib
+        "rootDir": "src",
+        "importHelpers": true,
+        "pretty": true
+    },
+    "include": [
+        "src/*"
+    ],
+    "exclude": [
+    ]
+}

@@ -12,17 +12,18 @@ module.exports = merge(common, {
             title: 'web-excel',
         }),
         new MiniCssExtractPlugin({
-            // Options similar to the same options in webpackOptions.output
-            // both options are optional
             filename: '[name].[contenthash].css',
             // chunkFilename: devMode ? '[id].[hash].css' : '[id].css',
         }),
     ],
     output: {
-        filename: '[name].[contenthash].js',
+        filename: '[name].js',
     },
     devtool: 'inline-source-map',
     devServer: {
-        contentBase: './dist',
+        // contentBase: path.join(__dirname, 'example'),
+        compress: true,
+        port: 8081,
+        host: 'localhost',
     },
 });
