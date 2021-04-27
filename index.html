@@ -7,31 +7,68 @@
     <title>Document</title>
 </head>
 <body onload="load()">
-    <div id="app"></div>
+    <div id="app">
+        <!-- <div class="header-toolbar">
+            <ul>
+                更多
+                <li>
+                    <span>字号</span>
+                    <ul>
+                        <li>14px</li>
+                    </ul>
+                </li>
+                <li>
+                    <span>B</span>
+                </li>
+                <li>
+                    <span>背景颜色</span>
+                </li>
+            </ul>
+        </div>
+        <div class="main-table">
+            <canvas id="xexcel"></canvas>
+            <div class="editor" contenteditable="true"></div>
+            <div class="scroll-bar-x"></div>
+            <div class="scroll-bar-y"></div>
+            <div class="context-menu"></div>
+        </div> -->
+    </div>
     <script src="xexcel.js"></script>
     <script>
         function load() {
-            webexcel(document.getElementById('webexcel'))
-                .loadData({
-                    borders: [
-                        [1, 'dashed', '#0366d6'],
-                    ],
-                    styles: [
-                        { bgcolor: 'rgb(82, 196, 26)', bi: 0, color: '#FFF' },
-                    ],
-                    rowm: {// 特殊列 列高
-                        1: { height: 40}
+            const myexcel = XWebExcel(document.getElementById('app'), {
+                viewOption: {
+                    showToolbar: false,
+                    viewHeight: 800,
+                    viewWidth: 400
+                },
+                interactOption: {
+                    canEdit: true 
+                }
+            });
+            myexcel.source({
+                row: {
+                    size: 25,   // 行高
+                    len: 20,    // 行总数
+                },
+                col: {
+                    size: 100,  // 列宽
+                    minsize: 10,
+                    len: 20,
+                },
+                rowm: {// 特殊列 列高
+                    1: { height: 40}
+                },
+                colm: {
+                    1: { width: 60 },
+                    4: { width: 140 }
+                },
+                cellmm: {
+                    1: {
+                        1: { text: '输入长文字测试截断'},
                     },
-                    colm: {
-                        1: { width: 60 },
-                        4: { width: 140 }
-                    },
-                    cellmm: {
-                        1: {
-                            1: { text: '输入长文字测试截断', si: 0 },
-                        },
-                    },
-                })
+                },
+            });
         }
     </script>
 </body>
