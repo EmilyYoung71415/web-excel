@@ -14,6 +14,7 @@
  */
 
 import {mouseMoveUp, bind} from '../event/index';
+import {throttle} from '../utils';
 
 /**
  * 行列伸缩的辅助视觉效果
@@ -296,7 +297,7 @@ export function sheetInitEvent() {
     //  ===> 都是触发 滚动条的滚动事件 由scrollbar类内部 监听scroll事件控制
     // 2. 鼠标滚轮滚动
     //  ===> 计算出鼠标滚动的距离，滚一点计算成一格，让scrollbar滚动，从而归一到moveFn事件
-    bind(window, 'mousewheel', evt => {
+    bind(window, 'mousewheel', throttle(evt => {
         if (!this.$viewdata.status.focusing) {
             return;
         }
@@ -317,5 +318,5 @@ export function sheetInitEvent() {
                 this.verticalScrollbar.move({top: ri === 0 ? 0 : top - $viewdata.getRowHeight(ri)});
             }
         }
-    });
+    }));
 }
