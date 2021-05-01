@@ -1,5 +1,5 @@
-import { EngineOption, FontStyle } from './config/engineoption';
-import { Mdata } from './model/mdata';
+import { EngineOption, FontStyle } from '@config/engineoption';
+import { Mdata } from '@model/mdata';
 
 export class Engine {
     // 默认配置项

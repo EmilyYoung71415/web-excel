@@ -1,5 +1,5 @@
 import { Engine, RegisterView } from './engine';
-import { EngineOption } from './config/engineoption';
+import { EngineOption } from '@config/engineoption';
 
 // RegisterView(ToolBar, 'toolbar');
 // RegisterView(ContextMenu, 'ctxmenu');

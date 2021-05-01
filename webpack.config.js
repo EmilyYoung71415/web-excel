@@ -21,7 +21,7 @@ module.exports = {
     ],
     output: {
         filename: '[name].js',
-        path: path.resolve(__dirname, 'dist'),
+        path: resolve(__dirname, 'dist'),
     },
     devtool: 'inline-source-map',
     module: {
@@ -50,5 +50,8 @@ module.exports = {
     },
     resolve: {
         extensions: ['.ts', '.js'],
+        alias: {
+            '@': resolve(__dirname, 'src/')
+        },
     },
 };

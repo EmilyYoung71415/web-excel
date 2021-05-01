@@ -36,16 +36,19 @@
     <script src="xexcel.js"></script>
     <script>
         function load() {
-            const myexcel = XWebExcel(document.getElementById('app'), {
-                viewOption: {
-                    showToolbar: false,
-                    viewHeight: 800,
-                    viewWidth: 400
-                },
-                interactOption: {
-                    canEdit: true 
+            const myexcel = XWebExcel.create(
+                document.getElementById('app'), 
+                {
+                    viewOption: {
+                        showToolbar: false,
+                        viewHeight: 800,
+                        viewWidth: 400
+                    },
+                    interactOption: {
+                        canEdit: true 
+                    }
                 }
-            });
+            );
             myexcel.source({
                 row: {
                     size: 25,   // 行高
