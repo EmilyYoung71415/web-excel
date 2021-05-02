@@ -1,4 +1,4 @@
-import {EngineOption} from '@type/index';
+import { EngineOption, CanvasCfg } from '@type/index';
 
 export const defaultEngineOption: EngineOption = {
     // 外观配置项
@@ -9,12 +9,12 @@ export const defaultEngineOption: EngineOption = {
         viewWidth: document.documentElement.clientWidth,
         tableStyle: {
             bgcolor: '#ffffff',
-            lineSize: .5,   // 网格线粗细, 具体单元格可用border对其覆写
+            lineWidth: .5,   // 网格线粗细, 具体单元格可用border对其覆写
             lineColor: '#333333',
             cellpadding: 10, // 网格内间距
             fixedHeaderStyle: {
                 bgcolor: '#f4f5f8',
-                lineSize: .5,
+                lineWidth: .5,
             },
         },
     },
@@ -28,4 +28,10 @@ export const defaultEngineOption: EngineOption = {
             opacity: .6,
         },
     },
+};
+
+export const defaultCanvasOption: CanvasCfg = {
+    width: defaultEngineOption.viewOption.viewWidth,
+    height: defaultEngineOption.viewOption.viewHeight,
+    cursor: 'default',
 };

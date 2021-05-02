@@ -148,3 +148,35 @@ export type CanvasCtxAttrs = {
     textAlign?: string;
     textBaseline?: string;
 }
+
+// Cursor style
+// See: https://developer.mozilla.org/en-US/docs/Web/CSS/cursor
+export type Cursor =
+    | 'auto'
+    | 'default'
+    | 'none'
+    | 'context-menu'
+    | 'help'
+    | 'pointer';
+
+// drawall: init, scroll
+// range的command： merge、copy paste、 格式刷
+// 每次canvas重刷时候的重绘缘由
+export type CanvasChangeType =
+    | 'select'
+    | 'text'
+    | 'scroll'
+    | 'clear';
+
+export type CanvasCfg = {
+    container?: HTMLElement;// 容器 controller传下来的父容器dom
+    width: number;         // 画布宽度
+    height: number;        // 画布高度
+    cursor?: Cursor;       // 画布的cursor样式
+    // pixelRatio: number;    // dpr 用于高清屏适配
+};
+
+export type Point = {
+    x: number;
+    y: number;
+}

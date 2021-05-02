@@ -1,6 +1,6 @@
-import {Engine, RegisterView} from './engine';
-import {EngineOption} from '@type/index';
-
+import { Engine, RegisterView } from './engine';
+import { EngineOption } from '@type/index';
+import './index.less';
 // RegisterView(ToolBar, 'toolbar');
 // RegisterView(ContextMenu, 'ctxmenu');
 // RegisterView(ScrollBarX, 'scrollbarx');
@@ -17,7 +17,7 @@ const XWebExcel = {
     create(
         container: HTMLElement,
         opt?: EngineOption
-    ) {
+    ): Engine {
         const engine = new Engine(container, opt);
         return engine;
     },

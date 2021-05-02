@@ -1,16 +1,32 @@
-import {EngineOption, Mdata} from '@type/index';
-import {defaultEngineOption} from '@config/engineoption';
-
+import { EngineOption, Mdata } from './type';
+import { defaultEngineOption } from './config/engineoption';
+import { CanvasView } from './core/view';
 export class Engine {
     // 默认配置项
     private _cfg: EngineOption = defaultEngineOption;
     // 数据
     // private _sources: Sources = null;
+    private canvasView: CanvasView;
 
     constructor(container: HTMLElement, engineOpt?: EngineOption) {
         this.applyOptions(engineOpt);
-        // TODO: controller
-        // ：mdata、render、rangecontroller、InteractionModel、source
+        this.canvasView = new CanvasView({
+            container: container,
+            width: this._get('viewOption.viewWidth'),
+            height: this._get('viewOption.viewHeight'),
+        });
+        // this.rangeController = new RangeController();
+        // this.renderController = new RenderController(
+        //     this.rangeController
+        // );
+        // // datamodel 要调用render，所以将render作为data的子组件
+        // this.dataModel = new DataModel(
+        //     this.renderController, // renderControl里：rangecontroller
+        // );
+        // // event要修改datamodel的值，event依赖datamodel
+        // this.eventController = new EventController(
+        //     this.dataModel
+        // );
     }
     applyOptions(opt: EngineOption, updateView = true) {
         this._cfg = Object.assign(this._cfg, opt); // FIXME:  对象深合并
@@ -30,6 +46,13 @@ export class Engine {
         // this.emit('canvas:beforepaint'); // 这个时候可以访问到 data=>view的那个等同于view的viewdata了
         // this.dataModel.render();// 即调用range方法各自进行渲染
         // this.emit('canvas:afterpaint');
+    }
+    private _get(keystr = '') {
+        const keys = keystr.split('.');
+        const resval = keys.reduce((accur, key) => {
+            return accur[key];
+        }, this._cfg);
+        return resval;
     }
 }
 

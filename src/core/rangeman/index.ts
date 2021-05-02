@@ -45,6 +45,8 @@ export class BaseRange implements IBaseRange {
 class RangeController {
     constructor() {
 
+
+
     }
     render(isDrawAll: boolean) {
 
