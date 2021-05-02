@@ -37,35 +37,45 @@ type RowOrCol = {
     len: number;   // 总数
 }
 
-type ScrollIndexes = {
-    x: number;
-    y: number;
-}
-
-type ScrollOffset = {
-    x: number;
-    y: number;
-}
-
-type RangeIndexes = {
-    sri: number;
-    sci: number;
-    eri: number;
-    eci: number;
+// 棋盘逻辑索引
+export type RectIndexes = {
+    ri: number;
+    ci: number;
 };
-
-type RangeOffset = {
+// 棋盘 & range 物理位置
+export type RectOffset = {
     left: number;
     top: number;
     width: number;
     height: number;
 }
 
-type Range = RangeIndexes & RangeOffset;
+export type Rect = RectIndexes & RectOffset;
+
+// range范围
+export type RangeIndexes = {
+    sri: number;
+    sci: number;
+    eri: number;
+    eci: number;
+};
+
+export type Range = RangeIndexes & RectOffset;
 
 /*--------------
     modeldata
 -------------*/
+
+type ScrollOffset = {
+    scrollLeft: number;
+    scrollTop: number;
+}
+
+type ScrollIndexes = {
+    ri: number;
+    ci: number;
+}
+
 export type Mdata = {
     row: RowOrCol;
     col: RowOrCol;
@@ -86,25 +96,25 @@ export type Mdata = {
 /*--------------
     EngineOption
 -------------*/
-type TableStyle = {
+export type GridStyle = {
     bgcolor: string;
-    lineSize: number;    // 网格线粗细, 具体单元格可用border对其覆写
+    lineWidth: number;    // 网格线粗细, 具体单元格可用border对其覆写
     lineColor: string;
     cellpadding: number; // 网格内间距
     font?: FontStyle;
-    fixedHeaderStyle: {
+    fixedHeaderStyle?: {
         bgcolor: string;
-        lineSize: number;
+        lineWidth: number;
         font?: FontStyle;
     },
-};
+}
 
 export type ViewOption = {
     showToolbar: boolean;
     showCtxMenu: boolean;
     viewHeight: number;
     viewWidth: number;
-    tableStyle: TableStyle;
+    tableStyle: GridStyle;
 }
 
 export type InteractOption = {
@@ -123,4 +133,18 @@ export type EngineOption = {
     viewOption: ViewOption;
     // 交互配置项
     interactOption: InteractOption;
+}
+
+/*--------------
+    canvas
+-------------*/
+// 笔触的设置
+export type CanvasCtxAttrs = {
+    globalAlpha?: string;
+    fillStyle?: string;
+    strokeStyle?: string;
+    lineWidth?: string;
+    font?: string;
+    textAlign?: string;
+    textBaseline?: string;
 }
