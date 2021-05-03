@@ -1,5 +1,5 @@
 
-import { Point, Cursor, CanvasChangeType, CanvasCfg, RangeIndexes, Rect } from '../../type';
+import { Point, Cursor, CanvasChangeType, CanvasCfg, RangeIndexes, Rect, RectOffset } from '../../type';
 import { defaultCanvasOption } from '../../config/engineoption';
 /**
  * @interface 对外提供的api
@@ -25,7 +25,8 @@ interface ICanvas {
 export class CanvasView implements ICanvas {
     // 静态属性
     static PX_SUFFIX = 'px';
-    _cfg: CanvasCfg; // mdata的子集
+    private _cfg: CanvasCfg; // mdata的子集
+    private _ClientRect: RectOffset; // canvas相对视口的位置
     changeType: CanvasChangeType;
     // 把所有的属性都放在cfg上 然后通过this._get去代理访问
     constructor(
@@ -100,7 +101,11 @@ export class CanvasView implements ICanvas {
      * @return {object} 画布坐标
      */
     private _getPointByWindowToCanvas(clientX: number, clientY: number): Point {
-        throw new Error('Method not implemented.');
+        const bbox = this._ClientRect;
+        return {
+            x: clientX - bbox.left,
+            y: clientY - bbox.top,
+        };
     }
     private _initDom() {
         const el = this._createDom();
@@ -108,6 +113,16 @@ export class CanvasView implements ICanvas {
         this._setDOMSize(this._get('width'), this._get('height'));
         const container = this._get('container');
         container.appendChild(el);
+        // 获取canvas绘制在dom上的：相对视窗的位置、大小
+        setTimeout(() => {
+            const bbox = this._get('el').getBoundingClientRect();
+            this._ClientRect = {
+                left: bbox.left,
+                top: bbox.top,
+                width: bbox.width,
+                height: bbox.height,
+            };
+        });
     }
     private _initEvents() {
         // const eventController = new EventController({
@@ -151,15 +166,5 @@ export class CanvasView implements ICanvas {
         const respixelRatio = pixelRatio >= 1 ? Math.ceil(pixelRatio) : 1;
         this._set('pixelRatio', respixelRatio);
         return respixelRatio;
-    }
-    // 获取canvas的 x, y, width, height
-    private _getViewRange() {
-        // getBoundingRect
-        // return {
-        //     minX: 0,
-        //     minY: 0,
-        //     maxX: this.cfg.width,
-        //     maxY: this.cfg.height,
-        // };
     }
 }
