@@ -2,6 +2,7 @@
 import { Point, Cursor, CanvasChangeType, CanvasCfg, RangeIndexes, Rect, RectOffset } from '../../type';
 import { defaultCanvasOption } from '../../config/engineoption';
 import { _merge } from '../../utils';
+import { RangeController } from '../rangeman';
 /**
  * @interface 对外提供的api
  */
@@ -18,7 +19,7 @@ interface ICanvas {
     setCursor(cursor: Cursor);
     // 首次渲染：init + 遍历全部的range
     // init: drawGrid、 drawFixedHeader
-    draw(isDrawAll: boolean);
+    draw(viewdata: unknown);
     // 局部渲染，传range实例
     drawRegin();
 }
@@ -27,6 +28,7 @@ export class CanvasView implements ICanvas {
     static PX_SUFFIX = 'px';
     private _cfg: CanvasCfg; // mdata的子集
     private _ClientRect: RectOffset; // canvas相对视口的位置
+    private _rangeController: RangeController; // canvas的绘制任务由range控制
     changeType: CanvasChangeType;
     // 把所有的属性都放在cfg上 然后通过this._get去代理访问
     constructor(
@@ -35,7 +37,9 @@ export class CanvasView implements ICanvas {
         // 与canvas有关的设置
         this._cfg = _merge(defaultCanvasOption, cfg);
         this._initDom();
-        this.draw(true);
+        this._rangeController = new RangeController({
+            ctx: this._get('context')
+        });
         // this._initEvents();
     }
     drawRegin() {
@@ -53,29 +57,24 @@ export class CanvasView implements ICanvas {
          * 1. attr: 修改画布的绘图属性 ----- range聚合而来的
          * 2. changeSize: 改变画布单元格尺寸、可视区域 ----- resizer、scroll
          */
-        if (['attr', 'changeSize'].includes(changeType)) {
-            this._set('refreshElements', [this]);
-            this.draw();
-        }
+        // if (['attr', 'changeSize'].includes(changeType)) {
+        //     this._set('refreshElements', [this]);
+        //     this.draw();
+        // }
     }
     setCursor(cursor: Cursor) {
         throw new Error('Method not implemented.');
     }
-    draw(isDrawAll: boolean) {
+    draw(viewdata: unknown) {
+        // TODO:
+        // 如果用户没有载入数据 即未调用source接口
+        // 应开启自动draw模式
+        // 得到canvas的视口大小 和 默认设计的行高、列宽 自动布局生成grid
+        // 自动时 viewdata 也是由上游调时 传下来的
 
-        // 可以把多个绘制动作放在  一个render队列里
-        // requestAnimationFrame去调用， 同步绘制转为raf去绘制 提升性能
-        // or 绘制的动作放在offscreen里 画好了再放在画布上
-        // 可以局部更新： range更改的时候
-        // 也可以拿着modeldata数据 全局更新： scroll
-        // 首次渲染or 复杂场景的 则drawall
-        // range传来的则局部更新
-        if (isDrawAll) {
-            this._drawAll();
-        }
-        else {
-            this._drawRegion();
-        }
+        // 局部时 需计算出当前的 绘制视口
+        // 全部重新绘制时候 默认是在canvas的00位置
+        this._rangeController.command('drawall', viewdata);
     }
     private drawAll() {
         const context = this._get('context');
@@ -150,8 +149,10 @@ export class CanvasView implements ICanvas {
         // 高清屏适配
         el.width = pixelRatio * width;
         el.height = pixelRatio * height;
+        el.style.cssText = `transform:scale(${1 / pixelRatio});transform-origin:0 0`;
         if (pixelRatio > 1) {
-            context.scale(1 / pixelRatio, 1 / pixelRatio);
+            // 像素单位缩放
+            context.scale(pixelRatio, pixelRatio);
         }
     }
     // 代理访问config上的

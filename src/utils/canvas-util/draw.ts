@@ -18,8 +18,16 @@ export const isColorProp = (prop: string): boolean => {
     return ['fillStyle', 'strokeStyle'].includes(prop);
 };
 
+const CANVAS_ATTRS_MAP = {
+    bgcolor: 'fillStyle',
+    linecolor: 'strokeStyle',
+    opacity: 'globalAlpha',
+};
+
 export function applyAttrsToContext(context: CanvasRenderingContext2D, attrs: CanvasCtxAttrs): void {
-    // attrs上的属性挂在ctx上
-    // 以后可能也会对 attr 进行一个trans加工之类的
-    Object.assign(context, attrs);
+    for (let k in attrs) {
+        const v = attrs[k];
+        const name = CANVAS_ATTRS_MAP[k] ? CANVAS_ATTRS_MAP[k] : k;
+        context[name] = v;
+    }
 };

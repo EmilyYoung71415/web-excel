@@ -6,7 +6,7 @@ export class Engine {
     // 默认配置项
     private _cfg: EngineOption = defaultEngineOption;
     // 数据
-    // private _sources: Sources = null;
+    private _sources: Mdata = null;
     private canvasView: CanvasView;
 
     constructor(container: HTMLElement, engineOpt?: EngineOption) {
@@ -35,13 +35,33 @@ export class Engine {
     }
     // 载入数据
     source(data: Mdata) {
-        console.log(data);
+        // console.log('source', data);
+        const viewdata = {
+            selectRectIndexes: null,
+            scrollIndexes: {
+                ri: 1,
+                ci: 2,
+            },
+            // 数据有了
+            grid: {
+                style: this._get('viewOption.tableStyle'),
+                data: {
+                    col: data.col,
+                    colm: data.colm,
+                    row: data.row,
+                    rowm: data.rowm,
+                },
+            },
+            // 还差绘制的矩形范围
+        };
+        this.canvasView.draw(viewdata);
+        return this; // source可连续调用
         // 根据source判断是否更新
         // 若前后数据没有发生变化，什么也不干（将json字符串化后比较）
         // ？对新的数据进行依赖追踪（代理拦截
     }
     private updateEngine() {
-        console.log(this._cfg);
+        // console.log(this._cfg);
         // 建立元素间逻辑关系 ===> 根据sources 构建当前表格的range关系
         // this.dataModel.constructElements(sources);
         // this.emit('canvas:beforepaint'); // 这个时候可以访问到 data=>view的那个等同于view的viewdata了

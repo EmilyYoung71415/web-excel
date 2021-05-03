@@ -30,13 +30,6 @@ type Cell = {
     };
 }
 
-type RowOrCol = {
-    // style: Style; 收敛到range控制
-    size: number;    // 行高 | 列宽
-    minsize?: number; // 最小压缩size
-    len: number;   // 总数
-}
-
 // 棋盘逻辑索引
 export type RectIndexes = {
     ri: number;
@@ -58,7 +51,7 @@ export type RangeIndexes = {
     sci: number;
     eri: number;
     eci: number;
-};
+} | null;
 
 export type Range = RangeIndexes & RectOffset;
 
@@ -71,18 +64,29 @@ type ScrollOffset = {
     scrollTop: number;
 }
 
-type ScrollIndexes = {
+export type ScrollIndexes = {
     ri: number;
     ci: number;
 }
 
-export type Mdata = {
+type RowOrCol = {
+    // style: Style; 收敛到range控制
+    size: number;    // 行高 | 列宽
+    minsize?: number; // 最小压缩size
+    len: number;   // 总数
+}
+
+export type GridMdata = {
     row: RowOrCol;
     col: RowOrCol;
     // 特殊行总数、行高
-    rowm?: { [key: number]: RowOrCol };
+    // {1: {1: {size:xx}}} 二维对象
+    rowm?: Record<number, Record<number, RowOrCol>>;
     // 特殊列总数、列宽
-    colm?: { [key: number]: RowOrCol };
+    colm?: Record<number, Record<number, RowOrCol>>;
+}
+
+export type Mdata = GridMdata & {
     // 表格合并的单元格集合
     merges?: RangeIndexes[]; // [{}, {}]
     // 高于cell单元格的一个概念 range：框选的单元格集合 左上角单元格-右下角单元格
@@ -140,10 +144,10 @@ export type EngineOption = {
 -------------*/
 // 笔触的设置
 export type CanvasCtxAttrs = {
-    globalAlpha?: string;
+    globalAlpha?: number;
     fillStyle?: string;
     strokeStyle?: string;
-    lineWidth?: string;
+    lineWidth?: number;
     font?: string;
     textAlign?: string;
     textBaseline?: string;

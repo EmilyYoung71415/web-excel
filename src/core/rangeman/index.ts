@@ -1,55 +1,64 @@
 /**
  * @file 跨cell的管理器
- * - 样式
- * - 选区
+ * - 样式 style-range
+ * - 选区 selector-range
  * - 合并单元格
  * - 条件格式
  * - 格式刷
  */
-import { RangeIndexes, RectOffset, CanvasCtxAttrs } from '../../type';
-import { IEngine } from '../../interface';
-export interface IBaseRange {
-    clear: (indexes: RangeIndexes) => void;
-    getOffsetByIdxes: (indexes: RangeIndexes) => RectOffset;
-    render: (
-        indexes: RangeIndexes,
-        attrs: CanvasCtxAttrs
-    ) => void;
+import { GridRange } from './grid-range';
+import { _merge } from '../../utils';
+
+const COMMAND = {
+    // 'drawall': // 整个可视区域
+};
+
+interface IRangeController {
+    ctx: CanvasRenderingContext2D
 }
 
-export class BaseRange implements IBaseRange {
-    protected namespace: string;
-    protected engine: IEngine;
-    constructor(engine: IEngine) {
-        this.engine = engine;
+
+export class RangeController {
+    private _gridRange: GridRange;
+    private _ctx: CanvasRenderingContext2D;
+    private _cacheQueue: unknown;
+    private _viewdata: unknown;
+    constructor(props: IRangeController) {
+        this._ctx = props.ctx;
+        this._gridRange = new GridRange(this._ctx);
+        // range会维护一个队列：
+        // rectidx: range实例
+        this._cacheQueue = {
+            'drawall': [this._gridRange],
+        };
     }
-    clear(indexes: RangeIndexes) {
-        const ctx = this.engine.getCtx();
-        const rect = this.getOffsetByIdxes(indexes);
-        ctx.clearRect(rect.left, rect.top, rect.width, rect.height);
+    // 首次渲染是
+    // 以action聚合range
+    command(action: string, viewdata: unknown) {
+        // viewdata暂时先这样处理
+        this._viewdata = _merge(this._viewdata, viewdata);
+        switch (action) {
+            case 'drawall': // 特殊的选区key
+                this.render('drawall');
+                break;
+            default:
+                break;
+        }
     }
-    // 根据逻辑索引得到物理位置
-    // - 逻辑索引：传的是索引是：相对, 计算得到的位置也是相对的
-    getOffsetByIdxes(indexes: RangeIndexes): RectOffset {
-        return this.engine.getViewOffsetByViewIdxes(indexes);
+    // 局部更新是 以rangeidx 聚合 range 渲染
+    render(rectidx: string) {
+        const rangelist = this._getRenderList(rectidx);
+        try {
+            for (const range of rangelist) {
+                range.render(this._viewdata);
+            }
+        } catch (error) {
+            throw new Error('range.render 出错');
+        }
     }
-    // 子类各自实现
-    render(indexes: RangeIndexes, attrs: CanvasAttrs) { }
-}
-
-// z-index: 即绘制顺序
-// background < border < text < selector
-// + merge: merge < selector
-//            |_ merge的时候 会把range的起始重新计算
-//            |— merge: clearrect、 paint计算后的range
-class RangeController {
-    constructor() {
-
-
-
-    }
-    render(isDrawAll: boolean) {
-
+    private _getRenderList(rectidx: string): Array<any> {
+        // 按照实例的zindex排序好后返回
+        return this._cacheQueue[rectidx];
     }
     // 得到canvas上当前的选中区域 selectIndexes
     // 最上层mdata：selectIndexes那里拿
