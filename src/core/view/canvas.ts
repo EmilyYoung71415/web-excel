@@ -1,6 +1,7 @@
 
 import { Point, Cursor, CanvasChangeType, CanvasCfg, RangeIndexes, Rect, RectOffset } from '../../type';
 import { defaultCanvasOption } from '../../config/engineoption';
+import { _merge } from '../../utils';
 /**
  * @interface 对外提供的api
  */
@@ -21,7 +22,6 @@ interface ICanvas {
     // 局部渲染，传range实例
     drawRegin();
 }
-
 export class CanvasView implements ICanvas {
     // 静态属性
     static PX_SUFFIX = 'px';
@@ -33,8 +33,9 @@ export class CanvasView implements ICanvas {
         cfg: CanvasCfg
     ) {
         // 与canvas有关的设置
-        this._cfg = Object.assign(defaultCanvasOption, cfg);
+        this._cfg = _merge(defaultCanvasOption, cfg);
         this._initDom();
+        this.draw(true);
         // this._initEvents();
     }
     drawRegin() {
@@ -61,6 +62,7 @@ export class CanvasView implements ICanvas {
         throw new Error('Method not implemented.');
     }
     draw(isDrawAll: boolean) {
+
         // 可以把多个绘制动作放在  一个render队列里
         // requestAnimationFrame去调用， 同步绘制转为raf去绘制 提升性能
         // or 绘制的动作放在offscreen里 画好了再放在画布上

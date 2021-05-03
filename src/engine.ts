@@ -1,6 +1,7 @@
 import { EngineOption, Mdata } from './type';
 import { defaultEngineOption } from './config/engineoption';
 import { CanvasView } from './core/view';
+import { _merge } from './utils';
 export class Engine {
     // 默认配置项
     private _cfg: EngineOption = defaultEngineOption;
@@ -29,7 +30,7 @@ export class Engine {
         // );
     }
     applyOptions(opt: EngineOption, updateView = true) {
-        this._cfg = Object.assign(this._cfg, opt); // FIXME:  对象深合并
+        this._cfg = _merge(this._cfg, opt);
         this.updateEngine();
     }
     // 载入数据
