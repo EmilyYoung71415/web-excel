@@ -55,13 +55,25 @@ type lineStyle = {
 // fixedheader：索引栏单独range
 export class GridRange {
     namespace: string;
+    // 画布全局状态：滚动距离、画布大小
+    private _scrollindexes: ScrollIndexes;
+    private _viewRect: { width: number; height: number };
+
+    // range状态：笔触、绘制区域
     private _ctx: CanvasRenderingContext2D;
     private _rect: RectOffset;
+
+    // range绘制细节依赖：绘制数据
     private _bgstyle: { fillStyle: string };
     private _linestyle: lineStyle;
     private _source: GridMdata;
-    private _scrollindexes: ScrollIndexes;
-    private _viewRect: { width: number; height: number };
+
+    // 棋盘映射: idx=>物理坐标
+    gridmap: {
+        row: Array<{ ri, top, height }> | [],
+        col: Array<{ ci, left, width }> | [],
+    };
+    // Array<Array<RectOffset>> = [];
 
     constructor(_ctx: CanvasRenderingContext2D) {
         this._ctx = _ctx;
@@ -76,6 +88,7 @@ export class GridRange {
             strokeStyle: gridRangeViewData.style.linecolor,
         };
         this._source = gridRangeViewData.source;
+        this.gridmap = { row: [], col: [] };
     }
     clear() {
         const rect = this._rect;
@@ -84,8 +97,10 @@ export class GridRange {
     render(viewdata) {
         this._viewRect = { height: 400, width: 800 };
         this._scrollindexes = { ri: 0, ci: 0 };
+        const fixedHeaderPadding = { colwidth: 50, rowheight: 25 };
         const { left, top, width, height } = this._rect;
         const context = this._ctx;
+        context.translate(fixedHeaderPadding.colwidth, fixedHeaderPadding.rowheight); // 给fixedheader留空间
         // 清空：rect // 只有range的最底层zindex会清空当前选区
         this.clear();
         // 保存上下文，设置 clip
@@ -110,7 +125,6 @@ export class GridRange {
         context.save();
         applyAttrsToContext(context, this._linestyle);
         // 开始遍历画线
-        context.translate(50, 30); // 给fixedheader留空间
         this._drawLinesForRows(true);
         this._drawLinesForRows(false);
         context.restore();
@@ -131,10 +145,15 @@ export class GridRange {
             else {
                 this._drawLine({ x: startY, y: 0 }, { x: endY, y: rowWidth });
             }
-            const curSpRow = this._source[`${isRow ? 'rowm' : 'colm'}`][i + rowAddedIdx];
+            const curSpRow = (this._source[`${isRow ? 'rowm' : 'colm'}`] || {})[i + rowAddedIdx];
             const curRowHeight = curSpRow ? curSpRow.size : rowHeight;
             startY = endY += curRowHeight;
             curheight += curRowHeight;
+            this.gridmap[`${isRow ? 'row' : 'col'}`][i] = {
+                [`${isRow ? 'ri' : 'ci'}`]: i,
+                [`${isRow ? 'top' : 'left'}`]: startY - curRowHeight,
+                [`${isRow ? 'height' : 'width'}`]: curRowHeight,
+            };
             if (curheight > rowMaxHeight) break;
         }
     }
