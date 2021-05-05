@@ -4,7 +4,7 @@
  *  - 首次渲染表格网格全局绘制
  *  - 局部range刷新时，clearRect后，重绘range范围的grid
  */
-import { GridStyle, RectOffset, GridMdata, ScrollIndexes, Point } from '../../type';
+import { GridStyle, RectOffset, GridMdata, ScrollIndexes, Point, RangeIndexes } from '../../type';
 import { applyAttrsToContext } from '../../utils/canvas-util/draw';
 // TODO:  模拟range需要的数据
 const gridRangeViewData = {
@@ -40,8 +40,8 @@ const gridRangeViewData = {
             len: 20,
         },
         rowm: {
-            1: {
-                size: 40,
+            4: {
+                size: 140,
             },
         },
     },
@@ -89,28 +89,44 @@ export class GridRange {
         };
         this._source = gridRangeViewData.source;
         this.gridmap = { row: [], col: [] };
+        // RangeIndexes的范围 是在gridmap.row.length里的
+        const renderRange: RangeIndexes = {
+            sri: 1,
+            sci: 1,
+            eri: 5,
+            eci: 5,
+        };
+        window.addEventListener('click', () => {
+            this._renderRange(renderRange);
+        });
     }
     clear() {
         const rect = this._rect;
         this._ctx.clearRect(rect.left, rect.top, rect.width, rect.height);
     }
+    // Grid绘制起点
+    // 当是table棋盘时：起点由fixedheader决定
+    // 当是range grid时：起点由 selectIdxes计算出的left, top决定
+    // 用例：render({sri:1,sci:1,eri:4,eci:4}) 当是这种情况时  笔触是红色的
+    // 给[1,1]~[4,4]的单元格范围的 重新绘制grid // 绝对单元格索引
     render(viewdata) {
         this._viewRect = { height: 400, width: 800 };
         this._scrollindexes = { ri: 0, ci: 0 };
         const fixedHeaderPadding = { colwidth: 50, rowheight: 25 };
         const { left, top, width, height } = this._rect;
         const context = this._ctx;
+        context.save();
         context.translate(fixedHeaderPadding.colwidth, fixedHeaderPadding.rowheight); // 给fixedheader留空间
         // 清空：rect // 只有range的最底层zindex会清空当前选区
         this.clear();
         // 保存上下文，设置 clip
-        context.save();
         context.beginPath();
         context.rect(left, top, width, height);
         context.clip();
         this._renderGridBg();
         this._renderGridLines();
         context.restore();
+        console.log(this.gridmap);
     }
     private _renderGridBg() {
         const { left, top, width, height } = this._rect;
@@ -129,6 +145,47 @@ export class GridRange {
         this._drawLinesForRows(false);
         context.restore();
     }
+    private _renderRange(renderRange: RangeIndexes) {
+        const fixedHeaderPadding = { colwidth: 50, rowheight: 25 };
+        const { sri, eri, sci, eci } = renderRange;
+        const sx = this.gridmap.col[sci].left;
+        const sy = this.gridmap.row[sri].top;
+        // 传入单元格范围:[1,1]~[3,3]即1,1的左上角~3,3的右下角，即4,4的左上角
+        const ex = this.gridmap.col[eci + 1].left;
+        const ey = this.gridmap.row[eri + 1].top;
+        const context = this._ctx;
+        context.save();
+        context.translate(fixedHeaderPadding.colwidth, fixedHeaderPadding.rowheight); // 给fixedheader留空间
+        context.beginPath();
+        // 计算range的范围
+        context.rect(sx, sy, ex - sx, ey - sy);
+        context.clip();
+        context.save();
+        // --------
+        // TODO: 单元格合并的时候 fillStyle = bgclor && fillRect(range)即可
+        context.strokeStyle = 'blue';
+        context.lineWidth = 2;
+        // applyAttrsToContext(context, this._linestyle);
+        // --------
+        // 画横线
+        for (let i = sri; i <= eri; i++) {
+            const rowy = this.gridmap.row[i].top;
+            this._drawLine({ x: sx, y: rowy }, { x: ex, y: rowy });
+        }
+        // 画竖线
+        for (let i = sci; i <= eci; i++) {
+            const colx = this.gridmap.col[i].left;
+            this._drawLine({ x: colx, y: sy }, { x: colx, y: ey });
+        }
+        context.restore();
+    }
+    /**
+     * 绘制基础的棋盘，并生成gripmap
+     * canvas绘制grid棋盘格：先画多行的横线，再画多列的竖线
+     * 从source配置的行列信息 取得棋盘格的行高、列宽等信息
+     * @param isRow 在画横线 or 竖线
+     */
+    // rangeviewrect: 返回
     private _drawLinesForRows(isRow: boolean) {
         const rowLen = this._source[`${isRow ? 'row' : 'col'}`].len;
         const rowHeight = this._source[`${isRow ? 'row' : 'col'}`].size;
@@ -140,6 +197,7 @@ export class GridRange {
         const rowAddedIdx = this._scrollindexes[`${isRow ? 'ri' : 'ci'}`] || 0;
         for (let i = 0; i < rowLen; i++) {
             if (isRow) {
+                // 要开放为画range的话 就不能是写死的:x:0
                 this._drawLine({ x: 0, y: startY }, { x: rowWidth, y: endY });
             }
             else {
