@@ -7,7 +7,9 @@
  * - 格式刷
  */
 import { GridRange } from './grid-range';
+import { FixedHeaderRange } from './fixedheader-range';
 import { _merge } from '../../utils';
+import { GridIdxToOffsetMap } from '../../type';
 
 const COMMAND = {
     // 'drawall': // 整个可视区域
@@ -20,16 +22,24 @@ interface IRangeController {
 
 export class RangeController {
     private _gridRange: GridRange;
+    private _fixedHeaderRange: FixedHeaderRange;
     private _ctx: CanvasRenderingContext2D;
     private _cacheQueue: unknown;
     private _viewdata: unknown;
+    dataStore: {
+        gridmap: GridIdxToOffsetMap | null;
+    };
     constructor(props: IRangeController) {
         this._ctx = props.ctx;
-        this._gridRange = new GridRange(this._ctx);
+        this.dataStore = {
+            gridmap: null
+        };
+        this._gridRange = new GridRange(this._ctx, this);
+        this._fixedHeaderRange = new FixedHeaderRange(this._ctx, this);
         // range会维护一个队列：
         // rectidx: range实例
         this._cacheQueue = {
-            'drawall': [this._gridRange],
+            'drawall': [this._gridRange, this._fixedHeaderRange],
         };
     }
     // 首次渲染是
@@ -64,5 +74,8 @@ export class RangeController {
     // 最上层mdata：selectIndexes那里拿
     private _getRefreshRegions(): Array<any> {
         return [];
+    }
+    handleSetData(key: string, newval: unknown) {
+        this.dataStore[key] = newval;
     }
 }

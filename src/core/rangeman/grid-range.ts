@@ -8,12 +8,13 @@
  *   setRange(RangeIndexes).gridRender({linewidth:2});// 局部渲染 & 修改部分设置
  *   setRange(sri:-1, sci:-1).gridRender() // 全局重绘
  */
-import {GridStyle, RectOffset, GridMdata, ScrollIndexes, Point, RangeIndexes} from '../../type';
-import {applyAttrsToContext} from '../../utils/canvas-util/draw';
+import { GridMap, GridIdxToOffsetMap, RectOffset, GridMdata, ScrollIndexes, Point, RangeIndexes } from '../../type';
+import { applyAttrsToContext } from '../../utils/canvas-util/draw';
+import { RangeController } from './index';
 // 当前view组件渲染所需的viewdata
 // 以后会由上层注入进来
 const gridRangeViewData = {
-    scrollindexes: {ri: 0, ci: 0},
+    scrollindexes: { ri: 0, ci: 0 },
     rect: {
         left: 0,
         top: 0,
@@ -84,11 +85,15 @@ export class GridRange implements IGridRange {
     private _source: GridMdata;
 
     // 棋盘映射: idx=>物理坐标
-    public gridmap: {
-        row: Array<{ ri, top, height }> | [],
-        col: Array<{ ci, left, width }> | [],
-    };
-    constructor(_ctx: CanvasRenderingContext2D) {
+    public gridmap: GridIdxToOffsetMap;
+
+    // props
+    private _props: RangeController;
+    constructor(
+        _ctx: CanvasRenderingContext2D,
+        rangecontroller: RangeController
+    ) {
+        this._props = rangecontroller;
         this._scrollindexes = gridRangeViewData.scrollindexes;
         this._fixedheadermargin = gridRangeViewData.fixedheadermargin;
         this._ctx = _ctx;
@@ -103,11 +108,7 @@ export class GridRange implements IGridRange {
             strokeStyle: gridRangeViewData.style.linecolor,
         };
         this._source = gridRangeViewData.source;
-        this.gridmap = {row: [], col: []};
-        // 一初始化就决定了 grid的绘制区域会给header留白
-        const context = this._ctx;
-        const fixedHeaderPadding = this._fixedheadermargin;
-        context.translate(fixedHeaderPadding.left, fixedHeaderPadding.top);
+        this.gridmap = { rowsumheight: 0, colsumwidth: 0, row: [], col: [] };
         // window.addEventListener('click', () => {
         //     this.renderRange({ sri: 0, sci: 0, eri: 4, eci: 4 });
         // })
@@ -118,9 +119,11 @@ export class GridRange implements IGridRange {
     }
     // 全局棋盘重绘：grid、fixedheader
     render(): void {
-        const {left, top, width, height} = this._rect;
+        const { left, top, width, height } = this._rect;
         const context = this._ctx;
         context.save();
+        const fixedHeaderPadding = this._fixedheadermargin;
+        context.translate(fixedHeaderPadding.left, fixedHeaderPadding.top);
         // 清空：rect // 只有range的最底层zindex会清空当前选区
         this.clear();
         // 保存上下文，设置 clip
@@ -129,11 +132,12 @@ export class GridRange implements IGridRange {
         context.clip();
         this._renderGridBg();
         this._renderGridLines();
+        this._props.handleSetData('gridmap', this.gridmap);
         context.restore();
     }
     renderRange(renderRange: RangeIndexes): void {
         // const fixedHeaderPadding = gridRangeViewData.fixedHeaderPadding;
-        const {sri, eri, sci, eci} = renderRange;
+        const { sri, eri, sci, eci } = renderRange;
         const sx = this.gridmap.col[sci].left;
         const sy = this.gridmap.row[sri].top;
         // 传入单元格范围:[1,1]~[3,3]即1,1的左上角~3,3的右下角，即4,4的左上角
@@ -141,6 +145,8 @@ export class GridRange implements IGridRange {
         const ey = this.gridmap.row[eri + 1].top;
         const context = this._ctx;
         context.save();
+        const fixedHeaderPadding = this._fixedheadermargin;
+        context.translate(fixedHeaderPadding.left, fixedHeaderPadding.top);
         context.beginPath();
         // 计算range的范围
         context.rect(sx, sy, ex - sx, ey - sy);
@@ -156,17 +162,17 @@ export class GridRange implements IGridRange {
         // 画横线
         for (let i = sri; i <= eri; i++) {
             const rowy = this.gridmap.row[i].top;
-            this._drawLine({x: sx, y: rowy}, {x: ex, y: rowy});
+            this._drawLine({ x: sx, y: rowy }, { x: ex, y: rowy });
         }
         // 画竖线
         for (let i = sci; i <= eci; i++) {
             const colx = this.gridmap.col[i].left;
-            this._drawLine({x: colx, y: sy}, {x: colx, y: ey});
+            this._drawLine({ x: colx, y: sy }, { x: colx, y: ey });
         }
         context.restore();
     }
     private _renderGridBg() {
-        const {left, top, width, height} = this._rect;
+        const { left, top, width, height } = this._rect;
         const context = this._ctx;
         context.save();
         applyAttrsToContext(context, this._bgstyle);
@@ -200,10 +206,10 @@ export class GridRange implements IGridRange {
         for (let i = 0; i < rowLen; i++) {
             if (isRow) {
                 // 要开放为画range的话 就不能是写死的:x:0
-                this._drawLine({x: 0, y: startY}, {x: rowWidth, y: endY});
+                this._drawLine({ x: 0, y: startY }, { x: rowWidth, y: endY });
             }
             else {
-                this._drawLine({x: startY, y: 0}, {x: endY, y: rowWidth});
+                this._drawLine({ x: startY, y: 0 }, { x: endY, y: rowWidth });
             }
             const curSpRow = (this._source[`${isRow ? 'rowm' : 'colm'}`] || {})[i + rowAddedIdx];
             const curRowHeight = curSpRow ? curSpRow.size : rowHeight;
@@ -215,6 +221,7 @@ export class GridRange implements IGridRange {
                 [`${isRow ? 'height' : 'width'}`]: curRowHeight,
             };
             if (curheight > rowMaxHeight) {
+                this.gridmap[`${isRow ? 'rowsumheight' : 'colsumwidth'}`] = curheight;
                 break;
             }
         }
