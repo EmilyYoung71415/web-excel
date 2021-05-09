@@ -6,40 +6,36 @@
  * - 条件格式
  * - 格式刷
  */
-import { GridRange } from './grid-range';
-import { FixedHeaderRange } from './fixedheader-range';
-import { _merge } from '../../utils';
-import { GridIdxToOffsetMap } from '../../type';
+import {GridRange} from './grid-range';
+import {FixedHeaderRange} from './fixedheader-range';
+import {_merge} from '../../utils';
+import {GridIdxToOffsetMap} from '../../type';
+import {CanvasView} from '../view/canvas';
 
 const COMMAND = {
     // 'drawall': // 整个可视区域
 };
 
-interface IRangeController {
-    ctx: CanvasRenderingContext2D
-}
-
-
 export class RangeController {
     private _gridRange: GridRange;
     private _fixedHeaderRange: FixedHeaderRange;
-    private _ctx: CanvasRenderingContext2D;
     private _cacheQueue: unknown;
     private _viewdata: unknown;
+    canvas: CanvasView;
     dataStore: {
         gridmap: GridIdxToOffsetMap | null;
     };
-    constructor(props: IRangeController) {
-        this._ctx = props.ctx;
+    constructor(canvas: CanvasView) {
+        this.canvas = canvas;
         this.dataStore = {
-            gridmap: null
+            gridmap: null,
         };
-        this._gridRange = new GridRange(this._ctx, this);
-        this._fixedHeaderRange = new FixedHeaderRange(this._ctx, this);
+        this._gridRange = new GridRange(this);
+        // this._fixedHeaderRange = new FixedHeaderRange(this);
         // range会维护一个队列：
         // rectidx: range实例
         this._cacheQueue = {
-            'drawall': [this._gridRange, this._fixedHeaderRange],
+            'drawall': [this._gridRange],
         };
     }
     // 首次渲染是
@@ -48,11 +44,11 @@ export class RangeController {
         // viewdata暂时先这样处理
         this._viewdata = _merge(this._viewdata, viewdata);
         switch (action) {
-            case 'drawall': // 特殊的选区key
-                this.render('drawall');
-                break;
-            default:
-                break;
+        case 'drawall': // 特殊的选区key
+            this.render('drawall');
+            break;
+        default:
+            break;
         }
     }
     // 局部更新是 以rangeidx 聚合 range 渲染
@@ -60,9 +56,10 @@ export class RangeController {
         const rangelist = this._getRenderList(rectidx);
         try {
             for (const range of rangelist) {
-                range.render(this._viewdata);
+                range.render();
             }
-        } catch (error) {
+        }
+        catch (error) {
             throw new Error('range.render 出错');
         }
     }
