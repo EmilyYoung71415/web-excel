@@ -18,7 +18,10 @@ const XWebExcel = {
         container: HTMLElement,
         opt?: EngineOption
     ): Engine {
-        const engine = new Engine(container, opt);
+        const engine = new Engine({
+            container,
+            ...opt,
+        });
         return engine;
     },
 };

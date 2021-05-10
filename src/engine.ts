@@ -2,19 +2,22 @@ import { EngineOption, Mdata } from './type';
 import { defaultEngineOption } from './config/engineoption';
 import { CanvasView } from './core/view';
 import { _merge } from './utils';
-export class Engine {
-    // 默认配置项
-    private _cfg: EngineOption = defaultEngineOption;
+import { Base } from './core/abstract/base';
+export class Engine extends Base {
     // 数据
     private _sources: Mdata = null;
     private canvasView: CanvasView;
-
-    constructor(container: HTMLElement, engineOpt?: EngineOption) {
-        this.applyOptions(engineOpt);
+    getDefaultCfg() {
+        return {
+            ...defaultEngineOption,
+        };
+    }
+    constructor(engineOpt: EngineOption) {
+        super(engineOpt);
         this.canvasView = new CanvasView({
-            container: container,
-            width: this._get('viewOption.viewWidth'),
-            height: this._get('viewOption.viewHeight'),
+            container: engineOpt.container,
+            width: this.get('viewOption.viewWidth'),
+            height: this.get('viewOption.viewHeight'),
         });
         // this.rangeController = new RangeController();
         // this.renderController = new RenderController(
@@ -28,9 +31,6 @@ export class Engine {
         // this.eventController = new EventController(
         //     this.dataModel
         // );
-    }
-    applyOptions(opt: EngineOption, updateView = true) {
-        this._cfg = _merge(this._cfg, opt);
         this.updateEngine();
     }
     // 载入数据
@@ -44,7 +44,7 @@ export class Engine {
             },
             // 数据有了
             grid: {
-                style: this._get('viewOption.tableStyle'),
+                style: this.get('viewOption.tableStyle'),
                 data: {
                     col: data.col,
                     colm: data.colm,
@@ -67,13 +67,6 @@ export class Engine {
         // this.emit('canvas:beforepaint'); // 这个时候可以访问到 data=>view的那个等同于view的viewdata了
         // this.dataModel.render();// 即调用range方法各自进行渲染
         // this.emit('canvas:afterpaint');
-    }
-    private _get(keystr = '') {
-        const keys = keystr.split('.');
-        const resval = keys.reduce((accur, key) => {
-            return accur[key];
-        }, this._cfg);
-        return resval;
     }
 }
 

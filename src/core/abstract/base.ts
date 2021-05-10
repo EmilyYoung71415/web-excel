@@ -4,8 +4,8 @@
  * - 通过this.get(xx) 来读取this._cfg.xx
  * - this.set同理
  */
-import {_merge} from '../../utils';
-import {LooseObject} from '../../interface';
+import { _merge } from '../../utils';
+import { LooseObject } from '../../interface';
 
 export interface IBase {
     _cfg: LooseObject;
@@ -22,8 +22,12 @@ export abstract class Base implements IBase {
         const defaultCfg = this.getDefaultCfg();
         this._cfg = _merge(defaultCfg, cfg);
     }
-    get(key) {
-        return this._cfg[key];
+    get(keystr) {
+        const keys = keystr.split('.');
+        const resval = keys.reduce((accur, key) => {
+            return accur[key];
+        }, this._cfg);
+        return resval;
     }
     set(key, value) {
         this._cfg[key] = value;

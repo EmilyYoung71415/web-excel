@@ -1,6 +1,7 @@
 import { EngineOption, CanvasCfg } from '@type/index';
 
 export const defaultEngineOption: EngineOption = {
+    container: null,
     // 外观配置项
     viewOption: {
         showToolbar: true,
