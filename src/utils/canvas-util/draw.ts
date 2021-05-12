@@ -12,22 +12,7 @@
 // • 长度（周长）：用户 lineDash 动画计算 和 按照比例获取点
 // • 按照比例获取点：给出一个比例值获取对应的点，用于沿着图形的运动动画以及文本定位等
 // • 指定点的切线：绘制箭头
-import { CanvasCtxAttrs } from '../../type';
 
 export const isColorProp = (prop: string): boolean => {
     return ['fillStyle', 'strokeStyle'].includes(prop);
-};
-
-const CANVAS_ATTRS_MAP = {
-    bgcolor: 'fillStyle',
-    linecolor: 'strokeStyle',
-    opacity: 'globalAlpha',
-};
-
-export function applyAttrsToContext(context: CanvasRenderingContext2D, attrs: CanvasCtxAttrs): void {
-    for (let k in attrs) {
-        const v = attrs[k];
-        const name = CANVAS_ATTRS_MAP[k] ? CANVAS_ATTRS_MAP[k] : k;
-        context[name] = v;
-    }
 };

@@ -5,7 +5,7 @@
  * - 设置笔触
  */
 import {Base} from './base';
-import {RectOffset, CanvasCfg, Point, CanvasCtxAttrs} from '../../type';
+import {RectOffset, CanvasCfg, Point, CanvasCtxAttrs} from '../type';
 
 const CANVAS_ATTRS_MAP = {
     bgcolor: 'fillStyle',

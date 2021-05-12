@@ -133,6 +133,7 @@ export type InteractOption = {
 }
 
 export type EngineOption = {
+    container: HTMLElement | null;
     // 外观配置项
     viewOption: ViewOption;
     // 交互配置项
@@ -145,12 +146,15 @@ export type EngineOption = {
 // 笔触的设置
 export type CanvasCtxAttrs = {
     globalAlpha?: number;
-    fillStyle?: string;
+    fillstyle?: string;
     strokeStyle?: string;
-    lineWidth?: number;
+    linewidth?: number;
     font?: string;
-    textAlign?: string;
-    textBaseline?: string;
+    textalign?: string;
+    textbaseline?: string;
+    // 复合
+    bgcolor?: string;
+    linecolor?: string;
 }
 
 // Cursor style
@@ -183,4 +187,14 @@ export type CanvasCfg = {
 export type Point = {
     x: number;
     y: number;
+}
+
+/*--------------
+    viewdata
+-------------*/
+export type GridIdxToOffsetMap = {
+    rowsumheight: number,
+    colsumwidth: number,
+    row: Array<{ ri, top, height }> | [],
+    col: Array<{ ci, left, width }> | [],
 }

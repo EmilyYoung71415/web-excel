@@ -1,8 +1,8 @@
 
 import {Point, Cursor, CanvasChangeType, CanvasCfg, RangeIndexes, Rect, RectOffset, CanvasCtxAttrs} from '../../type';
 import {defaultCanvasOption} from '../../config/engineoption';
-import {RangeController} from '../rangeman';
-import {AbstraCanvas} from '../abstract/canvas';
+import {RangeRenderController} from '../rangeman';
+import {AbstraCanvas} from '../../abstract/canvas';
 
 type clientPoint = {
     clientX: number; // 点相对于浏览器的定位
@@ -22,10 +22,10 @@ interface ICanvas {
     onCanvasChange(changeType: CanvasChangeType);
     draw(viewdata: unknown);
 }
-export class CanvasView extends AbstraCanvas implements ICanvas {
+export class CanvasRender extends AbstraCanvas implements ICanvas {
     // canvasCoord: Point; // canvas自身坐标系 取值为整数
     clientRect: RectOffset; // FIXME:  为啥 grid-range拿不到这里的公共的数据？
-    private _rangeController: RangeController; // canvas的绘制任务由range控制
+    private _rangeRenderController: RangeRenderController; // canvas的绘制任务由range控制
     changeType: CanvasChangeType;
     getDefaultCfg() {
         return defaultCanvasOption;
@@ -34,7 +34,7 @@ export class CanvasView extends AbstraCanvas implements ICanvas {
         cfg: CanvasCfg
     ) {
         super(cfg);
-        this._rangeController = new RangeController(this);
+        this._rangeRenderController = new RangeRenderController(this);
         // this._initEvents();
     }
     onCanvasChange(changeType: CanvasChangeType) {
@@ -49,7 +49,7 @@ export class CanvasView extends AbstraCanvas implements ICanvas {
         // }
     }
     draw(viewdata: unknown) {
-        this._rangeController.command('drawall', viewdata);
+        this._rangeRenderController.command('drawall', viewdata);
     }
     _initDom() {
         super._initDom();

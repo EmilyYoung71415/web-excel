@@ -1,4 +1,4 @@
-import { EngineOption, CanvasCfg } from '@type/index';
+import {EngineOption, CanvasCfg} from '@type/index';
 
 export const defaultEngineOption: EngineOption = {
     container: null,

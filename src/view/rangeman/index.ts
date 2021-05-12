@@ -6,26 +6,26 @@
  * - 条件格式
  * - 格式刷
  */
-import { GridRange } from './grid-range';
-import { FixedHeaderRange } from './fixedheader-range';
-import { _merge } from '../../utils';
-import { GridIdxToOffsetMap } from '../../type';
-import { CanvasView } from '../view/canvas';
+import {GridRange} from './grid-range';
+import {FixedHeaderRange} from './fixedheader-range';
+import {_merge} from '../../utils';
+import {GridIdxToOffsetMap} from '../../type';
+import {CanvasRender} from '../render/canvas';
 
 const COMMAND = {
     // 'drawall': // 整个可视区域
 };
 
-export class RangeController {
+export class RangeRenderController {
     private _gridRange: GridRange;
     private _fixedHeaderRange: FixedHeaderRange;
     private _cacheQueue: unknown;
     private _viewdata: unknown;
-    canvas: CanvasView;
+    canvas: CanvasRender;
     dataStore: {
         gridmap: GridIdxToOffsetMap | null;
     };
-    constructor(canvas: CanvasView) {
+    constructor(canvas: CanvasRender) {
         this.canvas = canvas;
         this.dataStore = {
             gridmap: null,
@@ -44,11 +44,11 @@ export class RangeController {
         // viewdata暂时先这样处理
         this._viewdata = _merge(this._viewdata, viewdata);
         switch (action) {
-            case 'drawall': // 特殊的选区key
-                this.render('drawall');
-                break;
-            default:
-                break;
+        case 'drawall': // 特殊的选区key
+            this.render('drawall');
+            break;
+        default:
+            break;
         }
     }
     // 局部更新是 以rangeidx 聚合 range 渲染

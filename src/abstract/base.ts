@@ -4,8 +4,8 @@
  * - 通过this.get(xx) 来读取this._cfg.xx
  * - this.set同理
  */
-import { _merge } from '../../utils';
-import { LooseObject } from '../../interface';
+import {_merge} from '../utils';
+import {LooseObject} from '../interface';
 
 export interface IBase {
     _cfg: LooseObject;

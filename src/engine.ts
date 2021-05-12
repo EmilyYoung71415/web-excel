@@ -1,12 +1,12 @@
-import { EngineOption, Mdata } from './type';
-import { defaultEngineOption } from './config/engineoption';
-import { CanvasView } from './core/view';
-import { _merge } from './utils';
-import { Base } from './core/abstract/base';
+import {EngineOption, Mdata} from './type';
+import {defaultEngineOption} from './config/engineoption';
+import {CanvasRender} from './view/render';
+import {_merge} from './utils';
+import {Base} from './abstract/base';
 export class Engine extends Base {
     // 数据
     private _sources: Mdata = null;
-    private canvasView: CanvasView;
+    private canvasRender: CanvasRender;
     getDefaultCfg() {
         return {
             ...defaultEngineOption,
@@ -14,7 +14,7 @@ export class Engine extends Base {
     }
     constructor(engineOpt: EngineOption) {
         super(engineOpt);
-        this.canvasView = new CanvasView({
+        this.canvasRender = new CanvasRender({
             container: engineOpt.container,
             width: this.get('viewOption.viewWidth'),
             height: this.get('viewOption.viewHeight'),
@@ -54,7 +54,7 @@ export class Engine extends Base {
             },
             // 还差绘制的矩形范围
         };
-        this.canvasView.draw(viewdata);
+        this.canvasRender.draw(viewdata);
         return this; // source可连续调用
         // 根据source判断是否更新
         // 若前后数据没有发生变化，什么也不干（将json字符串化后比较）

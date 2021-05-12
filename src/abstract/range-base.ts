@@ -1,19 +1,19 @@
-import { RangeController } from '../rangeman/index'; // 抽象依赖于具体了。。
-import { Base } from './base';
-import { LooseObject } from '../../interface';
-import { CanvasView } from '../view/canvas';
+import {RangeRenderController} from '../view/rangeman'; // 抽象依赖于具体了。。FIXME: 改为依赖抽象的接口
+import {Base} from './base';
+import {LooseObject} from '../interface';
+import {CanvasRender} from '../view/render/canvas'; // FIXME: 改为依赖抽象的接口
 
 export abstract class BaseRange extends Base {
     protected _ctx: CanvasRenderingContext2D;
     protected _style: LooseObject;
-    protected _props: RangeController;
-    protected _canvas: CanvasView;
+    protected _props: RangeRenderController;
+    protected _canvas: CanvasRender;
     getDefaultCfg() {
         const cfg = super.getDefaultCfg();
         return cfg;
     }
     constructor(
-        rangecontroller: RangeController,
+        rangecontroller: RangeRenderController,
         cfg?: LooseObject
     ) {
         super(cfg);
