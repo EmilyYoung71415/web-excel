@@ -8,24 +8,18 @@
  *   setRange(RangeIndexes).gridRender({linewidth:2});// 局部渲染 & 修改部分设置
  *   setRange(sri:-1, sci:-1).gridRender() // 全局重绘
  */
-import {GridIdxToOffsetMap, RectOffset, GridMdata, ScrollIndexes, Point, RangeIndexes} from '../../type';
-import {RangeController} from './index';
-import {CanvasView} from '../view/canvas';
+import { GridIdxToOffsetMap, RectOffset, GridMdata, ScrollIndexes, Point, RangeIndexes } from '../../type';
+import { RangeController } from './index';
+import { BaseRange } from '../abstract/range-base';
 // 当前view组件渲染所需的viewdata
 // 以后会由上层注入进来
 const gridRangeViewData = {
-    scrollindexes: {ri: 0, ci: 0},
+    scrollindexes: { ri: 0, ci: 0 },
     rect: {
         left: 0,
         top: 0,
         width: 800, // viewwidth
         height: 400,
-    },
-    style: {
-        bgcolor: '#fff',
-        // cellpadding:,
-        linewidth: .5,
-        linecolor: '#333333',
     },
     fixedheadermargin: {
         left: 50,
@@ -57,55 +51,41 @@ const gridRangeViewData = {
         },
     },
 };
-
-type lineStyle = {
-    lineWidth: number;
-    strokeStyle: string;
-}
-
 interface IGridRange {
     render: (renderRange?: RangeIndexes) => void;
 }
 
-export class GridRange implements IGridRange {
+export class GridRange extends BaseRange implements IGridRange {
     namespace: string;
     // 画布全局状态：滚动距离、画布大小
     private _scrollindexes: ScrollIndexes;
     private _rect: RectOffset; // 绘制的区域
     private _fixedheadermargin: { left: number; top: number; }; // 为索引栏绘制预留区域
-
-    // range状态：笔触、绘制区域
-    private _ctx: CanvasRenderingContext2D;
-
-    // range绘制细节依赖：绘制数据
-    private _style: {
-        linecolor: string;
-        linewidth: number;
-        bgcolor: string;
-    };
     private _source: GridMdata;
 
     // 棋盘映射: idx=>物理坐标
     public gridmap: GridIdxToOffsetMap;
-
-    // props
-    private _props: RangeController;
-    private _canvas: CanvasView;
-
+    getDefaultCfg() {
+        return {
+            style: {
+                bgcolor: '#fff',
+                // cellpadding:,
+                linewidth: .5,
+                linecolor: '#333333',
+            },
+        };
+    }
     constructor(rangecontroller: RangeController) {
-        this._props = rangecontroller;
-        this._canvas = rangecontroller.canvas;
-        this._ctx = this._canvas.get('context');
+        super(rangecontroller);
         this._rect = this._canvas.getViewRange();
         this._scrollindexes = gridRangeViewData.scrollindexes;
         this._fixedheadermargin = gridRangeViewData.fixedheadermargin;
         this.namespace = 'grid-range';
-        this._style = gridRangeViewData.style;
         this._source = gridRangeViewData.source;
-        this.gridmap = {rowsumheight: 0, colsumwidth: 0, row: [], col: []};
+        this.gridmap = { rowsumheight: 0, colsumwidth: 0, row: [], col: [] };
 
         window.addEventListener('click', () => {
-            this.render({sri: 0, sci: 0, eri: 4, eci: 4});
+            this.render({ sri: 0, sci: 0, eri: 4, eci: 4 });
         });
     }
     // 不传则是全部重绘
@@ -168,9 +148,9 @@ export class GridRange implements IGridRange {
     }
     private _renderGridBg() {
         const context = this._ctx;
-        const {left, top, width, height} = this._rect;
+        const { left, top, width, height } = this._rect;
         context.save();
-        this._canvas.applyAttrToCtx({bgcolor: this._style.bgcolor});
+        this._canvas.applyAttrToCtx({ bgcolor: this._style.bgcolor });
         context.fillRect(left, top, width, height);
         context.restore();
     }
@@ -205,10 +185,10 @@ export class GridRange implements IGridRange {
         for (let i = 0; i < rowLen; i++) {
             if (isRow) {
                 // 要开放为画range的话 就不能是写死的:x:0
-                this._canvas.drawLine({x: 0, y: startY}, {x: rowWidth, y: endY});
+                this._canvas.drawLine({ x: 0, y: startY }, { x: rowWidth, y: endY });
             }
             else {
-                this._canvas.drawLine({x: startY, y: 0}, {x: endY, y: rowWidth});
+                this._canvas.drawLine({ x: startY, y: 0 }, { x: endY, y: rowWidth });
             }
             const curSpRow = (this._source[`${isRow ? 'rowm' : 'colm'}`] || {})[i + rowAddedIdx];
             const curRowHeight = curSpRow ? curSpRow.size : rowHeight;

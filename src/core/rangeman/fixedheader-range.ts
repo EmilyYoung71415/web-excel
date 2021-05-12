@@ -7,7 +7,7 @@
  */
 import { GridIdxToOffsetMap, RectOffset, ScrollIndexes, Point } from '../../type';
 import { RangeController } from './index';
-import { CanvasView } from '../view/canvas';
+import { BaseRange } from '../abstract/range-base';
 
 const viewData = {
     scrollindexes: { ri: 0, ci: 0 },
@@ -21,50 +21,36 @@ const viewData = {
         width: 800, // viewwidth
         height: 400,
     },
-    style: {// fixedheader
-        bgcolor: '#f4f5f8', // 585757
-        linewidth: .5,
-        linecolor: '#d0d0d0',
-        text: {
-            align: 'center',
-            baseline: 'middle',
-            size: 12,
-            family: 'sans-serif',
-        },
-    },
     // source: gridmap,
 };
-interface IHeaderRange {
-    render: () => void;
-}
-
-export class FixedHeaderRange implements IHeaderRange {
+export class FixedHeaderRange extends BaseRange {
     namespace: string;
     // 画布全局状态：滚动距离、画布大小
     private _scrollindexes: ScrollIndexes;
     private _rowheadrect: RectOffset; // 绘制的区域
     private _colheadrect: RectOffset; // 绘制的区域
-    // private _fixedheadermargin: { left: number; top: number; };
-
-    // range状态：笔触、绘制区域
-    private _ctx: CanvasRenderingContext2D;
-
-    // range绘制细节依赖：绘制数据
-    private _style: {
-        linecolor: string;
-        linewidth: number;
-        bgcolor: string;
-    };
+    private _fixedheadermargin: { left: number; top: number; };
     private _source: GridIdxToOffsetMap;
 
-    private _props: RangeController;
-    private _canvas: CanvasView;
+    getDefaultCfg() {
+        return {
+            style: {
+                bgcolor: '#f4f5f8',
+                linewidth: .5,
+                linecolor: '#d0d0d0',
+                text: {
+                    align: 'center',
+                    baseline: 'middle',
+                    size: 12,
+                    family: 'sans-serif',
+                },
+            },
+        };
+    }
     constructor(
         rangecontroller: RangeController
     ) {
-        this._props = rangecontroller;
-        this._canvas = rangecontroller.canvas;
-        this._ctx = this._canvas.get('context');
+        super(rangecontroller);
         this._scrollindexes = viewData.scrollindexes;
         this._rowheadrect = {
             left: viewData.fixedheadermargin.left,
@@ -78,15 +64,12 @@ export class FixedHeaderRange implements IHeaderRange {
             width: viewData.fixedheadermargin.left,
             height: viewData.rect.height,
         };
-        this._style = viewData.style;
+        this._fixedheadermargin = viewData.fixedheadermargin;
     }
     render() {
         this._source = this._props.dataStore.gridmap;
         // FIXME:应该是gridmap，先渲染grid 再渲染content
-        const fixedheadermargin = {
-            left: 50,
-            top: 25,
-        };
+        const fixedheadermargin = this._fixedheadermargin;
         this._ctx.save();
         this._ctx.translate(-fixedheadermargin.left, -fixedheadermargin.top);
         this._canvas.drawRegion(this._rowheadrect, this._renderHeader.bind(this, true));
@@ -98,9 +81,8 @@ export class FixedHeaderRange implements IHeaderRange {
         const col = this._source[`${isRow ? 'col' : 'row'}`];
         const context = this._ctx;
         context.save();
-        this._canvas.applyAttrToCtx({ bgcolor: this._style.bgcolor });
-        context.fillRect(left, top, width, height);
         this._canvas.applyAttrToCtx({ ...this._style });
+        context.fillRect(left, top, width, height);
         let curx = isRow ? left : top;
         const key = isRow ? 'width' : 'height';
         col.forEach(item => {
