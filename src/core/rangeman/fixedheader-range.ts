@@ -6,8 +6,8 @@
  * - mousedown：辅助线
  */
 import { GridIdxToOffsetMap, RectOffset, ScrollIndexes, Point } from '../../type';
-import { applyAttrsToContext } from '../../utils/canvas-util/draw';
 import { RangeController } from './index';
+import { CanvasView } from '../view/canvas';
 
 const viewData = {
     scrollindexes: { ri: 0, ci: 0 },
@@ -50,18 +50,21 @@ export class FixedHeaderRange implements IHeaderRange {
     private _ctx: CanvasRenderingContext2D;
 
     // range绘制细节依赖：绘制数据
-    private _bgstyle: string;
-    private _linecolor: string;
-    private _linewidth: number;
+    private _style: {
+        linecolor: string;
+        linewidth: number;
+        bgcolor: string;
+    };
     private _source: GridIdxToOffsetMap;
 
     private _props: RangeController;
+    private _canvas: CanvasView;
     constructor(
-        _ctx: CanvasRenderingContext2D,
         rangecontroller: RangeController
     ) {
         this._props = rangecontroller;
-        this._ctx = _ctx;
+        this._canvas = rangecontroller.canvas;
+        this._ctx = this._canvas.get('context');
         this._scrollindexes = viewData.scrollindexes;
         this._rowheadrect = {
             left: viewData.fixedheadermargin.left,
@@ -75,46 +78,42 @@ export class FixedHeaderRange implements IHeaderRange {
             width: viewData.fixedheadermargin.left,
             height: viewData.rect.height,
         };
-        this._bgstyle = viewData.style.bgcolor;
-        this._linecolor = viewData.style.linecolor;
-        this._linewidth = viewData.style.linewidth;
+        this._style = viewData.style;
     }
     render() {
         this._source = this._props.dataStore.gridmap;
-        this._renderHeader(true);
-        this._renderHeader(false);
+        // FIXME:应该是gridmap，先渲染grid 再渲染content
+        const fixedheadermargin = {
+            left: 50,
+            top: 25,
+        };
+        this._ctx.save();
+        this._ctx.translate(-fixedheadermargin.left, -fixedheadermargin.top);
+        this._canvas.drawRegion(this._rowheadrect, this._renderHeader.bind(this, true));
+        this._canvas.drawRegion(this._colheadrect, this._renderHeader.bind(this, false));
+        this._ctx.restore();
     }
     _renderHeader(isRow: boolean) {
         const { left, top, width, height } = this[`${isRow ? '_rowheadrect' : '_colheadrect'}`];
         const col = this._source[`${isRow ? 'col' : 'row'}`];
         const context = this._ctx;
         context.save();
-        context.clearRect(left, top, width, height);
-        context.beginPath();
-        context.rect(left, top, width, height);
-        context.clip();
-        applyAttrsToContext(context, { fillStyle: this._bgstyle });
+        this._canvas.applyAttrToCtx({ bgcolor: this._style.bgcolor });
         context.fillRect(left, top, width, height);
-        applyAttrsToContext(context, { strokeStyle: this._linecolor, lineWidth: this._linewidth });
+        this._canvas.applyAttrToCtx({ ...this._style });
         let curx = isRow ? left : top;
         const key = isRow ? 'width' : 'height';
         col.forEach(item => {
             const colwidth = item[key];
             if (isRow) {
-                this._drawLine({ x: curx, y: top }, { x: curx, y: top + height });
+                this._canvas.drawLine({ x: curx, y: top }, { x: curx, y: top + height });
             }
             else {
-                this._drawLine({ x: left, y: curx }, { x: left + width, y: curx });
+                this._canvas.drawLine({ x: left, y: curx }, { x: left + width, y: curx });
             }
             // TODO:  填充字
             curx += colwidth;
         });
         context.restore();
-    }
-    private _drawLine(start: Point, end: Point) {
-        const context = this._ctx;
-        context.moveTo(start.x, start.y);    // 起点
-        context.lineTo(end.x, end.y);// 终点
-        context.stroke();
     }
 }
