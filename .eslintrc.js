@@ -1,6 +1,6 @@
 module.exports = {
     root: true,
-    extends: ['@ecomfe/eslint-config', 'plugin:@typescript-eslint/recommended'],
+    extends: ['plugin:@typescript-eslint/recommended'],
     plugins: ['@typescript-eslint'],
     parser: '@typescript-eslint/parser',
     rules: {

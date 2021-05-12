@@ -8,13 +8,13 @@
  *   setRange(RangeIndexes).gridRender({linewidth:2});// 局部渲染 & 修改部分设置
  *   setRange(sri:-1, sci:-1).gridRender() // 全局重绘
  */
-import {GridIdxToOffsetMap, RectOffset, GridMdata, ScrollIndexes, Point, RangeIndexes} from '../../type';
-import {RangeRenderController} from './index';
-import {BaseRange} from '../../abstract/range-base';
+import { GridIdxToOffsetMap, RectOffset, GridMdata, ScrollIndexes, Point, RangeIndexes } from '../../type';
+import { RangeRenderController } from './index';
+import { BaseRange } from '../../abstract/range-base';
 // 当前view组件渲染所需的viewdata
 // 以后会由上层注入进来
 const gridRangeViewData = {
-    scrollindexes: {ri: 0, ci: 0},
+    scrollindexes: { ri: 0, ci: 0 },
     rect: {
         left: 0,
         top: 0,
@@ -82,10 +82,10 @@ export class GridRange extends BaseRange implements IGridRange {
         this._fixedheadermargin = gridRangeViewData.fixedheadermargin;
         this.namespace = 'grid-range';
         this._source = gridRangeViewData.source;
-        this.gridmap = {rowsumheight: 0, colsumwidth: 0, row: [], col: []};
+        this.gridmap = { rowsumheight: 0, colsumwidth: 0, row: [], col: [] };
 
         window.addEventListener('click', () => {
-            this.render({sri: 0, sci: 0, eri: 4, eci: 4});
+            this.render({ sri: 0, sci: 0, eri: 4, eci: 4 });
         });
     }
     // 不传则是全部重绘
@@ -148,9 +148,9 @@ export class GridRange extends BaseRange implements IGridRange {
     }
     private _renderGridBg() {
         const context = this._ctx;
-        const {left, top, width, height} = this._rect;
+        const { left, top, width, height } = this._rect;
         context.save();
-        this._canvas.applyAttrToCtx({bgcolor: this._style.bgcolor});
+        this._canvas.applyAttrToCtx({ bgcolor: this._style.bgcolor });
         context.fillRect(left, top, width, height);
         context.restore();
     }
@@ -185,10 +185,10 @@ export class GridRange extends BaseRange implements IGridRange {
         for (let i = 0; i < rowLen; i++) {
             if (isRow) {
                 // 要开放为画range的话 就不能是写死的:x:0
-                this._canvas.drawLine({x: 0, y: startY}, {x: rowWidth, y: endY});
+                this._canvas.drawLine({ x: 0, y: startY }, { x: rowWidth, y: endY });
             }
             else {
-                this._canvas.drawLine({x: startY, y: 0}, {x: endY, y: rowWidth});
+                this._canvas.drawLine({ x: startY, y: 0 }, { x: endY, y: rowWidth });
             }
             const curSpRow = (this._source[`${isRow ? 'rowm' : 'colm'}`] || {})[i + rowAddedIdx];
             const curRowHeight = curSpRow ? curSpRow.size : rowHeight;

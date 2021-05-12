@@ -1,4 +1,4 @@
-import { Mdata } from '@type/index';
+import {Mdata} from '@type/index';
 
 export const ModelData: Mdata = {
     row: {
@@ -20,4 +20,9 @@ export const ModelData: Mdata = {
         ci: 0,
     },
     selectRectIndexes: null,
+    ranges: {
+        '[[1,1],[3,3]]': {
+            bgcolor: 'red',
+        },
+    },
 };

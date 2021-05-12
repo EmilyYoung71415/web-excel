@@ -5,12 +5,12 @@
  * - select：选中 对应行列的表头块高亮
  * - mousedown：辅助线
  */
-import {GridIdxToOffsetMap, RectOffset, ScrollIndexes, Point} from '../../type';
-import {RangeRenderController} from './index';
-import {BaseRange} from '../../abstract/range-base';
+import { GridIdxToOffsetMap, RectOffset, ScrollIndexes, Point } from '../../type';
+import { RangeRenderController } from './index';
+import { BaseRange } from '../../abstract/range-base';
 
 const viewData = {
-    scrollindexes: {ri: 0, ci: 0},
+    scrollindexes: { ri: 0, ci: 0 },
     fixedheadermargin: {
         left: 50,
         top: 25,
@@ -77,21 +77,21 @@ export class FixedHeaderRange extends BaseRange {
         this._ctx.restore();
     }
     _renderHeader(isRow: boolean) {
-        const {left, top, width, height} = this[`${isRow ? '_rowheadrect' : '_colheadrect'}`];
+        const { left, top, width, height } = this[`${isRow ? '_rowheadrect' : '_colheadrect'}`];
         const col = this._source[`${isRow ? 'col' : 'row'}`];
         const context = this._ctx;
         context.save();
-        this._canvas.applyAttrToCtx({...this._style});
+        this._canvas.applyAttrToCtx({ ...this._style });
         context.fillRect(left, top, width, height);
         let curx = isRow ? left : top;
         const key = isRow ? 'width' : 'height';
         col.forEach(item => {
             const colwidth = item[key];
             if (isRow) {
-                this._canvas.drawLine({x: curx, y: top}, {x: curx, y: top + height});
+                this._canvas.drawLine({ x: curx, y: top }, { x: curx, y: top + height });
             }
             else {
-                this._canvas.drawLine({x: left, y: curx}, {x: left + width, y: curx});
+                this._canvas.drawLine({ x: left, y: curx }, { x: left + width, y: curx });
             }
             // TODO:  填充字
             curx += colwidth;

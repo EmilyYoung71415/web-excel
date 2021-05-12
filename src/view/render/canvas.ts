@@ -1,8 +1,8 @@
 
-import {Point, Cursor, CanvasChangeType, CanvasCfg, RangeIndexes, Rect, RectOffset, CanvasCtxAttrs} from '../../type';
-import {defaultCanvasOption} from '../../config/engineoption';
-import {RangeRenderController} from '../rangeman';
-import {AbstraCanvas} from '../../abstract/canvas';
+import { Point, Cursor, CanvasChangeType, CanvasCfg, RangeIndexes, Rect, RectOffset, CanvasCtxAttrs } from '../../type';
+import { defaultCanvasOption } from '../../config/engineoption';
+import { RangeRenderController } from '../rangeman';
+import { AbstraCanvas } from '../../abstract/canvas';
 
 type clientPoint = {
     clientX: number; // 点相对于浏览器的定位

@@ -1,4 +1,4 @@
-import {RangeIndexes, RectOffset} from '../type';
+import { RangeIndexes, RectOffset } from '../type';
 export interface IEngine {
     getCtx: () => CanvasRenderingContext2D;
     // 算上scrollIdx

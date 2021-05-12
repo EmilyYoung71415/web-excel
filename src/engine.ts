@@ -1,8 +1,8 @@
-import {EngineOption, Mdata} from './type';
-import {defaultEngineOption} from './config/engineoption';
-import {CanvasRender} from './view/render';
-import {_merge} from './utils';
-import {Base} from './abstract/base';
+import { EngineOption, Mdata } from './type';
+import { defaultEngineOption } from './config/engineoption';
+import { CanvasRender } from './view/render';
+import { _merge } from './utils';
+import { Base } from './abstract/base';
 export class Engine extends Base {
     // 数据
     private _sources: Mdata = null;

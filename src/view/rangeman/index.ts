@@ -6,11 +6,11 @@
  * - 条件格式
  * - 格式刷
  */
-import {GridRange} from './grid-range';
-import {FixedHeaderRange} from './fixedheader-range';
-import {_merge} from '../../utils';
-import {GridIdxToOffsetMap} from '../../type';
-import {CanvasRender} from '../render/canvas';
+import { GridRange } from './grid-range';
+import { FixedHeaderRange } from './fixedheader-range';
+import { _merge } from '../../utils';
+import { GridIdxToOffsetMap } from '../../type';
+import { CanvasRender } from '../render/canvas';
 
 const COMMAND = {
     // 'drawall': // 整个可视区域

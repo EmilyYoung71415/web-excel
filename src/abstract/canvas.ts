@@ -4,13 +4,13 @@
  * - 画线
  * - 设置笔触
  */
-import {Base} from './base';
-import {RectOffset, CanvasCfg, Point, CanvasCtxAttrs} from '../type';
+import { Base } from './base';
+import { RectOffset, CanvasCfg, Point, CanvasCtxAttrs } from '../type';
 
 const CANVAS_ATTRS_MAP = {
     bgcolor: 'fillStyle',
     linecolor: 'strokeStyle',
-    opacity: 'globalAlpha',
+    opacity: 'globalAlpha'
 };
 
 // 不需要将ctx传来传去
@@ -38,7 +38,7 @@ export abstract class AbstraCanvas extends Base implements ICanvas {
     }
     drawRegion(rect: RectOffset, renderfn: (ctx: CanvasRenderingContext2D) => void) {
         const context = this.get('context');
-        const {left, top, width, height} = rect;
+        const { left, top, width, height } = rect;
         context.clearRect(left, top, width, height);
         context.save();
         context.beginPath();
@@ -56,7 +56,7 @@ export abstract class AbstraCanvas extends Base implements ICanvas {
     }
     drawRect(fillcolor: string, rect: RectOffset) {
         const context = this.get('context');
-        const {left, top, width, height} = rect;
+        const { left, top, width, height } = rect;
         context.fillStyle = fillcolor;
         context.fillRect(left, top, width, height);
     }
