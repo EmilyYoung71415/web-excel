@@ -16,15 +16,14 @@ export class Engine extends Base {
     }
     constructor(engineOpt: EngineOption) {
         super(engineOpt);
+        this.canvasRender = new CanvasRender(engineOpt.container);
+        // gridmap、srollindex等变量
+        // 当这些变量更改的时候 需要让render定义去render
         this.dataModel = new DataModel({
             viewHeight: this.get('viewOption.viewHeight'),
             viewWidth: this.get('viewOption.viewWidth'),
+            canvasrender: this.canvasRender
         });
-        // this.canvasRender = new CanvasRender({
-        //     container: engineOpt.container,
-        //     width: this.get('viewOption.viewWidth'),
-        //     height: this.get('viewOption.viewHeight'),
-        // });
         // this.rangeController = new RangeController();
         // this.renderController = new RenderController(
         //     this.rangeController

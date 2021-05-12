@@ -7,6 +7,7 @@ import {
     GridMdata
 } from '../type/index';
 import { _merge } from '../utils/index';
+import { CanvasRender } from '../view/render/canvas';
 
 interface IDataModel {
     // 外界载入grid棋盘数据 如果没有主动调用 那会启用默认的生成棋盘格
@@ -26,11 +27,15 @@ const defaultGridData = {
     col: { len: 25, size: 25, },
 }
 
+type DataModelConfig = ViewTableSize & {
+    canvasrender: CanvasRender
+}
 export class DataModel implements IDataModel {
     // 对source进行访问代理 this.source.data = this.data
     // 每次当source变化会重新计算gridmap棋盘格数据
     private _mdata: Mdata;
     private _grid: GridMdata;
+    private _canvasRender: CanvasRender;
     public gridmap: GridIdxToOffsetMap;
     private _getDefaultSource() {
         return {
@@ -44,12 +49,20 @@ export class DataModel implements IDataModel {
             selectRectIndexes: null,
         }
     }
-    constructor(viewopt: ViewTableSize) {
-        const defaultdata = this._getDefaultSource();
+    constructor(viewopt: DataModelConfig) {
         Promise.resolve().then(() => {
-            this._mdata = Object.assign(viewopt, defaultdata, this._grid);
-            this.computedGridMap();
-            console.log(this.gridmap);
+            this._init(viewopt);
+        });
+    }
+    _init(viewopt: DataModelConfig) {
+        const defaultdata = this._getDefaultSource();
+        this._mdata = Object.assign(viewopt, defaultdata, this._grid);
+        this._canvasRender = viewopt.canvasrender;
+        this.computedGridMap();
+        // 离线化 化了再放到画布上
+        this._canvasRender.drawAll({
+            gridmap: this.gridmap,
+            ...viewopt,
         });
     }
     resetGrid(grid: GridMdata): GridMdata {
@@ -59,6 +72,7 @@ export class DataModel implements IDataModel {
     computedGridMap() {
         const [rowsumheight, row] = this._buildLinesForRows(true);
         const [colsumwidth, col] = this._buildLinesForRows(false);
+        // gridmap棋盘格里记录的时候 scrollindex之后的
         this.gridmap = {
             rowsumheight,
             colsumwidth,

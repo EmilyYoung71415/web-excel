@@ -25,8 +25,8 @@ interface ICanvas {
 }
 
 export abstract class AbstraCanvas extends Base implements ICanvas {
-    constructor(cfg: CanvasCfg) {
-        super(cfg);
+    constructor(container: HTMLElement) {
+        super({ container });
         this._initContainer();
         this._initDom();
         // this.initEvents();
@@ -90,11 +90,8 @@ export abstract class AbstraCanvas extends Base implements ICanvas {
     protected _initDom() {
         const el = this._createDom();
         this.set('el', el);
-        // 附加到容器
-        const container = this.get('container');
-        container.appendChild(el);
         // 设置初始宽度
-        this._setDOMSize(this.get('width'), this.get('height'));
+        // this._setDOMSize(this.get('width'), this.get('height'));
     }
     // 创建画布容器
     // abstract createDom(): HTMLElement;
@@ -105,7 +102,10 @@ export abstract class AbstraCanvas extends Base implements ICanvas {
         this.set('context', context);
         return element;
     }
-    protected _setDOMSize(width: number, height: number) {
+    protected _setDOMSize() {
+        const width = this.get('width');
+        const height = this.get('height');
+        console.log('_setDOMSize', width);
         const el = this.get('el');
         const context = this.get('context');
         const pixelRatio = this._getPixelRatio();
@@ -117,6 +117,7 @@ export abstract class AbstraCanvas extends Base implements ICanvas {
             // 像素单位缩放
             context.scale(pixelRatio, pixelRatio);
         }
+        this.get('container').appendChild(el);
     }
     // 获取设备像素比
     protected _getPixelRatio() {

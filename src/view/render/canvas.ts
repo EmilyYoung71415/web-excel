@@ -1,5 +1,5 @@
 
-import { Point, Cursor, CanvasChangeType, CanvasCfg, RangeIndexes, Rect, RectOffset, CanvasCtxAttrs } from '../../type';
+import { GridIdxToOffsetMap, CanvasChangeType, CanvasCfg, RectOffset } from '../../type';
 import { defaultCanvasOption } from '../../config/engineoption';
 import { RangeRenderController } from '../rangeman';
 import { AbstraCanvas } from '../../abstract/canvas';
@@ -22,6 +22,13 @@ interface ICanvas {
     onCanvasChange(changeType: CanvasChangeType);
     draw(viewdata: unknown);
 }
+
+type IDrawAll = {
+    viewHeight: number;
+    viewWidth: number;
+    gridmap: GridIdxToOffsetMap;
+}
+
 export class CanvasRender extends AbstraCanvas implements ICanvas {
     // canvasCoord: Point; // canvas自身坐标系 取值为整数
     clientRect: RectOffset; // FIXME:  为啥 grid-range拿不到这里的公共的数据？
@@ -31,11 +38,18 @@ export class CanvasRender extends AbstraCanvas implements ICanvas {
         return defaultCanvasOption;
     }
     constructor(
-        cfg: CanvasCfg
+        container: HTMLElement,
     ) {
-        super(cfg);
+        super(container);
         this._rangeRenderController = new RangeRenderController(this);
         // this._initEvents();
+    }
+    // 初始化
+    drawAll(viewdata: IDrawAll) {
+        this.set('width', viewdata.viewWidth);
+        this.set('height', viewdata.viewHeight);
+        this._setDOMSize();
+        this._rangeRenderController.command('drawall', viewdata);
     }
     onCanvasChange(changeType: CanvasChangeType) {
         /**
@@ -49,10 +63,10 @@ export class CanvasRender extends AbstraCanvas implements ICanvas {
         // }
     }
     draw(viewdata: unknown) {
-        this._rangeRenderController.command('drawall', viewdata);
+
     }
-    _initDom() {
-        super._initDom();
+    _setDOMSize() {
+        super._setDOMSize();
         // 获取canvas绘制在dom上的：相对视窗的位置、大小
         setTimeout(() => {
             const bbox = this.get('el').getBoundingClientRect();
