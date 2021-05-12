@@ -41,15 +41,16 @@
                 {
                     viewOption: {
                         showToolbar: false,
-                        viewHeight: 800,
-                        viewWidth: 400
+                        viewHeight: 400,
+                        viewWidth: 800,
                     },
                     interactOption: {
                         canEdit: true 
                     }
                 }
             );
-            myexcel.source({
+            // 棋盘数据
+            myexcel.griddata({
                 row: {
                     size: 25,   // 行高
                     len: 20,    // 行总数
@@ -60,18 +61,21 @@
                     len: 20,
                 },
                 rowm: {// 特殊列 列高
-                    1: { height: 40}
+                    1: { size: 40}
                 },
                 colm: {
-                    1: { width: 60 },
-                    4: { width: 140 }
-                },
-                cellmm: {
-                    1: {
-                        1: { text: '输入长文字测试截断'},
-                    },
+                    1: { size: 60 },
+                    4: { size: 140 }
                 },
             });
+            // 表格数据
+            // myexcel.source({
+            //     cellmm: {
+            //         1: {
+            //             1: { text: '输入长文字测试截断'},
+            //         },
+            //     },
+            // });
         }
     </script>
 </body>

@@ -1,12 +1,14 @@
-import { EngineOption, Mdata } from './type';
+import { EngineOption, Mdata, GridMdata } from './type';
 import { defaultEngineOption } from './config/engineoption';
 import { CanvasRender } from './view/render';
 import { _merge } from './utils';
 import { Base } from './abstract/base';
+import { DataModel } from './model/mdata';
 export class Engine extends Base {
     // 数据
     private _sources: Mdata = null;
     private canvasRender: CanvasRender;
+    dataModel: DataModel;
     getDefaultCfg() {
         return {
             ...defaultEngineOption,
@@ -14,11 +16,15 @@ export class Engine extends Base {
     }
     constructor(engineOpt: EngineOption) {
         super(engineOpt);
-        this.canvasRender = new CanvasRender({
-            container: engineOpt.container,
-            width: this.get('viewOption.viewWidth'),
-            height: this.get('viewOption.viewHeight'),
+        this.dataModel = new DataModel({
+            viewHeight: this.get('viewOption.viewHeight'),
+            viewWidth: this.get('viewOption.viewWidth'),
         });
+        // this.canvasRender = new CanvasRender({
+        //     container: engineOpt.container,
+        //     width: this.get('viewOption.viewWidth'),
+        //     height: this.get('viewOption.viewHeight'),
+        // });
         // this.rangeController = new RangeController();
         // this.renderController = new RenderController(
         //     this.rangeController
@@ -31,34 +37,17 @@ export class Engine extends Base {
         // this.eventController = new EventController(
         //     this.dataModel
         // );
-        this.updateEngine();
+        // this.updateEngine();
+    }
+    griddata(grid: GridMdata) {
+        this.dataModel.resetGrid(grid);
+        return this;
     }
     // 载入数据
-    source(data: Mdata) {
-        // console.log('source', data);
-        const viewdata = {
-            selectRectIndexes: null,
-            scrollIndexes: {
-                ri: 1,
-                ci: 2,
-            },
-            // 数据有了
-            grid: {
-                style: this.get('viewOption.tableStyle'),
-                data: {
-                    col: data.col,
-                    colm: data.colm,
-                    row: data.row,
-                    rowm: data.rowm,
-                },
-            },
-            // 还差绘制的矩形范围
-        };
-        this.canvasRender.draw(viewdata);
-        return this; // source可连续调用
-        // 根据source判断是否更新
-        // 若前后数据没有发生变化，什么也不干（将json字符串化后比较）
-        // ？对新的数据进行依赖追踪（代理拦截
+    source() { // viewdata
+        // 暂时先以command: setRange(xx).bgcolor 来维护表格数据
+        // 之后会考虑开放更友好的api来载入数据
+        // 类似cellmm:{1:1{xxx}}
     }
     private updateEngine() {
         // console.log(this._cfg);

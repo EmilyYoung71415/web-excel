@@ -16,7 +16,7 @@ const XWebExcel = {
      */
     create(
         container: HTMLElement,
-        opt?: EngineOption
+        opt?: EngineOption,
     ): Engine {
         const engine = new Engine({
             container,
@@ -29,7 +29,7 @@ const XWebExcel = {
 
 
 if (window) {
-    window.XWebExcel = XWebExcel;
+    (window as any).XWebExcel = XWebExcel;
 }
 
 export default XWebExcel;

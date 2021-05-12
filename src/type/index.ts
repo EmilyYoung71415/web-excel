@@ -58,12 +58,6 @@ export type Range = RangeIndexes & RectOffset;
 /*--------------
     modeldata
 -------------*/
-
-type ScrollOffset = {
-    scrollLeft: number;
-    scrollTop: number;
-}
-
 export type ScrollIndexes = {
     ri: number;
     ci: number;
@@ -86,16 +80,24 @@ export type GridMdata = {
     colm?: Record<number, Record<number, RowOrCol>>;
 }
 
-export type Mdata = GridMdata & {
+// 表格数据
+export type SourceMdata = {
     // 表格合并的单元格集合
-    merges?: RangeIndexes[]; // [{}, {}]
-    // 高于cell单元格的一个概念 range：框选的单元格集合 左上角单元格-右下角单元格
-    range?: { [key: string]: Cell }; // key= JSON.stringify(RangeIndexes);
-    scrollOffset: ScrollOffset;
+    // merges?: RangeIndexes[]; // [{}, {}]
+    ranges?: {
+        // key:range: '[[1,1],[2,2]]'
+        // cell里的每个属性对应单独的range
+        [key: string]: Cell
+    };
+    // cellmm ? maybe
+}
+
+export type Mdata = ViewTableSize & GridMdata & SourceMdata & {
+    // 交互中的数据
+    scrollOffset: Point;
     scrollIndexes: ScrollIndexes;
     selectRectIndexes: RangeIndexes;
-};
-
+}
 
 /*--------------
     EngineOption
@@ -113,11 +115,14 @@ export type GridStyle = {
     },
 }
 
-export type ViewOption = {
-    showToolbar: boolean;
-    showCtxMenu: boolean;
+export type ViewTableSize = {
     viewHeight: number;
     viewWidth: number;
+}
+
+export type ViewOption = ViewTableSize & {
+    showToolbar: boolean;
+    showCtxMenu: boolean;
     tableStyle: GridStyle;
 }
 
@@ -195,6 +200,6 @@ export type Point = {
 export type GridIdxToOffsetMap = {
     rowsumheight: number,
     colsumwidth: number,
-    row: Array<{ ri, top, height }> | [],
-    col: Array<{ ci, left, width }> | [],
-}
+    row: Array<{ ri: number, top: number, height: number }> | [],
+    col: Array<{ ci: number, left: number, width: number }> | [],
+};
