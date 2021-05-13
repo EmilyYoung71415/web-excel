@@ -4,11 +4,12 @@ import {
     ViewTableSize,
     RectOffset,
     Point,
-    GridMdata
+    GridMdata,
+    RangeIndexes,
+    RangeOffset
 } from '../type/index';
-import { _merge } from '../utils/index';
+import { _merge, draw } from '../utils/index';
 import { CanvasRender } from '../view/render/canvas';
-
 interface IDataModel {
     // 外界载入grid棋盘数据 如果没有主动调用 那会启用默认的生成棋盘格
     resetGrid: (grid: GridMdata) => GridMdata;
@@ -17,7 +18,9 @@ interface IDataModel {
     // 载入表格数据
     source: (mdata: Mdata) => void;
     // 根据单元格的逻辑索引得到
-    getOffsetByIdx: (ri: number, ci: number) => RectOffset;
+    // getOffsetByIdx: (ri: number, ci: number) => RectOffset;
+    // // 根据单元格的逻辑索引得到
+    // getRangeOffsetByIdxes: (rect: RangeIndexes) => RangeOffset;
     // 根据点在画布上的物理坐标得到逻辑索引
     getIdxByPonit: (point: Point) => RectOffset;
 }
@@ -59,7 +62,7 @@ export class DataModel implements IDataModel {
         this._mdata = Object.assign(viewopt, defaultdata, this._grid);
         this._canvasRender = viewopt.canvasrender;
         this.computedGridMap();
-        // 离线化 化了再放到画布上
+        // // 离线化 化了再放到画布上
         this._canvasRender.drawAll({
             gridmap: this.gridmap,
             ...viewopt,
@@ -72,7 +75,7 @@ export class DataModel implements IDataModel {
     computedGridMap() {
         const [rowsumheight, row] = this._buildLinesForRows(true);
         const [colsumwidth, col] = this._buildLinesForRows(false);
-        // gridmap棋盘格里记录的时候 scrollindex之后的
+        // gridmap棋盘格里记录的索引key是相对的 即当前视图内的scrollindex之后的
         this.gridmap = {
             rowsumheight,
             colsumwidth,
@@ -83,14 +86,11 @@ export class DataModel implements IDataModel {
     source(mdata: Mdata) {
 
     }
-    getOffsetByIdx(ri: number, ci: number): RectOffset {
-        const gridmap = this.gridmap;
-        return {
-            left: gridmap.col[ci].left,
-            top: gridmap.row[ri].top,
-            width: gridmap.col[ci].width,
-            height: gridmap.row[ri].height,
-        }
+    _getOffsetByIdx(ri: number, ci: number): RectOffset {
+        return draw.getOffsetByIdx(this.gridmap, ri, ci);
+    }
+    _getRangeOffsetByIdxes(rect: RangeIndexes): RangeOffset {
+        return draw.getRangeOffsetByIdxes(this.gridmap, rect);
     }
     getIdxByPonit(point: Point): RectOffset {
         // 二分查找定位
@@ -117,9 +117,16 @@ export class DataModel implements IDataModel {
                 [`${isRow ? 'height' : 'width'}`]: curRowHeight,
             };
             if (curheight >= rowMaxHeight) {
-                return [curheight, rowarr];
+                // 多生成一个假数据=cell[i] 主要是为了复用left变量
+                rowarr[i + 1] = {
+                    [`${isRow ? 'ri' : 'ci'}`]: i + 1,
+                    [`${isRow ? 'top' : 'left'}`]: startY,
+                    [`${isRow ? 'height' : 'width'}`]: curRowHeight,
+                }
+                break;
             }
         }
+        // 棋盘刚好被整除进 virtualview = realview
         return [curheight, rowarr];
     }
 }

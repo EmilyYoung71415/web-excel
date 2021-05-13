@@ -105,7 +105,6 @@ export abstract class AbstraCanvas extends Base implements ICanvas {
     protected _setDOMSize() {
         const width = this.get('width');
         const height = this.get('height');
-        console.log('_setDOMSize', width);
         const el = this.get('el');
         const context = this.get('context');
         const pixelRatio = this._getPixelRatio();

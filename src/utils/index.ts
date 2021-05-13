@@ -1,4 +1,5 @@
 import { isObj } from './is-type';
+export * as draw from './canvas-util/draw';
 // 旧值依次挂在新值上
 // 与Object.assign的区别是：不会因为newObj没有x属性而直接替换oldObj后使得oldObj.x为空
 export function _merge<T extends Array<T> | any>(oldObj: T, newObj: T): T {

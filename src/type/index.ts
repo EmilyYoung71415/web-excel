@@ -43,6 +43,16 @@ export type RectOffset = {
     height: number;
 }
 
+// range 物理位置
+export type RangeOffset = {
+    left: number;
+    top: number;
+    right: number;
+    bottom: number;
+    width: number;
+    height: number;
+}
+
 export type Rect = RectIndexes & RectOffset;
 
 // range范围

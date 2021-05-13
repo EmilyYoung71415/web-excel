@@ -11,6 +11,7 @@
 import { GridIdxToOffsetMap, RectOffset, ScrollIndexes, RangeIndexes } from '../../type';
 import { RangeRenderController } from './index';
 import { BaseRange } from '../../abstract/range-base';
+import { draw } from '../../utils';
 // 当前view组件渲染所需的viewdata
 // 以后会由上层注入进来
 const gridRangeViewData = {
@@ -39,6 +40,7 @@ export class GridRange extends BaseRange implements IGridRange {
 
     // 棋盘映射: idx=>物理坐标
     public gridmap: GridIdxToOffsetMap;
+    private _allrange: RangeIndexes;
     getDefaultCfg() {
         return {
             style: {
@@ -54,6 +56,7 @@ export class GridRange extends BaseRange implements IGridRange {
         this._scrollindexes = gridRangeViewData.scrollindexes;
         this._fixedheadermargin = gridRangeViewData.fixedheadermargin;
         this.namespace = 'grid-range';
+        window.addEventListener('click', () => this.renderRange({ sri: 0, sci: 0, eri: 3, eci: 3 }))
     }
     // 不传则是全部重绘
     // render不支持修改绘制属性
@@ -62,11 +65,11 @@ export class GridRange extends BaseRange implements IGridRange {
         const { gridmap } = this._props.dataStore;
         this._rect = this._canvas.getViewRange();
         this.gridmap = gridmap;
+        this._allrange = { sri: 0, eri: gridmap.row.length - 2, sci: 0, eci: gridmap.col.length - 2 };
         if (!range) {
             this._renderAll();
         }
         else {
-            // this._canvas.drawRegion(this._rect, this._renderAll.bind(this));
             this.renderRange(range);
         }
     }
@@ -80,40 +83,35 @@ export class GridRange extends BaseRange implements IGridRange {
     }
     renderRange(range: RangeIndexes) {
         const gridmap = this.gridmap;
-        const { sri, eri, sci, eci } = range;
-        const sx = gridmap.col[sci].left;
-        const sy = gridmap.row[sri].top;
-        // 传入单元格范围:[1,1]~[3,3]即1,1的左上角~3,3的右下角，即4,4的左上角
-        const ex = gridmap.col[eci + 1].left;
-        const ey = gridmap.row[eri + 1].top;
-        const rect = { left: sx, top: sy, width: ex - sx, height: ey - sy };
         const context = this._ctx;
-        const { left, top, width, height } = rect;
-        context.clearRect(left, top, width, height);
+        const { left, top, width, height } = draw.getRangeOffsetByIdxes(gridmap, range);
         context.save();
         context.beginPath();
         context.rect(left, top, width, height);
         context.clip();
-        this._drawLines(range);
+        this._renderGridBg(range);
+        this._renderGridLines(range);
         context.restore();
     }
-    private _renderGridBg() {
+    private _renderGridBg(range?: RangeIndexes) {
         const context = this._ctx;
-        const { left, top, width, height } = this._rect;
+        const gridmap = this.gridmap;
         context.save();
+        const { left, top, width, height } = !range ? this._rect : draw.getRangeOffsetByIdxes(gridmap, range);
+        this._canvas.clearRect(left, top, width, height);
         this._canvas.applyAttrToCtx({ bgcolor: this._style.bgcolor });
         context.fillRect(left, top, width, height);
         context.restore();
     }
-    private _renderGridLines() {
+    private _renderGridLines(range?: RangeIndexes) {
         const context = this._ctx;
         context.save();
         this._canvas.applyAttrToCtx({
-            linecolor: this._style.linecolor,
+            linecolor: range ? 'blue' : this._style.linecolor,
             linewidth: this._style.linewidth,
         });
         // 开始遍历画线
-        this._drawLines();
+        this._drawLines(range);
         context.restore();
     }
     /**
@@ -123,31 +121,19 @@ export class GridRange extends BaseRange implements IGridRange {
      */
     private _drawLines(range?: RangeIndexes) {
         const gridmap = this.gridmap;
-        const allrange = {
-            sri: 0,
-            eri: gridmap.row.length - 2,
-            sci: 0,
-            eci: gridmap.col.length - 2,
-        };
-        const renderrange = range ? range : allrange;
-        const { sri, eri, sci, eci } = renderrange;
-        // TODO:  datamodel： getoffsetbyidx
-        const sx = gridmap.col[sci].left;
-        const sy = gridmap.row[sri].top;
-        // 传入单元格范围:[1,1]~[3,3]即1,1的左上角~3,3的右下角，即4,4的左上角
-        const ex = gridmap.col[eci + 1].left;
-        const ey = gridmap.row[eri + 1].top;
-        const rect = { left: sx, top: sy, width: ex - sx, height: ey - sy };
-        const { left, top, width, height } = rect;
-        this._canvas.clearRect(left, top, width, height);
+        const renderange = range ? range : this._allrange;
+        const { sri, sci, eci, eri } = renderange;
+        const { left, top, right, bottom, width, height } = draw.getRangeOffsetByIdxes(gridmap, renderange);
+        // this._canvas.clearRect(left, top, width, height);
+        // TODO：思考这一层 需要 加上scrollidx的影响吗
         for (let i = sri; i <= eri; i++) {
             const rowy = gridmap.row[i].top;
-            this._canvas.drawLine({ x: sx, y: rowy }, { x: ex, y: rowy });
+            this._canvas.drawLine({ x: left, y: rowy }, { x: right, y: rowy });
         }
         // 画竖线
         for (let i = sci; i <= eci; i++) {
             const colx = gridmap.col[i].left;
-            this._canvas.drawLine({ x: colx, y: sy }, { x: colx, y: ey });
+            this._canvas.drawLine({ x: colx, y: top }, { x: colx, y: bottom });
         }
     }
 }

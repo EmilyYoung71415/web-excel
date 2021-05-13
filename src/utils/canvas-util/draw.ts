@@ -12,7 +12,30 @@
 // • 长度（周长）：用户 lineDash 动画计算 和 按照比例获取点
 // • 按照比例获取点：给出一个比例值获取对应的点，用于沿着图形的运动动画以及文本定位等
 // • 指定点的切线：绘制箭头
-
+import { RangeIndexes, RectOffset, RangeOffset, GridIdxToOffsetMap } from '../../type/index';
 export const isColorProp = (prop: string): boolean => {
     return ['fillStyle', 'strokeStyle'].includes(prop);
 };
+
+export const getOffsetByIdx = (gridmap: GridIdxToOffsetMap, ri: number, ci: number): RectOffset => {
+    return {
+        left: gridmap.col[ci].left,
+        top: gridmap.row[ri].top,
+        width: gridmap.col[ci].width,
+        height: gridmap.row[ri].height,
+    }
+}
+
+// 传入单元格范围:[1,1]~[3,3]即1,1的左上角~3,3的右下角，即4,4的左上角
+export const getRangeOffsetByIdxes = (gridmap: GridIdxToOffsetMap, rect: RangeIndexes): RangeOffset => {
+    const sRect = getOffsetByIdx(gridmap, rect.sri, rect.sci);
+    const eRect = getOffsetByIdx(gridmap, rect.eri + 1, rect.eci + 1);
+    return {
+        left: sRect.left,
+        top: sRect.top,
+        right: eRect.left,
+        bottom: eRect.top,
+        width: eRect.left - sRect.left + eRect.width,
+        height: eRect.top - sRect.top + eRect.height,
+    }
+}
