@@ -1,6 +1,6 @@
 import { EngineOption, Mdata, GridMdata } from './type';
 import { defaultEngineOption } from './config/engineoption';
-import { CanvasRender } from './view';
+import { CanvasRender, DomRender } from './view';
 import { _merge } from './utils';
 import { Base } from './abstract/base';
 import { DataModel } from './model/mdata';
@@ -8,6 +8,7 @@ export class Engine extends Base {
     // 数据
     private _sources: Mdata = null;
     private _canvasRender: CanvasRender;
+    private _domRender: DomRender; // toolbar、scrollbar等
     dataModel: DataModel;
     getDefaultCfg() {
         return {
@@ -17,6 +18,7 @@ export class Engine extends Base {
     constructor(engineOpt: EngineOption) {
         super(engineOpt);
         this._canvasRender = new CanvasRender(engineOpt.container);
+        this._domRender = new DomRender(engineOpt);
         // gridmap、srollindex等变量
         // 当这些变量更改的时候 需要让render定义去render
         this.dataModel = new DataModel({
