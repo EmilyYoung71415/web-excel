@@ -46,38 +46,32 @@ export class GridRange extends BaseRange implements IGridRange {
     constructor(rangecontroller: RangeRenderController) {
         super(rangecontroller);
         this._fixedheadermargin = gridRangeViewData.fixedheadermargin;
-        // window.addEventListener('click', () => this._renderRange({ sri: 0, sci: 0, eri: 3, eci: 3 }))
     }
     // 在render处初始化 this上的数据：rect、gridmap
     render(range?: RangeIndexes): void {
         this._gridmap = this._props.dataStore.gridmap;
         this._allrange = { sri: 0, eri: this._gridmap.row.length - 2, sci: 0, eci: this._gridmap.col.length - 2 };
         this._rect = this._canvas.getViewRange();
-
         if (!range) {
             this._renderAll();
         }
         else {
-            this._renderRange(range);
+            const rect = draw.getRangeOffsetByIdxes(this._gridmap, range);
+            this._canvas.drawRegion(rect, this._renderDetail.bind(this), range);
         }
+        // const range1 = { sri: 0, sci: 0, eri: 3, eci: 3 };
+        // window.addEventListener('click', () => this._canvas.drawRegion(this._rect, this._renderDetail.bind(this), range1))
     }
     private _renderAll() {
         const ctx = this._ctx;
         const fixedHeaderPadding = this._fixedheadermargin;
         ctx.translate(fixedHeaderPadding.left, fixedHeaderPadding.top);
-        this._renderGridBg();
-        this._renderGridLines();
+        this._renderDetail();
     }
-    private _renderRange(range: RangeIndexes) {
-        const context = this._ctx;
-        const { left, top, width, height } = draw.getRangeOffsetByIdxes(this._gridmap, range);
-        context.save();
-        context.beginPath();
-        context.rect(left, top, width, height);
-        context.clip();
+    // range不传是全部重绘
+    private _renderDetail(range?: RangeIndexes) {
         this._renderGridBg(range);
         this._renderGridLines(range);
-        context.restore();
     }
     private _renderGridBg(range?: RangeIndexes) {
         const context = this._ctx;

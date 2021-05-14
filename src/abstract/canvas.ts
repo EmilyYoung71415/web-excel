@@ -6,7 +6,8 @@
  */
 import { Base } from './base';
 import { RectOffset, CanvasCfg, Point, CanvasCtxAttrs } from '../type';
-
+import { draw } from '../utils';
+import { LooseObject } from '@interface/';
 const CANVAS_ATTRS_MAP = {
     bgcolor: 'fillStyle',
     linecolor: 'strokeStyle',
@@ -16,7 +17,7 @@ const CANVAS_ATTRS_MAP = {
 // 不需要将ctx传来传去
 // 外界和组件内部的ctx共享的是一个 且保持更新
 interface ICanvas {
-    drawRegion(rect: RectOffset, renderfn: (ctx: CanvasRenderingContext2D) => void);
+    drawRegion(rect: RectOffset, renderfn: (extra?: LooseObject) => void, extra?: LooseObject);
     drawLine(start: Point, end: Point);
     drawRect(fillcolor: string, rect: RectOffset);
     applyAttrToCtx(attr: CanvasCtxAttrs);
@@ -36,7 +37,12 @@ export abstract class AbstraCanvas extends Base implements ICanvas {
         const cfg = super.getDefaultCfg();
         return cfg;
     }
-    drawRegion(rect: RectOffset, renderfn: (ctx: CanvasRenderingContext2D) => void) {
+    drawRegion(
+        rect: RectOffset,
+        renderfn: (rect: RectOffset, extra?: LooseObject) => void,
+        extra?: LooseObject
+    ): void {
+        console.log(extra);
         const context = this.get('context');
         const { left, top, width, height } = rect;
         context.clearRect(left, top, width, height);
@@ -44,12 +50,12 @@ export abstract class AbstraCanvas extends Base implements ICanvas {
         context.beginPath();
         context.rect(left, top, width, height);
         context.clip();
-        // 业务绘制的代码
-        renderfn(context);
+        renderfn(extra);
         context.restore();
     }
     drawLine(start: Point, end: Point): void {
         const context = this.get('context');
+        context.beginPath();
         context.moveTo(start.x, start.y);    // 起点
         context.lineTo(end.x, end.y);// 终点
         context.stroke();
