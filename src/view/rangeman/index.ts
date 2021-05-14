@@ -10,7 +10,7 @@ import { GridRange } from './grid-range';
 import { FixedHeaderRange } from './fixedheader-range';
 import { _merge } from '../../utils';
 import { GridIdxToOffsetMap } from '../../type';
-import { CanvasRender } from '../render/canvas';
+import { CanvasRender } from '..';
 
 const COMMAND = {
     // 'drawall': // 整个可视区域

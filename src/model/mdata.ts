@@ -9,7 +9,7 @@ import {
     RangeOffset
 } from '../type/index';
 import { _merge, draw } from '../utils/index';
-import { CanvasRender } from '../view/render/canvas';
+import { CanvasRender } from '../view';
 interface IDataModel {
     // 外界载入grid棋盘数据 如果没有主动调用 那会启用默认的生成棋盘格
     resetGrid: (grid: GridMdata) => GridMdata;
@@ -72,6 +72,8 @@ export class DataModel implements IDataModel {
         this._grid = _merge(defaultGridData, grid);
         return this._grid;
     }
+    // 绘制基础的棋盘，并生成gripmap
+    // 从source配置的行列信息 取得棋盘格的行高、列宽等信息
     computedGridMap() {
         const [rowsumheight, row] = this._buildLinesForRows(true);
         const [colsumwidth, col] = this._buildLinesForRows(false);

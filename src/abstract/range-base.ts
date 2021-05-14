@@ -1,7 +1,7 @@
 import { RangeRenderController } from '../view/rangeman'; // 抽象依赖于具体了。。FIXME: 改为依赖抽象的接口
 import { Base } from './base';
 import { LooseObject } from '../interface';
-import { CanvasRender } from '../view/render/canvas'; // FIXME: 改为依赖抽象的接口
+import { CanvasRender } from '../view'; // FIXME: 改为依赖抽象的接口
 
 export abstract class BaseRange extends Base {
     protected _ctx: CanvasRenderingContext2D;
