@@ -35,7 +35,7 @@ export const getRangeOffsetByIdxes = (gridmap: GridIdxToOffsetMap, rect: RangeIn
         top: sRect.top,
         right: eRect.left,
         bottom: eRect.top,
-        width: eRect.left - sRect.left + eRect.width,
-        height: eRect.top - sRect.top + eRect.height,
+        width: eRect.left - sRect.left,
+        height: eRect.top - sRect.top,
     }
 }
