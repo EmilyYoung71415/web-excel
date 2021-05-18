@@ -12,14 +12,7 @@ import { GridIdxToOffsetMap, RectOffset, RangeIndexes } from '../../type';
 import { RangeRenderController } from './index';
 import { BaseRange } from '../../abstract/range-base';
 import { draw } from '../../utils';
-// 当前view组件渲染所需的viewdata
-// 以后会由上层注入进来
-const gridRangeViewData = {
-    fixedheadermargin: {
-        left: 50,
-        top: 25,
-    }
-};
+import { FIXEDHEADERMARGIN } from './fixedheader-range';
 interface IGridRange {
     render: (renderRange?: RangeIndexes) => void;
 }
@@ -31,21 +24,20 @@ export class GridRange extends BaseRange implements IGridRange {
 
     // 画布数据：gridmap：this._props.dataStore.gridmap
     private _gridmap: GridIdxToOffsetMap;
-    private _allrange: RangeIndexes;
+    private _allrange: RangeIndexes; // 当drawall时的对应的gridmap起始range索引
     private _rect: RectOffset; // 绘制的区域
     getDefaultCfg() {
         return {
             style: {
                 bgcolor: '#fff',
-                // cellpadding:,
-                linewidth: .5,
+                linewidth: 1,
                 linecolor: '#333333',
             },
         };
     }
     constructor(rangecontroller: RangeRenderController) {
         super(rangecontroller);
-        this._fixedheadermargin = gridRangeViewData.fixedheadermargin;
+        this._fixedheadermargin = FIXEDHEADERMARGIN;
     }
     // 在render处初始化 this上的数据：rect、gridmap
     render(range?: RangeIndexes): void {
@@ -57,10 +49,13 @@ export class GridRange extends BaseRange implements IGridRange {
         }
         else {
             const rect = draw.getRangeOffsetByIdxes(this._gridmap, range);
-            this._canvas.drawRegion(rect, this._renderDetail.bind(this), range);
+            this._canvas.drawRegion(rect, this._renderDetail.bind(this, range));
         }
         // const range1 = { sri: 0, sci: 0, eri: 3, eci: 3 };
-        // window.addEventListener('click', () => this._canvas.drawRegion(this._rect, this._renderDetail.bind(this), range1))
+        // const rect1 = draw.getRangeOffsetByIdxes(this._gridmap, range1);
+        // window.addEventListener('click', () => {
+        //     this._canvas.drawRegion(rect1, this._renderDetail.bind(this, range1))
+        // })
     }
     private _renderAll() {
         const ctx = this._ctx;

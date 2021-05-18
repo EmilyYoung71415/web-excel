@@ -9,20 +9,11 @@ import { GridIdxToOffsetMap, RectOffset, ScrollIndexes, Point } from '../../type
 import { RangeRenderController } from './index';
 import { BaseRange } from '../../abstract/range-base';
 
-const viewData = {
-    scrollindexes: { ri: 0, ci: 0 },
-    fixedheadermargin: {
-        left: 50,
-        top: 25,
-    },
-    rect: {
-        left: 0,
-        top: 0,
-        width: 800, // viewwidth
-        height: 400,
-    },
-    // source: gridmap,
-};
+export const FIXEDHEADERMARGIN = {
+    left: 50,
+    top: 25,
+}
+
 export class FixedHeaderRange extends BaseRange {
     namespace: string;
     // 画布全局状态：滚动距离、画布大小
@@ -30,7 +21,8 @@ export class FixedHeaderRange extends BaseRange {
     private _rowheadrect: RectOffset; // 绘制的区域
     private _colheadrect: RectOffset; // 绘制的区域
     private _fixedheadermargin: { left: number; top: number; };
-    private _source: GridIdxToOffsetMap;
+    private _gridmap: GridIdxToOffsetMap;
+    private _rect: RectOffset; // 绘制的区域
 
     getDefaultCfg() {
         return {
@@ -51,34 +43,36 @@ export class FixedHeaderRange extends BaseRange {
         rangecontroller: RangeRenderController
     ) {
         super(rangecontroller);
-        this._scrollindexes = viewData.scrollindexes;
+        this._fixedheadermargin = FIXEDHEADERMARGIN;
+    }
+    _resetdata() {
+        // this._scrollindexes = viewData.scrollindexes;
+        this._rect = this._canvas.getViewRange();
+        this._gridmap = this._props.dataStore.gridmap;
         this._rowheadrect = {
-            left: viewData.fixedheadermargin.left,
+            left: this._fixedheadermargin.left,
             top: 0,
-            width: viewData.rect.width,
-            height: viewData.fixedheadermargin.top,
+            width: this._rect.width,
+            height: this._fixedheadermargin.top,
         };
         this._colheadrect = {
             left: 0,
-            top: viewData.fixedheadermargin.top,
-            width: viewData.fixedheadermargin.left,
-            height: viewData.rect.height,
+            top: this._fixedheadermargin.top,
+            width: this._fixedheadermargin.left,
+            height: this._rect.height,
         };
-        this._fixedheadermargin = viewData.fixedheadermargin;
     }
     render() {
-        this._source = this._props.dataStore.gridmap;
-        // FIXME:应该是gridmap，先渲染grid 再渲染content
-        const fixedheadermargin = this._fixedheadermargin;
+        this._resetdata();
         this._ctx.save();
-        this._ctx.translate(-fixedheadermargin.left, -fixedheadermargin.top);
+        this._ctx.translate(-this._fixedheadermargin.left, -this._fixedheadermargin.top);
         this._canvas.drawRegion(this._rowheadrect, this._renderHeader.bind(this, true));
         this._canvas.drawRegion(this._colheadrect, this._renderHeader.bind(this, false));
         this._ctx.restore();
     }
     _renderHeader(isRow: boolean) {
         const { left, top, width, height } = this[`${isRow ? '_rowheadrect' : '_colheadrect'}`];
-        const col = this._source[`${isRow ? 'col' : 'row'}`];
+        const col = this._gridmap[`${isRow ? 'col' : 'row'}`];
         const context = this._ctx;
         context.save();
         this._canvas.applyAttrToCtx({ ...this._style });

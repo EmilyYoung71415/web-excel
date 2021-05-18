@@ -7,10 +7,11 @@
 import { Base } from './base';
 import { RectOffset, CanvasCfg, Point, CanvasCtxAttrs } from '../type';
 import { draw } from '../utils';
-import { LooseObject } from '@interface/';
+import { LooseObject } from '@interface/index';
 const CANVAS_ATTRS_MAP = {
     bgcolor: 'fillStyle',
     linecolor: 'strokeStyle',
+    linewidth: 'lineWidth',
     opacity: 'globalAlpha'
 };
 
@@ -39,10 +40,8 @@ export abstract class AbstraCanvas extends Base implements ICanvas {
     }
     drawRegion(
         rect: RectOffset,
-        renderfn: (rect: RectOffset, extra?: LooseObject) => void,
-        extra?: LooseObject
+        renderfn: () => void,
     ): void {
-        console.log(extra);
         const context = this.get('context');
         const { left, top, width, height } = rect;
         context.clearRect(left, top, width, height);
@@ -50,7 +49,7 @@ export abstract class AbstraCanvas extends Base implements ICanvas {
         context.beginPath();
         context.rect(left, top, width, height);
         context.clip();
-        renderfn(extra);
+        renderfn();
         context.restore();
     }
     drawLine(start: Point, end: Point): void {

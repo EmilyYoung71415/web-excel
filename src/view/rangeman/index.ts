@@ -39,7 +39,7 @@ export class RangeRenderController {
 
         // this._fixedHeaderRange
         this._cacheQueue = {
-            'drawall': [this._gridRange],
+            'drawall': [this._gridRange, this._fixedHeaderRange],
         };
     }
     // 首次渲染是
