@@ -165,11 +165,33 @@ export type CanvasCtxAttrs = {
     strokeStyle?: string;
     linewidth?: number;
     font?: string;
-    textalign?: string;
-    textbaseline?: string;
     // 复合
     bgcolor?: string;
     linecolor?: string;
+}
+
+export type Text = {
+    font?: string,
+    // 文字渲染规则：超出则换行且 若最后一行仍超出则省略
+    // textWrap: 'wrap' | 'nowrap' | 'ellipsis';
+    /** 文本字体 */
+    fontFamily: string;
+    /** 文本字体大小 */
+    fontSize: number;
+    /** 文本粗细 */
+    fontWeight: 'normal' | 'bold' | number;
+    /** 字体样式: 斜体 */
+    fontStyle: 'normal' | 'italic';
+    /** 设置在绘制文本时使用的当前文本基线 */
+    textAlign?: 'start' | 'center' | 'end' | 'left' | 'right';
+    textBaseline?: 'top | hanging | middle | alphabetic | ideographic | bottom';
+    // textBaseline?: 'top' | 'hanging' | 'middle' | 'alphabetic' | 'ideographic' | 'bottom';
+    /** 字体装饰: 下划线、删除线 */
+    textDecoration?: 'underline' | 'line-through';
+    /** 文本颜色 */
+    fontColor: string;
+    /** 文本行高 */
+    lineHeight?: number;
 }
 
 // Cursor style

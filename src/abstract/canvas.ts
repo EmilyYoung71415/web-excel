@@ -9,6 +9,7 @@ import { RectOffset, CanvasCfg, Point, CanvasCtxAttrs } from '../type';
 import { draw } from '../utils';
 import { LooseObject } from '@interface/index';
 const CANVAS_ATTRS_MAP = {
+    fontColor: 'fillStyle',
     bgcolor: 'fillStyle',
     linecolor: 'strokeStyle',
     linewidth: 'lineWidth',

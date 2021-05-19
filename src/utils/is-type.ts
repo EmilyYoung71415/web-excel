@@ -6,15 +6,15 @@ const isType = (value: any, type: string): boolean => {
     return {}.toString.call(value) === '[object ' + type + ']';
 };
 
-const isString = (str: any): boolean => {
+export const isString = (str: any): boolean => {
     return isType(str, 'String');
 };
 
-const isFunction = (val: any): boolean => {
+export const isFunction = (val: any): boolean => {
     return isType(val, 'Function');
 };
 
-const isObj = (val: any): boolean => {
+export const isObj = (val: any): boolean => {
     /**
      * isObject({}) => true
      * isObject([1, 2, 3]) => true
@@ -25,9 +25,15 @@ const isObj = (val: any): boolean => {
     return val !== null && type === 'object';
 };
 
-export {
-    isType,
-    isString,
-    isFunction,
-    isObj,
+export const isNull = function (value): value is null {
+    return value === null;
+};
+
+// 是null 或者 undefined
+export const isNil = function (value: any): value is null | undefined {
+    /**
+     * isNil(null) => true
+     * isNil() => true
+     */
+    return value === null || value === undefined;
 };

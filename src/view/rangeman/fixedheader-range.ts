@@ -30,7 +30,8 @@ export class FixedHeaderRange extends BaseRange {
                 linewidth: .5,
                 linecolor: '#d0d0d0',
                 text: {
-                    fontSize: 12,
+                    fontColor: '#585757',
+                    fontSize: 14,
                     fontFamily: 'sans-serif',
                 },
             },
