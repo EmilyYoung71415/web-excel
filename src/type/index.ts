@@ -133,18 +133,18 @@ export type ViewTableSize = {
 export type ViewOption = ViewTableSize & {
     showToolbar: boolean;
     showCtxMenu: boolean;
-    tableStyle: GridStyle;
+    // tableStyle: GridStyle;
 }
 
 export type InteractOption = {
     // 允许编辑
     canEdit: boolean;
     // 框选功能
-    selectView: {
-        border: string; // 1px solid blue
-        background: string;
-        opacity: number;
-    } | false;
+    // selectView: {
+    //     border: string; // 1px solid blue
+    //     background: string;
+    //     opacity: number;
+    // } | false;
 }
 
 export type EngineOption = {
@@ -208,6 +208,7 @@ export type Point = {
     viewdata
 -------------*/
 export type GridIdxToOffsetMap = {
+    fixedpadding: { left: number, top: number },
     rowsumheight: number,
     colsumwidth: number,
     row: Array<{ ri: number, top: number, height: number }> | [],

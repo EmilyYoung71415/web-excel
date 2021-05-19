@@ -12,7 +12,7 @@ import { GridIdxToOffsetMap, RectOffset, RangeIndexes } from '../../type';
 import { RangeRenderController } from './index';
 import { BaseRange } from '../../abstract/range-base';
 import { draw } from '../../utils';
-import { FIXEDHEADERMARGIN } from './fixedheader-range';
+import { FIXEDHEADERMARGIN } from '../../model/mdata';
 interface IGridRange {
     render: (renderRange?: RangeIndexes) => void;
 }

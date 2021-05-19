@@ -10,6 +10,11 @@ import {
 } from '../type/index';
 import { _merge, draw } from '../utils/index';
 import { CanvasRender } from '../view';
+
+export const FIXEDHEADERMARGIN = {
+    left: 50,
+    top: 25,
+}
 interface IDataModel {
     // 外界载入grid棋盘数据 如果没有主动调用 那会启用默认的生成棋盘格
     resetGrid: (grid: GridMdata) => GridMdata;
@@ -79,6 +84,7 @@ export class DataModel implements IDataModel {
         const [colsumwidth, col] = this._buildLinesForRows(false);
         // gridmap棋盘格里记录的索引key是相对的 即当前视图内的scrollindex之后的
         this.gridmap = {
+            fixedpadding: FIXEDHEADERMARGIN,
             rowsumheight,
             colsumwidth,
             row,
@@ -130,5 +136,8 @@ export class DataModel implements IDataModel {
         }
         // 棋盘刚好被整除进 virtualview = realview
         return [curheight, rowarr];
+    }
+    _buildFixedHeaderIdx() {
+
     }
 }

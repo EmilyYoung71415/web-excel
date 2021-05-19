@@ -1,7 +1,6 @@
 import { EngineOption, Mdata, GridMdata } from './type';
 import { defaultEngineOption } from './config/engineoption';
 import { CanvasRender, DomRender } from './view';
-import { _merge } from './utils';
 import { Base } from './abstract/base';
 import { DataModel } from './model/mdata';
 export class Engine extends Base {

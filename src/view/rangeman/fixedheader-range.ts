@@ -8,11 +8,9 @@
 import { GridIdxToOffsetMap, RectOffset, ScrollIndexes, Point } from '../../type';
 import { RangeRenderController } from './index';
 import { BaseRange } from '../../abstract/range-base';
-
-export const FIXEDHEADERMARGIN = {
-    left: 50,
-    top: 25,
-}
+import { TextRange } from './text-range';
+import alphabet from '../../config/alphabet';
+import { FIXEDHEADERMARGIN } from '../../model/mdata';
 
 export class FixedHeaderRange extends BaseRange {
     namespace: string;
@@ -23,6 +21,7 @@ export class FixedHeaderRange extends BaseRange {
     private _fixedheadermargin: { left: number; top: number; };
     private _gridmap: GridIdxToOffsetMap;
     private _rect: RectOffset; // 绘制的区域
+    private _textRange: TextRange; // 绘制文字的工具类
 
     getDefaultCfg() {
         return {
@@ -31,10 +30,8 @@ export class FixedHeaderRange extends BaseRange {
                 linewidth: .5,
                 linecolor: '#d0d0d0',
                 text: {
-                    align: 'center',
-                    baseline: 'middle',
-                    size: 12,
-                    family: 'sans-serif',
+                    fontSize: 12,
+                    fontFamily: 'sans-serif',
                 },
             },
         };
@@ -44,6 +41,7 @@ export class FixedHeaderRange extends BaseRange {
     ) {
         super(rangecontroller);
         this._fixedheadermargin = FIXEDHEADERMARGIN;
+        this._textRange = new TextRange(rangecontroller, this._cfg.style.text);
     }
     _resetdata() {
         // this._scrollindexes = viewData.scrollindexes;
@@ -79,17 +77,32 @@ export class FixedHeaderRange extends BaseRange {
         context.fillRect(left, top, width, height);
         let curx = isRow ? left : top;
         const key = isRow ? 'width' : 'height';
-        col.forEach(item => {
-            const colwidth = item[key];
+        col.forEach((item, idx) => {
+            const fixedSize = item[key];
             if (isRow) {
                 this._canvas.drawLine({ x: curx, y: top }, { x: curx, y: top + height });
+                this._textRange.draw({
+                    left: curx,
+                    top: top,
+                    width: fixedSize,
+                    height: height,
+                }, this._getText(true, idx));
             }
             else {
                 this._canvas.drawLine({ x: left, y: curx }, { x: left + width, y: curx });
+                this._textRange.draw({
+                    left: left,
+                    top: curx,
+                    width: width,
+                    height: fixedSize,
+                }, this._getText(false, idx));
             }
-            // TODO:  填充字
-            curx += colwidth;
+            curx += fixedSize;
         });
         context.restore();
+    }
+    _getText(isRow: boolean, idx: number): string {
+        if (!isRow) return (idx + 1).toString();
+        return alphabet.stringAt(idx);
     }
 }

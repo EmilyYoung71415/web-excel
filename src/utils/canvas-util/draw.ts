@@ -18,11 +18,47 @@ export const isColorProp = (prop: string): boolean => {
 };
 
 export const getOffsetByIdx = (gridmap: GridIdxToOffsetMap, ri: number, ci: number): RectOffset => {
+    const fixedRowHeight = gridmap.fixedpadding.top;
+    const fixedColWidth = gridmap.fixedpadding.left;
+    // ri = -1
+    if (ri === -1 && ci === -1) {
+        return {
+            left: -fixedColWidth,
+            top: -fixedRowHeight,
+            width: fixedColWidth,
+            height: fixedRowHeight,
+        }
+    }
+    // 行索引栏
+    if (ri === -1) {
+        const cellLeft = gridmap.col[ci].left;
+        const cellWidth = gridmap.col[ci].width;
+        return {
+            left: cellLeft,
+            top: -fixedRowHeight,
+            width: cellWidth,
+            height: fixedRowHeight,
+        }
+    }
+    else if (ci === -1) {
+        const cellTop = gridmap.row[ri].top;
+        const cellHeight = gridmap.row[ri].height;
+        return {
+            left: -fixedColWidth,
+            top: cellTop,
+            width: fixedColWidth,
+            height: cellHeight,
+        }
+    }
+    const cellLeft = gridmap.col[ci].left;
+    const cellWidth = gridmap.col[ci].width;
+    const cellTop = gridmap.row[ri].top;
+    const cellHeight = gridmap.row[ri].height;
     return {
-        left: gridmap.col[ci].left,
-        top: gridmap.row[ri].top,
-        width: gridmap.col[ci].width,
-        height: gridmap.row[ri].height,
+        left: cellLeft,
+        top: cellTop,
+        width: cellWidth,
+        height: cellHeight,
     }
 }
 
