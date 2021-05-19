@@ -4,7 +4,7 @@
  * - 通过this.get(xx) 来读取this._cfg.xx
  * - this.set同理
  */
-import { _merge } from '../utils';
+import { isObj, _merge } from '../utils';
 import { LooseObject } from '../interface';
 
 export interface IBase {
@@ -31,5 +31,11 @@ export abstract class Base implements IBase {
     }
     set(key, value) {
         this._cfg[key] = value;
+    }
+    setObj(obj) {
+        if (!isObj(obj)) return;
+        Object.keys(obj).forEach(key => {
+            this.set(key, obj[key]);
+        });
     }
 }

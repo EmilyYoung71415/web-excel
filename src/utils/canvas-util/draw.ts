@@ -64,14 +64,24 @@ export const getOffsetByIdx = (gridmap: GridIdxToOffsetMap, ri: number, ci: numb
 
 // 传入单元格范围:[1,1]~[3,3]即1,1的左上角~3,3的右下角，即4,4的左上角
 export const getRangeOffsetByIdxes = (gridmap: GridIdxToOffsetMap, rect: RangeIndexes): RangeOffset => {
-    const sRect = getOffsetByIdx(gridmap, rect.sri, rect.sci);
-    const eRect = getOffsetByIdx(gridmap, rect.eri + 1, rect.eci + 1);
-    return {
-        left: sRect.left,
-        top: sRect.top,
-        right: eRect.left,
-        bottom: eRect.top,
-        width: eRect.left - sRect.left,
-        height: eRect.top - sRect.top,
+    const { sri, sci, eri, eci } = rect;
+    const sRect = getOffsetByIdx(gridmap, sri, sci);
+    const isOneCell = eri === sri && eci === sci;
+    if (isOneCell) {
+        return {
+            ...sRect,
+            right: sRect.left + sRect.width,
+            bottom: sRect.top + sRect.height,
+        }
+    } else {
+        const eRect = getOffsetByIdx(gridmap, eri + 1, eci + 1);
+        return {
+            left: sRect.left,
+            top: sRect.top,
+            right: eRect.left,
+            bottom: eRect.top,
+            width: eRect.left - sRect.left,
+            height: eRect.top - sRect.top,
+        }
     }
 }

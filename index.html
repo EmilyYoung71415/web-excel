@@ -41,8 +41,8 @@
                 {
                     viewOption: {
                         showToolbar: false,
-                        viewHeight: 400,
-                        viewWidth: 800,
+                        viewHeight: document.documentElement.clientHeight,
+                        viewWidth: document.documentElement.clientWidth,
                     },
                     interactOption: {
                         canEdit: true 
@@ -53,7 +53,7 @@
             myexcel.griddata({
                 row: {
                     size: 25,   // 行高
-                    len: 20,    // 行总数
+                    len: 120,    // 行总数
                 },
                 col: {
                     size: 100,  // 列宽
@@ -69,13 +69,13 @@
                 },
             });
             // 表格数据
-            // myexcel.source({
-            //     cellmm: {
-            //         1: {
-            //             1: { text: '输入长文字测试截断'},
-            //         },
-            //     },
-            // });
+            myexcel.source({
+                cellmm: {
+                    1: {
+                        1: { text: '输入长文字测试截断'},
+                    },
+                },
+            });
         }
     </script>
 </body>

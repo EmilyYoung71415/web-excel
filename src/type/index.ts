@@ -1,15 +1,4 @@
-type FontStyle = {
-    family: string;
-    size: number;
-    bold: boolean;
-    italic: boolean;
-    underline: boolean;
-    color: string; // fillStyle
-    align: 'center' | 'left' | 'right',
-    baseline: 'middle' | 'top' | 'bottom',
-    wrapType: 'ellipsis' | 'clip' | 'auto', // 换行后的最后一行的文字排版控制：超出省略、超出裁剪、直接超出
-}
-
+// style-range
 type CellStyle = {
     bgcolor: string;
     border: string; // 1px solid red (lineWidth)
@@ -24,8 +13,8 @@ type CellStyle = {
 type Cell = {
     type: 'text' | 'select' | 'datepicker';
     style: CellStyle;
-    font?: {
-        style: FontStyle;
+    font?: { // text-range
+        style: Text;
         word: string;
     };
 }
@@ -112,19 +101,6 @@ export type Mdata = ViewTableSize & GridMdata & SourceMdata & {
 /*--------------
     EngineOption
 -------------*/
-export type GridStyle = {
-    bgcolor: string;
-    lineWidth: number;    // 网格线粗细, 具体单元格可用border对其覆写
-    lineColor: string;
-    cellpadding: number; // 网格内间距
-    font?: FontStyle;
-    fixedHeaderStyle?: {
-        bgcolor: string;
-        lineWidth: number;
-        font?: FontStyle;
-    },
-}
-
 export type ViewTableSize = {
     viewHeight: number;
     viewWidth: number;
@@ -168,28 +144,27 @@ export type CanvasCtxAttrs = {
     // 复合
     bgcolor?: string;
     linecolor?: string;
-}
+} & Text;
 
 export type Text = {
     font?: string,
     // 文字渲染规则：超出则换行且 若最后一行仍超出则省略
     // textWrap: 'wrap' | 'nowrap' | 'ellipsis';
     /** 文本字体 */
-    fontFamily: string;
+    fontFamily?: string;
     /** 文本字体大小 */
-    fontSize: number;
+    fontSize?: number;
     /** 文本粗细 */
-    fontWeight: 'normal' | 'bold' | number;
+    fontWeight?: 'normal' | 'bold' | number;
     /** 字体样式: 斜体 */
-    fontStyle: 'normal' | 'italic';
+    fontStyle?: 'normal' | 'italic';
     /** 设置在绘制文本时使用的当前文本基线 */
     textAlign?: 'start' | 'center' | 'end' | 'left' | 'right';
-    textBaseline?: 'top | hanging | middle | alphabetic | ideographic | bottom';
-    // textBaseline?: 'top' | 'hanging' | 'middle' | 'alphabetic' | 'ideographic' | 'bottom';
+    textBaseline?: 'top' | 'hanging' | 'middle' | 'alphabetic' | 'ideographic' | 'bottom';
     /** 字体装饰: 下划线、删除线 */
     textDecoration?: 'underline' | 'line-through';
     /** 文本颜色 */
-    fontColor: string;
+    fontColor?: string;
     /** 文本行高 */
     lineHeight?: number;
 }
@@ -236,3 +211,11 @@ export type GridIdxToOffsetMap = {
     row: Array<{ ri: number, top: number, height: number }> | [],
     col: Array<{ ci: number, left: number, width: number }> | [],
 };
+
+// 表格渲染生命周期
+// export enum LifeCycle {
+//     BeforeMount,
+//     Mounted,
+//     BeforeUpdate,
+//     Updated,
+// }
