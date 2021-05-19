@@ -24,8 +24,8 @@ export class GridRange extends BaseRange implements IGridRange {
 
     // 画布数据：gridmap：this._props.dataStore.gridmap
     private _gridmap: GridIdxToOffsetMap;
-    private _allrange: RangeIndexes; // 当drawall时的对应的gridmap起始range索引
     private _rect: RectOffset; // 绘制的区域
+    private _range: RangeIndexes; // 当前range绘制的所在gridmap的逻辑索引
     getDefaultCfg() {
         return {
             style: {
@@ -42,14 +42,14 @@ export class GridRange extends BaseRange implements IGridRange {
     // 在render处初始化 this上的数据：rect、gridmap
     render(range?: RangeIndexes): void {
         this._gridmap = this._props.dataStore.gridmap;
-        this._allrange = { sri: 0, eri: this._gridmap.row.length - 2, sci: 0, eci: this._gridmap.col.length - 2 };
-        this._rect = this._canvas.getViewRange();
-        if (!range) {
+        if (range) {
+            this._range = range;
+            this._rect = draw.getRangeOffsetByIdxes(this._gridmap, range);
+            this._canvas.drawRegion(this._rect, this._renderDetail.bind(this));
+        } else {
+            this._range = { sri: 0, eri: this._gridmap.row.length - 2, sci: 0, eci: this._gridmap.col.length - 2 };
+            this._rect = this._canvas.getViewRange();
             this._renderAll();
-        }
-        else {
-            const rect = draw.getRangeOffsetByIdxes(this._gridmap, range);
-            this._canvas.drawRegion(rect, this._renderDetail.bind(this, range));
         }
         // const range1 = { sri: 0, sci: 0, eri: 3, eci: 3 };
         // const rect1 = draw.getRangeOffsetByIdxes(this._gridmap, range1);
@@ -58,26 +58,24 @@ export class GridRange extends BaseRange implements IGridRange {
         // })
     }
     private _renderAll() {
-        const ctx = this._ctx;
-        const fixedHeaderPadding = this._fixedheadermargin;
-        ctx.translate(fixedHeaderPadding.left, fixedHeaderPadding.top);
+        this._ctx.translate(this._fixedheadermargin.left, this._fixedheadermargin.top);
         this._renderDetail();
     }
     // range不传是全部重绘
-    private _renderDetail(range?: RangeIndexes) {
-        this._renderGridBg(range);
-        this._renderGridLines(range);
+    private _renderDetail() {
+        this._renderGridBg();
+        this._renderGridLines();
     }
-    private _renderGridBg(range?: RangeIndexes) {
+    private _renderGridBg() {
         const context = this._ctx;
         context.save();
-        const { left, top, width, height } = !range ? this._rect : draw.getRangeOffsetByIdxes(this._gridmap, range);
+        const { left, top, width, height } = this._rect;
         this._canvas.clearRect(left, top, width, height);
         this._canvas.applyAttrToCtx({ bgcolor: this._style.bgcolor });
         context.fillRect(left, top, width, height);
         context.restore();
     }
-    private _renderGridLines(range?: RangeIndexes) {
+    private _renderGridLines() {
         const context = this._ctx;
         context.save();
         this._canvas.applyAttrToCtx({
@@ -85,12 +83,12 @@ export class GridRange extends BaseRange implements IGridRange {
             linewidth: this._style.linewidth,
         });
         // 开始遍历画线
-        this._drawLines(range);
+        this._drawLines();
         context.restore();
     }
     //  canvas绘制grid棋盘格：先画多行的横线，再画多列的竖线
-    private _drawLines(range?: RangeIndexes) {
-        const renderange = range ? range : this._allrange;
+    private _drawLines() {
+        const renderange = this._range;
         const { sri, sci, eci, eri } = renderange;
         const { left, top, right, bottom, width, height } = draw.getRangeOffsetByIdxes(this._gridmap, renderange);
         // this._canvas.clearRect(left, top, width, height);
