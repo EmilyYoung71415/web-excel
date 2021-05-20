@@ -6,7 +6,7 @@
  */
 import { Base } from './base';
 import { RectOffset, CanvasCfg, Point, CanvasCtxAttrs } from '../type';
-import { draw } from '../utils';
+import { isString } from '../utils';
 import { LooseObject } from '@interface/index';
 const CANVAS_ATTRS_MAP = {
     fontColor: 'fillStyle',
@@ -21,7 +21,7 @@ const CANVAS_ATTRS_MAP = {
 interface ICanvas {
     drawRegion(rect: RectOffset, renderfn: (extra?: LooseObject) => void, extra?: LooseObject);
     drawLine(start: Point, end: Point);
-    drawRect(fillcolor: string, rect: RectOffset);
+    drawRect(rect: RectOffset, fillcolor: string, border?: string);
     applyAttrToCtx(attr: CanvasCtxAttrs);
     clearRect(x: number, y: number, width: number, height: number);
     getViewRange(): RectOffset;
@@ -60,11 +60,23 @@ export abstract class AbstraCanvas extends Base implements ICanvas {
         context.lineTo(end.x, end.y);// 终点
         context.stroke();
     }
-    drawRect(fillcolor: string, rect: RectOffset) {
+    drawRect(rect: RectOffset, fillcolor: string, border?: string) {
         const context = this.get('context');
         const { left, top, width, height } = rect;
+        context.beginPath();
+        context.rect(left, top, width, height);
         context.fillStyle = fillcolor;
-        context.fillRect(left, top, width, height);
+        if (isString(border)) {
+            const [bordersize, borderstyle, bordercolor] = border.split(' ');
+            // border: 1px solid red  | 4px dash blue
+            if (borderstyle === 'dash') {
+                context.setLineDash([10, 10]);
+            }
+            context.lineWidth = bordersize.endsWith('px') ? bordersize.slice(0, -2) : bordersize;
+            context.strokeStyle = bordercolor;
+        }
+        context.fill();
+        context.stroke();
     }
     applyAttrToCtx(attrs: CanvasCtxAttrs) {
         const context = this.get('context');

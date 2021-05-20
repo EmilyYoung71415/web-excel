@@ -9,6 +9,7 @@
 import { GridRange } from './grid-range';
 import { FixedHeaderRange } from './fixedheader-range';
 import { TextRange } from './text-range';
+import { StyleRange } from './style-range';
 import { _merge, draw } from '../../utils';
 import { GridIdxToOffsetMap } from '../../type';
 import { CanvasRender } from '..';
@@ -24,6 +25,7 @@ export class RangeRenderController {
     private _gridRange: GridRange;
     private _fixedHeaderRange: FixedHeaderRange;
     private _textRange: TextRange;
+    private _styleRange: StyleRange;
     private _cacheQueue: unknown;
     canvas: CanvasRender;
     dataStore: IDataStore;
@@ -36,6 +38,7 @@ export class RangeRenderController {
         this._gridRange = new GridRange(this);
         this._fixedHeaderRange = new FixedHeaderRange(this);
         this._textRange = new TextRange(this);
+        this._styleRange = new StyleRange(this);
         // range会维护一个队列：
         // rectidx: range实例
 
@@ -57,6 +60,9 @@ export class RangeRenderController {
         // setRange({sri:1,sci:1,eri:1,eci:1}).text = '输入多行文字测试一下';
         // 命令会被转换为下面的代码执行
         // 指定区域绘制文字
+
+
+        // 测试
         this._textRange.render(draw.getRangeOffsetByIdxes(propsdata.gridmap, {
             sri: 1, sci: 1, eri: 1, eci: 1
         }), {
@@ -71,6 +77,22 @@ export class RangeRenderController {
             fontColor: 'red',
             fontSize: 14,
         });
+
+        this._styleRange.render(draw.getRangeOffsetByIdxes(propsdata.gridmap, {
+            sri: 5, sci: 5, eri: 5, eci: 5
+        }), {
+            bgcolor: 'yellow',
+            bordersize: 4,
+            bordercolor: '#000',
+            borderstyle: 'solid',
+        });
+
+        this._styleRange.render(draw.getRangeOffsetByIdxes(propsdata.gridmap, {
+            sri: 6, sci: 6, eri: 6, eci: 6
+        }), {
+            bordersize: 4,
+        });
+
         // setRange({sri:1,sci:1,eri:1,eci:1}).bgcolor = ''
         // 则需要把这个range的所有属性拿给textRange
         // 理想情况是：controller拿到这个range的信息

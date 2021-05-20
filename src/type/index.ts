@@ -1,11 +1,9 @@
 // style-range
-type CellStyle = {
-    bgcolor: string;
-    border: string; // 1px solid red (lineWidth)
-    borderLeft: string;
-    borderTop: string;
-    borderRight: string;
-    borderBottom: string;
+export type CellStyle = {
+    bordersize?: number,// grid：1，fixedheader：0.5
+    bordercolor?: string;
+    borderstyle?: 'solid' | 'dash',
+    bgcolor?: string;
 }
 
 // 单元格分为很多类型： 文本、下拉框、日期选择器
