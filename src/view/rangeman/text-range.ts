@@ -4,13 +4,13 @@
  */
 
 // setRange(xxx).fontColor = 'xx'; 就会触发 该range的textrange重绘
-import { RectOffset, Text } from '../../type';
+import { RectOffset, CellText } from '../../type';
 import { RangeRenderController } from './index';
 import { BaseRange } from '../../abstract/range-base';
 import { assembleFont, getTextWidth } from '../../utils';
 import { MAX_BORDER_SIZE } from './style-range';
 
-type UpdateText = Text & { text: string };
+type UpdateText = CellText & { text: string };
 interface ITextRange {
     render: (
         rect: RectOffset,
@@ -40,7 +40,7 @@ export class TextRange extends BaseRange implements ITextRange {
     }
     constructor(
         rangecontroller: RangeRenderController,
-        cfg?: Text
+        cfg?: CellText
     ) {
         super(rangecontroller, cfg);
         this._setFont();

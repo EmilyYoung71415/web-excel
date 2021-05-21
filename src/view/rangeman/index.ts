@@ -10,8 +10,8 @@ import { GridRange } from './grid-range';
 import { FixedHeaderRange } from './fixedheader-range';
 import { TextRange } from './text-range';
 import { StyleRange } from './style-range';
-import { _merge, draw } from '../../utils';
-import { GridIdxToOffsetMap } from '../../type';
+import { _merge, draw, parseRangeKey } from '../../utils';
+import { Cell, GridIdxToOffsetMap } from '../../type';
 import { CanvasRender } from '..';
 
 const COMMAND = {
@@ -26,6 +26,7 @@ export class RangeRenderController {
     private _fixedHeaderRange: FixedHeaderRange;
     private _textRange: TextRange;
     private _styleRange: StyleRange;
+
     private _cacheQueue: unknown;
     canvas: CanvasRender;
     dataStore: IDataStore;
@@ -39,71 +40,27 @@ export class RangeRenderController {
         this._fixedHeaderRange = new FixedHeaderRange(this);
         this._textRange = new TextRange(this);
         this._styleRange = new StyleRange(this);
-        // range会维护一个队列：
-        // rectidx: range实例
 
-        // this._fixedHeaderRange
         this._cacheQueue = {
             'drawall': [this._gridRange, this._fixedHeaderRange],
         };
     }
-    // 首次渲染是
-    // 以action聚合range
-    command(action: string, propsdata: IDataStore) {
+    drawAll(gridmap: GridIdxToOffsetMap) {
         this.dataStore = {
-            gridmap: propsdata.gridmap,
+            gridmap: gridmap,
         };
-        // 在这里查到 改变的diff？ maybe
-        // this.dataStore = _merge(this.propsdata, propsdata);
         this.render('drawall');
-
+    }
+    command(rangekey: string, rangedata: Cell) {
         // setRange({sri:1,sci:1,eri:1,eci:1}).text = '输入多行文字测试一下';
-        // 命令会被转换为下面的代码执行
-        // 指定区域绘制文字
-
-
-        // 测试
-        this._textRange.render(draw.getRangeOffsetByIdxes(propsdata.gridmap, {
-            sri: 1, sci: 1, eri: 1, eci: 1
-        }), {
-            text: '输入多行文字测试一下',
-            fontColor: 'blue',
-            fontSize: 14,
-        });
-        this._textRange.render(draw.getRangeOffsetByIdxes(propsdata.gridmap, {
-            sri: 3, sci: 3, eri: 3, eci: 3
-        }), {
-            text: '123456789101112123456789101112',
-            fontColor: 'red',
-        });
-
-        this._styleRange.render(draw.getRangeOffsetByIdxes(propsdata.gridmap, {
-            sri: 5, sci: 5, eri: 5, eci: 5
-        }), {
-            bgcolor: 'yellow',
-            bordersize: 4,
-            bordercolor: '#000',
-            borderstyle: 'solid',
-        });
-
-        this._styleRange.render(draw.getRangeOffsetByIdxes(propsdata.gridmap, {
-            sri: 6, sci: 6, eri: 6, eci: 6
-        }), {
-            bordersize: 4,
-        });
-
-        // setRange({sri:1,sci:1,eri:1,eci:1}).bgcolor = ''
-        // 则需要把这个range的所有属性拿给textRange
-        // 理想情况是：controller拿到这个range的信息
-        // 无条件传给range，range再视情况 按需拿属性
-        // 这样controller也不会太笨重
-
-        // setRange(xx).bgcolor 
-        // 1.找到该命中range上挂在的属性
-        // 属性对于range，多个range按照zindex顺序 形成queue，依次调用
-        // 所以压力就转换到了 如果将树状上的一个个的属性 转换为 一个个的range对象，这样既能实现全局的序列化 又能实现局部渲染
-        // setRange({sri:1,sci:1,eri:1,eci:1}).text = '输入多行文字测试一下';
-        // this._getRenderList();
+        // 遍历cell属性 生成各个实例， 按照zindex顺序维护成renderqueue
+        // rangedata的
+        // 遍历rangedata每一个key 聚合生成 不同的range
+        const { gridmap } = this.dataStore;
+        const rectidxes = parseRangeKey(rangekey);
+        const rectOffset = draw.getRangeOffsetByIdxes(gridmap, rectidxes);
+        this._styleRange.render(rectOffset, rangedata);
+        this._textRange.render(rectOffset, rangedata);
     }
     // 局部更新是 以rangeidx 聚合 range 渲染
     render(rectidx: string) {

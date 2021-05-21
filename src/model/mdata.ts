@@ -1,15 +1,18 @@
 import {
     Mdata,
+    SourceData,
     GridIdxToOffsetMap,
     ViewTableSize,
     RectOffset,
     Point,
     GridMdata,
     RangeIndexes,
-    RangeOffset
+    RangeOffset,
+    ViewDataRange,
 } from '../type/index';
-import { _merge, draw } from '../utils/index';
+import { _merge, draw, getRangeKey, isObj } from '../utils/index';
 import { CanvasRender } from '../view';
+import { Operation, Command } from './command';
 
 export const FIXEDHEADERMARGIN = {
     left: 50,
@@ -21,13 +24,14 @@ interface IDataModel {
     // 当source被设置了关键数据更改的时候 会触发调用
     computedGridMap: (grid: GridMdata) => void;
     // 载入表格数据
-    source: (mdata: Mdata) => void;
+    source: (sdata: SourceData) => void;
     // 根据单元格的逻辑索引得到
     // getOffsetByIdx: (ri: number, ci: number) => RectOffset;
     // // 根据单元格的逻辑索引得到
     // getRangeOffsetByIdxes: (rect: RangeIndexes) => RangeOffset;
     // 根据点在画布上的物理坐标得到逻辑索引
     getIdxByPonit: (point: Point) => RectOffset;
+    command: (op: Operation) => void;
 }
 
 const defaultGridData = {
@@ -39,19 +43,27 @@ type DataModelConfig = ViewTableSize & {
     canvasrender: CanvasRender
 }
 export class DataModel implements IDataModel {
-    // 对source进行访问代理 this.source.data = this.data
-    // 每次当source变化会重新计算gridmap棋盘格数据
+    // modeldata：视图数据、互动数据 计算出viewdata
     private _mdata: Mdata;
+    // sourcedata：griddata => viewtdata: gridmap
     private _grid: GridMdata;
-    private _canvasRender: CanvasRender;
+
+    // ==== viewdata 决定视图的渲染  ====//
+    // gridmap 棋盘格布局数据
+    // TODO: 对viewdata进行proxy
     public gridmap: GridIdxToOffsetMap;
+    // cellmm + merge = range
+    public rangemm: ViewDataRange = {}; // rangekey 对应的交互属性
+    public selectIdxes: RangeIndexes;
+
+    // render：渲染器
+    private _canvasRender: CanvasRender;
+
     private _getDefaultSource() {
         return {
-            // viewHeight: document.documentElement.clientHeight,
-            // viewWidth: document.documentElement.clientWidth,
-            // // len > viewheight
-            // row: { len: 100, size: 25, },
-            // col: { len: 25, size: 25, },
+            viewHeight: 800,
+            viewWidth: 400,
+            ...defaultGridData,
             scrollOffset: { x: 0, y: 0, },
             scrollIndexes: { ri: 0, ci: 0, },
             selectRectIndexes: null,
@@ -64,10 +76,11 @@ export class DataModel implements IDataModel {
     }
     _init(viewopt: DataModelConfig) {
         const defaultdata = this._getDefaultSource();
-        this._mdata = Object.assign(viewopt, defaultdata, this._grid);
+        this._mdata = Object.assign(defaultdata, viewopt, this._grid);
         this._canvasRender = viewopt.canvasrender;
         this.computedGridMap();
         // // 离线化 化了再放到画布上
+        // mdata - vdata - view； viewmodel是串联器具
         this._canvasRender.drawAll({
             gridmap: this.gridmap,
             ...viewopt,
@@ -91,8 +104,28 @@ export class DataModel implements IDataModel {
             col
         }
     }
-    source(mdata: Mdata) {
-
+    source(mdata: SourceData) {
+        const { cellmm } = mdata;
+        if (isObj(cellmm)) {
+            for (const rowkey in cellmm) {
+                const colMaps = cellmm[rowkey];
+                for (const colkey in colMaps) {
+                    // TODO:  结合merge变量 综合 range的起始
+                    const rangekey = getRangeKey(rowkey, colkey);
+                    const addval = colMaps[colkey];
+                    const target = this.rangemm[rangekey];
+                    this.rangemm[rangekey] = target ? Object.assign(target, addval) : addval;
+                    requestAnimationFrame(() => {
+                        // this.rangemm[rangekey]存的是当前range有的所有特殊属性
+                        // 默认属性的 保留在range实例里无需单独设置
+                        this._canvasRender.draw(rangekey, this.rangemm[rangekey]);
+                    });
+                }
+            }
+        }
+    }
+    command(op: Operation): void {
+        return Command[op.type](this, op);
     }
     _getOffsetByIdx(ri: number, ci: number): RectOffset {
         return draw.getOffsetByIdx(this.gridmap, ri, ci);
@@ -136,8 +169,5 @@ export class DataModel implements IDataModel {
         }
         // 棋盘刚好被整除进 virtualview = realview
         return [curheight, rowarr];
-    }
-    _buildFixedHeaderIdx() {
-
     }
 }

@@ -72,10 +72,20 @@
             myexcel.source({
                 cellmm: {
                     1: {
-                        1: { text: '输入长文字测试截断'},
+                        1: {
+                            text: '输入长文字测试截断',
+                            bgcolor: 'green',
+                            fontWeight: 'bold'
+                        },
                     },
                 },
+                // merges:[]
             });
+            
+            // myexcel.onChange(eventname, (state, next) => {
+            //      const newdata = state;
+            //      next(newdata);
+            // })
         }
     </script>
 </body>

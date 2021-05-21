@@ -1,9 +1,8 @@
 
-import { GridIdxToOffsetMap, CanvasChangeType, CanvasCfg, RectOffset } from '../../type';
+import { GridIdxToOffsetMap, CanvasChangeType, Cell, RectOffset } from '../../type';
 import { defaultCanvasOption } from '../../config/engineoption';
 import { RangeRenderController } from '../rangeman';
 import { AbstraCanvas } from '../../abstract/canvas';
-
 type clientPoint = {
     clientX: number; // 点相对于浏览器的定位
     clientY: number;
@@ -20,7 +19,10 @@ type paintPoint = {
 }
 interface ICanvas {
     onCanvasChange(changeType: CanvasChangeType);
-    draw(viewdata: unknown);
+    draw(
+        rangekey: string,
+        data: Cell,
+    ): void;
 }
 
 type IDrawAll = {
@@ -44,12 +46,16 @@ export class CanvasRender extends AbstraCanvas implements ICanvas {
         this._rangeRenderController = new RangeRenderController(this);
         // this._initEvents();
     }
+    // action层：setRange(range).bgcolor = 'red';
+    // controller层：知道调用哪个render(canvasrender) bgcolor对应 draw调用rangecontroller
+    // 找到range的单元格 绑定的rangerender，再决定drawrecord 绘制顺序 （rangecontroller维护着以range为key的map
+    // 绘制好之后 维护数据
     // 初始化
     drawAll(viewdata: IDrawAll) {
         this.set('width', viewdata.viewWidth);
         this.set('height', viewdata.viewHeight);
         this._setDOMSize();
-        this._rangeRenderController.command('drawall', viewdata);
+        this._rangeRenderController.drawAll(viewdata.gridmap);
     }
     onCanvasChange(changeType: CanvasChangeType) {
         /**
@@ -62,8 +68,11 @@ export class CanvasRender extends AbstraCanvas implements ICanvas {
         //     this.draw();
         // }
     }
-    draw(viewdata: unknown) {
-
+    draw(
+        rangekey: string,
+        data: Cell,
+    ): void {
+        this._rangeRenderController.command(rangekey, data);
     }
     _setDOMSize() {
         super._setDOMSize();

@@ -1,11 +1,9 @@
-import { EngineOption, Mdata, GridMdata } from './type';
+import { EngineOption, SourceData, GridMdata } from './type';
 import { defaultEngineOption } from './config/engineoption';
 import { CanvasRender, DomRender } from './view';
 import { Base } from './abstract/base';
 import { DataModel } from './model/mdata';
 export class Engine extends Base {
-    // 数据
-    private _sources: Mdata = null;
     private _canvasRender: CanvasRender;
     private _domRender: DomRender; // toolbar、scrollbar等
     dataModel: DataModel;
@@ -25,38 +23,22 @@ export class Engine extends Base {
             viewWidth: this.get('viewOption.viewWidth'),
             canvasrender: this._canvasRender
         });
-        // // event要修改datamodel的值，event依赖datamodel
+        // event依赖datamodel,
+        // event根据datamodel的值计算出关键的action数据后会修改到 datamodel里，进而触发viewdata修改
+        // 为了约束event对data的set，event只能通过调用datamodel.command('')进行数据修改
         // this.eventController = new EventController(
-        //     this.dataModel
+        //     this.datamodel
         // );
-        // this.updateEngine();
-    }
-    getCommand() {
-        // 第一阶段：各个range的单独render独立开来
-        // 需要把每个range的依赖属性列出来，才能知道 外界设置什么可触发他render
-        // grid: 
-        // 第二阶段：将各个range的渲染挂在controller上调度
-        //         controller根据外界设置是x属性来判断如何调用(zindex)
-        // setRange().bgcolor = xxx;
-        // setRange().gridmap = xxx; // 如改动行高列宽
+        // 至此形成的数据链路是：event(aciton) -> datamodel -> viewdata -> render
     }
     griddata(grid: GridMdata) {
         this.dataModel.resetGrid(grid);
         return this;
     }
     // 载入数据
-    source() { // viewdata
-        // 暂时先以command: setRange(xx).bgcolor 来维护表格数据
-        // 之后会考虑开放更友好的api来载入数据
-        // 类似cellmm:{1:1{xxx}}
-    }
-    private updateEngine() {
-        // console.log(this._cfg);
-        // 建立元素间逻辑关系 ===> 根据sources 构建当前表格的range关系
-        // this.dataModel.constructElements(sources);
-        // this.emit('canvas:beforepaint'); // 这个时候可以访问到 data=>view的那个等同于view的viewdata了
-        // this.dataModel.render();// 即调用range方法各自进行渲染
-        // this.emit('canvas:afterpaint');
+    source(data: SourceData) { // viewdata
+        this.dataModel.source(data);
+        return this;
     }
 }
 

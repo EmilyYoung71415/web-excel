@@ -1,4 +1,5 @@
 import { isObj } from './index';
+import { RectIndexes } from '../type';
 // 旧值依次挂在新值上
 // 与Object.assign的区别是：不会因为newObj没有x属性而直接替换oldObj后使得oldObj.x为空
 export function _merge<T extends Array<T> | any>(oldObj: T, newObj: T): T {
@@ -23,4 +24,13 @@ export function _merge<T extends Array<T> | any>(oldObj: T, newObj: T): T {
         }
     }
     return resObj;
+}
+
+export function getRangeKey(rowkey: string, colkey: string): string {
+    // return `[[${rowkey},${colkey}],[${rowkey},${colkey}]]`;
+    return JSON.stringify({ sri: rowkey, sci: colkey, eri: rowkey, eci: colkey });
+}
+
+export function parseRangeKey(rangekey: string): RectIndexes {
+    return JSON.parse(rangekey);
 }

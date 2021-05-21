@@ -8,13 +8,10 @@ export type CellStyle = {
 
 // 单元格分为很多类型： 文本、下拉框、日期选择器
 // 单元格的样式、字号等都是由range来管理聚合来的
-type Cell = {
-    type: 'text' | 'select' | 'datepicker';
-    style: CellStyle;
-    font?: { // text-range
-        style: Text;
-        word: string;
-    };
+// stylerange、textrange
+export type Cell = CellStyle & CellText & {
+    // type: 'text' | 'select' | 'datepicker';
+    text?: string;
 }
 
 // 棋盘逻辑索引
@@ -78,23 +75,28 @@ export type GridMdata = {
 }
 
 // 表格数据
-export type SourceMdata = {
+export type ViewDataRange = {
     // 表格合并的单元格集合
     // merges?: RangeIndexes[]; // [{}, {}]
-    ranges?: {
-        // key:range: '[[1,1],[2,2]]'
-        // cell里的每个属性对应单独的range
-        [key: string]: Cell
-    };
-    // cellmm ? maybe
+    // key:range: '[[1,1],[2,2]]'
+    // cell里的每个属性对应单独的range
+    [key: string]: Cell;
 }
 
-export type Mdata = ViewTableSize & GridMdata & SourceMdata & {
-    // 交互中的数据
-    scrollOffset: Point;
-    scrollIndexes: ScrollIndexes;
-    selectRectIndexes: RangeIndexes;
+export type SourceData = {
+    cellmm?: Record<number, Record<number, Cell>>;
+    // merges
 }
+
+export type Mdata =
+    & ViewTableSize
+    & GridMdata
+    & SourceData
+    & {
+        // 交互中的数据
+        scrollOffset: Point;
+        scrollIndexes: ScrollIndexes;
+    }
 
 /*--------------
     EngineOption
@@ -142,9 +144,9 @@ export type CanvasCtxAttrs = {
     // 复合
     bgcolor?: string;
     linecolor?: string;
-} & Text;
+} & CellText;
 
-export type Text = {
+export type CellText = {
     font?: string,
     // 文字渲染规则：超出则换行且 若最后一行仍超出则省略
     // textWrap: 'wrap' | 'nowrap' | 'ellipsis';
