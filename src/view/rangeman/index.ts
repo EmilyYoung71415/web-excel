@@ -73,9 +73,8 @@ export class RangeRenderController {
         this._textRange.render(draw.getRangeOffsetByIdxes(propsdata.gridmap, {
             sri: 3, sci: 3, eri: 3, eci: 3
         }), {
-            text: '123456789101112',
+            text: '123456789101112123456789101112',
             fontColor: 'red',
-            fontSize: 14,
         });
 
         this._styleRange.render(draw.getRangeOffsetByIdxes(propsdata.gridmap, {

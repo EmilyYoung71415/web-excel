@@ -9,16 +9,21 @@ import { RangeRenderController } from './index';
 import { BaseRange } from '../../abstract/range-base';
 import { assembleFont, getTextWidth } from '../../utils';
 
+type UpdateText = Text & { text: string };
 interface ITextRange {
+    render: (
+        rect: RectOffset,
+        params: UpdateText,
+    ) => void;
     draw: (
         rect: RectOffset,
         text: string,
     ) => void;
 }
 
-type UpdateText = Text & { text: string };
-
 export class TextRange extends BaseRange implements ITextRange {
+    readonly namespace = 'text-range';
+    // todo: 删除线、下划线 貌似要自己画线
     getDefaultCfg() {
         return {
             fontColor: '#000',
@@ -26,8 +31,8 @@ export class TextRange extends BaseRange implements ITextRange {
             fontFamily: 'sans-serif',
             fontWeight: 'normal',
             fontStyle: 'normal',
-            textAlign: 'center',
-            textBaseline: 'middle',
+            // textAlign: 'center',
+            // textBaseline: 'middle',
             cellPadding: 4,
             lineHeight: 12 * 0.14,
         };
@@ -44,7 +49,7 @@ export class TextRange extends BaseRange implements ITextRange {
     render(
         rect: RectOffset,
         params: UpdateText = { text: '' },
-    ) {
+    ): void {
         // 上面将idx对应的text、坐标等拿到传下来
         const { text } = params;
         this.setObj(params);
@@ -58,6 +63,7 @@ export class TextRange extends BaseRange implements ITextRange {
             height: rect.height - bordersize * 2,
         }
         this._canvas.drawRegion(contentRect, this.draw.bind(this, rect, text));
+        this.setObj(this.getDefaultCfg());
     }
     // draw()：header时 new的时候的cfg已设置 直接draw文字
     draw(
