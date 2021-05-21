@@ -18,6 +18,7 @@ import { RectOffset, CellStyle } from '../../type';
 import { RangeRenderController } from './index';
 import { BaseRange } from '../../abstract/range-base';
 
+export const MAX_BORDER_SIZE = 3;
 interface IStyleRange {
     render: (
         rect: RectOffset,
@@ -57,8 +58,9 @@ export class StyleRange extends BaseRange implements IStyleRange {
         this.setObj(this.getDefaultCfg());
     }
     _draw() {
+        const bordersize = this.get('bordersize') > MAX_BORDER_SIZE ? MAX_BORDER_SIZE : this.get('bordersize');
         const border = [
-            this.get('bordersize'),
+            bordersize,
             this.get('borderstyle'),
             this.get('bordercolor'),
         ].join(' ');

@@ -8,6 +8,7 @@ import { RectOffset, Text } from '../../type';
 import { RangeRenderController } from './index';
 import { BaseRange } from '../../abstract/range-base';
 import { assembleFont, getTextWidth } from '../../utils';
+import { MAX_BORDER_SIZE } from './style-range';
 
 type UpdateText = Text & { text: string };
 interface ITextRange {
@@ -55,12 +56,11 @@ export class TextRange extends BaseRange implements ITextRange {
         this.setObj(params);
         this._setFont();
         // 减去border的影响
-        const bordersize = 1;
         const contentRect = {
-            left: rect.left + bordersize,
-            top: rect.top + bordersize,
-            width: rect.width - bordersize * 2,
-            height: rect.height - bordersize * 2,
+            left: rect.left + MAX_BORDER_SIZE,
+            top: rect.top + MAX_BORDER_SIZE,
+            width: rect.width - MAX_BORDER_SIZE * 2,
+            height: rect.height - MAX_BORDER_SIZE * 2,
         }
         this._canvas.drawRegion(contentRect, this.draw.bind(this, rect, text));
         this.setObj(this.getDefaultCfg());
