@@ -10,7 +10,7 @@ import { BaseRange } from '../../abstract/range-base';
 import { assembleFont, getTextWidth } from '../../utils';
 import { MAX_BORDER_SIZE } from './style-range';
 
-type UpdateText = CellText & { text: string };
+type UpdateText = CellText & { text?: string };
 interface ITextRange {
     render: (
         rect: RectOffset,
@@ -53,7 +53,8 @@ export class TextRange extends BaseRange implements ITextRange {
     ): void {
         // 上面将idx对应的text、坐标等拿到传下来
         const { text } = params;
-        this.setObj(params);
+        if (!text) return;
+        this._setObj(params);
         this._setFont();
         // 减去border的影响
         const contentRect = {
@@ -62,8 +63,9 @@ export class TextRange extends BaseRange implements ITextRange {
             width: rect.width - MAX_BORDER_SIZE * 2,
             height: rect.height - MAX_BORDER_SIZE * 2,
         }
-        this._canvas.drawRegion(contentRect, this.draw.bind(this, rect, text));
-        this.setObj(this.getDefaultCfg());
+        this.draw(rect, text);
+        // this._canvas.drawRegion(contentRect, this.draw.bind(this, rect, text));
+        this._setObj(this.getDefaultCfg());
     }
     // draw()：header时 new的时候的cfg已设置 直接draw文字
     draw(

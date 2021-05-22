@@ -52,10 +52,12 @@ export class StyleRange extends BaseRange implements IStyleRange {
         style: CellStyle, // 最终单元格的样式
     ): void {
         this._rect = rect;
-        this.setObj(style);
-        this._canvas.drawRegion(rect, this._draw.bind(this));
+        this._setObj(style);
+        // TODO:  将底层图形drawImage得到
+        this._draw();
+        // this._canvas.drawRegion(rect, this._draw.bind(this), { clear: true });
         // 恢复原始设置 避免污染下次draw笔触
-        this.setObj(this.getDefaultCfg());
+        this._setObj(this.getDefaultCfg());
     }
     _draw() {
         const bordersize = this.get('bordersize') > MAX_BORDER_SIZE ? MAX_BORDER_SIZE : this.get('bordersize');

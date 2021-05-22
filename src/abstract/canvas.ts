@@ -5,7 +5,7 @@
  * - 设置笔触
  */
 import { Base } from './base';
-import { RectOffset, CanvasCfg, Point, CanvasCtxAttrs } from '../type';
+import { RectOffset, Point, CanvasCtxAttrs } from '../type';
 import { isString } from '../utils';
 import { LooseObject } from '@interface/index';
 const CANVAS_ATTRS_MAP = {

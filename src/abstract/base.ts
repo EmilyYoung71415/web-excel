@@ -32,10 +32,13 @@ export abstract class Base implements IBase {
     set(key, value) {
         this._cfg[key] = value;
     }
-    setObj(obj) {
+    _setObj(obj: LooseObject) {
         if (!isObj(obj)) return;
-        Object.keys(obj).forEach(key => {
-            this.set(key, obj[key]);
-        });
+        const defaultCfg = this.getDefaultCfg();
+        for (const key in obj) {
+            if (defaultCfg[key]) {
+                this.set(key, obj[key]);
+            }
+        }
     }
 }

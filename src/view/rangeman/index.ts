@@ -14,9 +14,6 @@ import { _merge, draw, parseRangeKey } from '../../utils';
 import { Cell, GridIdxToOffsetMap } from '../../type';
 import { CanvasRender } from '..';
 
-const COMMAND = {
-    // 'drawall': // 整个可视区域
-};
 type IDataStore = {
     gridmap: GridIdxToOffsetMap;
 }
@@ -54,13 +51,13 @@ export class RangeRenderController {
     command(rangekey: string, rangedata: Cell) {
         // setRange({sri:1,sci:1,eri:1,eci:1}).text = '输入多行文字测试一下';
         // 遍历cell属性 生成各个实例， 按照zindex顺序维护成renderqueue
-        // rangedata的
-        // 遍历rangedata每一个key 聚合生成 不同的range
         const { gridmap } = this.dataStore;
         const rectidxes = parseRangeKey(rangekey);
         const rectOffset = draw.getRangeOffsetByIdxes(gridmap, rectidxes);
-        this._styleRange.render(rectOffset, rangedata);
-        this._textRange.render(rectOffset, rangedata);
+        this.canvas.drawRegion(rectOffset, () => {
+            this._styleRange.render(rectOffset, rangedata);
+            this._textRange.render(rectOffset, rangedata);
+        });
     }
     // 局部更新是 以rangeidx 聚合 range 渲染
     render(rectidx: string) {
