@@ -46,10 +46,6 @@ export class CanvasRender extends AbstraCanvas implements ICanvas {
         this._rangeRenderController = new RangeRenderController(this);
         // this._initEvents();
     }
-    // action层：setRange(range).bgcolor = 'red';
-    // controller层：知道调用哪个render(canvasrender) bgcolor对应 draw调用rangecontroller
-    // 找到range的单元格 绑定的rangerender，再决定drawrecord 绘制顺序 （rangecontroller维护着以range为key的map
-    // 绘制好之后 维护数据
     // 初始化
     drawAll(viewdata: IDrawAll) {
         this.set('width', viewdata.viewWidth);

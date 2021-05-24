@@ -3,6 +3,8 @@ import { defaultEngineOption } from './config/engineoption';
 import { CanvasRender, DomRender } from './view';
 import { Base } from './abstract/base';
 import { DataModel } from './model/mdata';
+import { ViewModel } from './model/vdata';
+
 export class Engine extends Base {
     private _canvasRender: CanvasRender;
     private _domRender: DomRender; // toolbar、scrollbar等
@@ -16,13 +18,16 @@ export class Engine extends Base {
         super(engineOpt);
         this._canvasRender = new CanvasRender(engineOpt.container);
         this._domRender = new DomRender(engineOpt);
+        const viewModel = new ViewModel(
+            this._canvasRender,
+        );
         // gridmap、srollindex等变量
         // 当这些变量更改的时候 需要让render定义去render
-        this.dataModel = new DataModel({
+        this.dataModel = new DataModel(viewModel, {
             viewHeight: this.get('viewOption.viewHeight'),
             viewWidth: this.get('viewOption.viewWidth'),
-            canvasrender: this._canvasRender
         });
+
         // event依赖datamodel,
         // event根据datamodel的值计算出关键的action数据后会修改到 datamodel里，进而触发viewdata修改
         // 为了约束event对data的set，event只能通过调用datamodel.command('')进行数据修改
@@ -40,27 +45,27 @@ export class Engine extends Base {
             //         text: 'hello大家好'
             //     }
             // })
-            for (let i = 0; i < 5; i++) {
-                for (let j = 0; j < 5; j++) {
-                    // 单元格：ij => ranges
-                    const rangeidxes = JSON.stringify({ sri: i, sci: j, eri: i, eci: j });
-                    this.dataModel.command({
-                        type: 'setRange',
-                        rangeidxes: rangeidxes,
-                        properties: {
-                            text: `文字_${i}_${j}`
-                        }
-                    })
-                }
-            }
-            // 某区域内设置 fontcolor：
-            this.dataModel.command({
-                type: 'setRange',
-                rangeidxes: JSON.stringify({ sri: 1, sci: 1, eri: 3, eci: 3 }),
-                properties: {
-                    fontColor: 'red'
-                }
-            });
+            // for (let i = 0; i < 5; i++) {
+            //     for (let j = 0; j < 5; j++) {
+            //         // 单元格：ij => ranges
+            //         const rangeidxes = JSON.stringify({ sri: i, sci: j, eri: i, eci: j });
+            //         this.dataModel.command({
+            //             type: 'setRange',
+            //             rangeidxes: rangeidxes,
+            //             properties: {
+            //                 text: `文字_${i}_${j}`
+            //             }
+            //         })
+            //     }
+            // }
+            // // 某区域内设置 fontcolor：
+            // this.dataModel.command({
+            //     type: 'setRange',
+            //     rangeidxes: JSON.stringify({ sri: 1, sci: 1, eri: 3, eci: 3 }),
+            //     properties: {
+            //         fontColor: 'red'
+            //     }
+            // });
             // console.log(this.dataModel.cellmm)
             // 现在只要cell里维护的属性是最终的 全局的cell属性（不含base的），那么渲染就会其效果
             // 不过新的问题在于：每改了一个cellmm就手动调用了一次渲染
