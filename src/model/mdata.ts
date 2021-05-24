@@ -52,8 +52,10 @@ export class DataModel implements IDataModel {
     // gridmap 棋盘格布局数据
     // TODO: 对viewdata进行proxy
     public gridmap: GridIdxToOffsetMap;
+    // TODO:针对批量的操作需要在cellmm之上再抽象一层rangemm，cellmm = computed(range1,range2..)
+    // public rangemm: ViewDataRange = {};
     // cellmm + merge = range
-    public rangemm: ViewDataRange = {}; // rangekey 对应的交互属性
+    public cellmm: ViewDataRange = {};
     public selectIdxes: RangeIndexes;
 
     // render：渲染器
@@ -107,25 +109,13 @@ export class DataModel implements IDataModel {
     source(mdata: SourceData) {
         const { cellmm } = mdata;
         if (isObj(cellmm)) {
-            for (const rowkey in cellmm) {
-                const colMaps = cellmm[rowkey];
-                for (const colkey in colMaps) {
-                    // TODO:  结合merge变量 综合 range的起始
-                    const rangekey = getRangeKey(rowkey, colkey);
-                    const addval = colMaps[colkey];
-                    const target = this.rangemm[rangekey];
-                    this.rangemm[rangekey] = target ? Object.assign(target, addval) : addval;
-                    requestAnimationFrame(() => {
-                        // this.rangemm[rangekey]存的是当前range有的所有特殊属性
-                        // 默认属性的 保留在range实例里无需单独设置
-                        this._canvasRender.draw(rangekey, this.rangemm[rangekey]);
-                    });
-                }
-            }
+            // TODO:之后自动管理
+            this.cellmm = cellmm;
+            this._cellmmRender();
         }
     }
     command(op: Operation): void {
-        return Command[op.type](this, op);
+        return Command[op.type].call(this, op);
     }
     _getOffsetByIdx(ri: number, ci: number): RectOffset {
         return draw.getOffsetByIdx(this.gridmap, ri, ci);
@@ -169,5 +159,20 @@ export class DataModel implements IDataModel {
         }
         // 棋盘刚好被整除进 virtualview = realview
         return [curheight, rowarr];
+    }
+    _cellmmRender() {
+        const cellmm = this.cellmm;
+        requestAnimationFrame(() => {
+            for (const rowkey in cellmm) {
+                const colMaps = cellmm[rowkey];
+                for (const colkey in colMaps) {
+                    // TODO:  结合merge变量 综合 range的起始
+                    const rangekey = getRangeKey(rowkey, colkey);
+                    // this.cellmm[rangekey]存的是当前range有的所有特殊属性
+                    // 默认属性的 保留在range实例里无需单独设置
+                    this._canvasRender.draw(rangekey, colMaps[colkey]);
+                }
+            }
+        });
     }
 }

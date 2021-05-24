@@ -30,6 +30,44 @@ export class Engine extends Base {
         //     this.datamodel
         // );
         // 至此形成的数据链路是：event(aciton) -> datamodel -> viewdata -> render
+        setTimeout(() => {
+            // 模拟用户action给的command
+
+            // this.dataModel.command({
+            //     type: 'setRange',
+            //     rangeidxes: JSON.stringify({ sri: 2, sci: 2, eri: 2, eci: 2 }),
+            //     properties: {
+            //         text: 'hello大家好'
+            //     }
+            // })
+            for (let i = 0; i < 5; i++) {
+                for (let j = 0; j < 5; j++) {
+                    // 单元格：ij => ranges
+                    const rangeidxes = JSON.stringify({ sri: i, sci: j, eri: i, eci: j });
+                    this.dataModel.command({
+                        type: 'setRange',
+                        rangeidxes: rangeidxes,
+                        properties: {
+                            text: `文字_${i}_${j}`
+                        }
+                    })
+                }
+            }
+            // 某区域内设置 fontcolor：
+            this.dataModel.command({
+                type: 'setRange',
+                rangeidxes: JSON.stringify({ sri: 1, sci: 1, eri: 3, eci: 3 }),
+                properties: {
+                    fontColor: 'red'
+                }
+            });
+            // console.log(this.dataModel.cellmm)
+            // 现在只要cell里维护的属性是最终的 全局的cell属性（不含base的），那么渲染就会其效果
+            // 不过新的问题在于：每改了一个cellmm就手动调用了一次渲染
+            // 理想情况是 range2cellmm 遍历完之后，再进行render
+            // or 维护一个队列，一次性render 当前几个range计算后的render
+
+        }, 1000);
     }
     griddata(grid: GridMdata) {
         this.dataModel.resetGrid(grid);
