@@ -14,7 +14,7 @@ import { BaseRange } from '../../abstract/range-base';
 import { draw } from '../../utils';
 import { FIXEDHEADERMARGIN } from '../../model/mdata';
 interface IGridRange {
-    render: (renderRange?: RangeIndexes) => void;
+    render: (gridmap: GridIdxToOffsetMap) => void;
 }
 
 export class GridRange extends BaseRange implements IGridRange {
@@ -22,7 +22,6 @@ export class GridRange extends BaseRange implements IGridRange {
     // 画布全局状态：滚动距离、画布大小
     private _fixedheadermargin: { left: number; top: number; }; // 为索引栏绘制预留区域
 
-    // 画布数据：gridmap：this._props.dataStore.gridmap
     private _gridmap: GridIdxToOffsetMap;
     private _rect: RectOffset; // 绘制的区域
     private _range: RangeIndexes; // 当前range绘制的所在gridmap的逻辑索引
@@ -40,22 +39,17 @@ export class GridRange extends BaseRange implements IGridRange {
         this._fixedheadermargin = FIXEDHEADERMARGIN;
     }
     // 在render处初始化 this上的数据：rect、gridmap
-    render(range?: RangeIndexes): void {
-        this._gridmap = this._props.dataStore.gridmap;
-        if (range) {
-            this._range = range;
-            this._rect = draw.getRangeOffsetByIdxes(this._gridmap, range);
-            this._canvas.drawRegion(this._rect, this._renderDetail.bind(this));
-        } else {
-            this._range = { sri: 0, eri: this._gridmap.row.length - 2, sci: 0, eci: this._gridmap.col.length - 2 };
-            this._rect = this._canvas.getViewRange();
-            this._renderAll();
-        }
-        // const range1 = { sri: 0, sci: 0, eri: 3, eci: 3 };
-        // const rect1 = draw.getRangeOffsetByIdxes(this._gridmap, range1);
-        // window.addEventListener('click', () => {
-        //     this._canvas.drawRegion(rect1, this._renderDetail.bind(this, range1))
-        // })
+    render(gridmap: GridIdxToOffsetMap): void {
+        this._gridmap = gridmap;
+        // 局部重绘grid
+        // if (range) {
+        //     this._range = range;
+        //     this._rect = draw.getRangeOffsetByIdxes(this._gridmap, range);
+        //     this._canvas.drawRegion(this._rect, this._renderDetail.bind(this));
+        // }
+        this._range = { sri: 0, eri: this._gridmap.row.length - 2, sci: 0, eci: this._gridmap.col.length - 2 };
+        this._rect = this._canvas.getViewRange();
+        this._renderAll();
     }
     private _renderAll() {
         this._ctx.translate(this._fixedheadermargin.left, this._fixedheadermargin.top);

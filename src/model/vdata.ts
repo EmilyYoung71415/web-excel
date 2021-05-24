@@ -4,9 +4,9 @@
  * - 代理访问拦截：scrollidxes变量更改后对viewdata的代理访问
  * - UI = render(viewmodel.state); vdata更改自动触发视图render
  */
-import { ViewDataRange, ViewDataSource } from '../type';
+import { ViewDataSource } from '../type';
 import { CanvasRender } from '../view';
-import { isObj, getRangeKey } from '../utils';
+import { isObj } from '../utils';
 
 export class ViewModel {
     public state: ViewDataSource;
@@ -65,8 +65,7 @@ export class ViewModel {
     }
     updateCanvasView(auto = false) {
         if (!auto) {
-            this._canvasRender.drawAll(this.state);
-            this._cellmmRender(this.state.cellmm);
+            this._canvasRender.render(this.state);
             return;
         }
 
@@ -74,19 +73,5 @@ export class ViewModel {
         // requestAnimationFrame(() => {
         // 
         // });
-    }
-    _cellmmRender(cellmm: ViewDataRange) {
-        requestAnimationFrame(() => {
-            for (const rowkey in cellmm) {
-                const colMaps = cellmm[rowkey];
-                for (const colkey in colMaps) {
-                    // TODO:  结合merge变量 综合 range的起始
-                    const rangekey = getRangeKey(rowkey, colkey);
-                    // this.cellmm[rangekey]存的是当前range有的所有特殊属性
-                    // 默认属性的 保留在range实例里无需单独设置
-                    this._canvasRender.draw(rangekey, colMaps[colkey]);
-                }
-            }
-        });
     }
 }

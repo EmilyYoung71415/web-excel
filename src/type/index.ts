@@ -219,3 +219,10 @@ export type GridIdxToOffsetMap = {
 //     BeforeUpdate,
 //     Updated,
 // }
+
+export type ViewDataSource = ViewTableSize & {
+    // gridmap 棋盘格布局数据
+    gridmap: GridIdxToOffsetMap;
+    cellmm: ViewDataRange;
+    selectIdxes: RangeIndexes;
+}

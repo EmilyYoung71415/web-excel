@@ -1,22 +1,19 @@
 /**
- * @file 跨cell的管理器
- * - 样式 style-range
+ * @file 表格的渲染能力：可跨cell 与command维护的rangemm一一对应
+ * - 网格： grid-range = gridrange + fixedheader-range
+ * - 单元格样式内容 cell-range = stylerange + textrange
  * - 选区 selector-range
- * - 合并单元格
- * - 条件格式
- * - 格式刷
+ * - 合并单元格 merge-range
+ * - 条件格式 formula-range
+ * - 格式刷 copypaint-range
  */
 import { GridRange } from './grid-range';
 import { FixedHeaderRange } from './fixedheader-range';
 import { TextRange } from './text-range';
 import { StyleRange } from './style-range';
-import { _merge, draw, parseRangeKey } from '../../utils';
-import { Cell, GridIdxToOffsetMap } from '../../type';
+import { _merge, draw, parseRangeKey, getRangeKey } from '../../utils';
+import { Cell, ViewDataSource } from '../../type';
 import { CanvasRender } from '..';
-
-type IDataStore = {
-    gridmap: GridIdxToOffsetMap;
-}
 
 export class RangeRenderController {
     private _gridRange: GridRange;
@@ -24,59 +21,53 @@ export class RangeRenderController {
     private _textRange: TextRange;
     private _styleRange: StyleRange;
 
-    private _cacheQueue: unknown;
     canvas: CanvasRender;
-    dataStore: IDataStore;
+    public viewdata: ViewDataSource;
+
     constructor(canvas: CanvasRender) {
         this.canvas = canvas;
-        this.dataStore = {
-            gridmap: null,
-        };
         // 子range设计成可以拿父实例是为了：1.可以直接使用笔触 2.直接使用父处理好的数据 3.向上通知父
         this._gridRange = new GridRange(this);
         this._fixedHeaderRange = new FixedHeaderRange(this);
         this._textRange = new TextRange(this);
         this._styleRange = new StyleRange(this);
-
-        this._cacheQueue = {
-            'drawall': [this._gridRange, this._fixedHeaderRange],
-        };
     }
-    drawAll(gridmap: GridIdxToOffsetMap) {
-        this.dataStore = {
-            gridmap: gridmap,
-        };
-        this.render('drawall');
+    render(source: ViewDataSource) {
+        this.viewdata = source;
+        this._renderGrid();
+        this._renderCells(); // cellmm
+        // this.renderMerge();
     }
-    command(rangekey: string, rangedata: Cell) {
-        // setRange({sri:1,sci:1,eri:1,eci:1}).text = '输入多行文字测试一下';
-        // 遍历cell属性 生成各个实例， 按照zindex顺序维护成renderqueue
-        const { gridmap } = this.dataStore;
+    renderCellmm(rangekey: string, rangedata: Cell) {
+        const { gridmap } = this.viewdata;
         const rectidxes = parseRangeKey(rangekey);
         const rectOffset = draw.getRangeOffsetByIdxes(gridmap, rectidxes);
+        // view、viewmodel-view： TODO: viewdata抽取、dataproxy、
+        // 滚动的view：
+        // action：注册behavior、registerview
+        // 性能优化：首屏渲染离线优化
         this.canvas.drawRegion(rectOffset, () => {
             this._styleRange.render(rectOffset, rangedata);
             this._textRange.render(rectOffset, rangedata);
         });
     }
-    // 局部更新是 以rangeidx 聚合 range 渲染
-    render(rectidx: string) {
-        const rangelist = this._getRenderList(rectidx);
-        try {
-            for (const range of rangelist) {
-                range.render();
+    _renderGrid() {
+        const renderList = [this._gridRange, this._fixedHeaderRange];
+        for (const range of renderList) {
+            range.render(this.viewdata.gridmap);
+        }
+    }
+    _renderCells() {
+        const cellmm = this.viewdata.cellmm;
+        for (const rowkey in cellmm) {
+            const colMaps = cellmm[rowkey];
+            for (const colkey in colMaps) {
+                // TODO:  结合merge变量 综合 range的起始
+                const rangekey = getRangeKey(rowkey, colkey);
+                // this.cellmm[rangekey]存的是当前range有的所有特殊属性
+                // 默认属性的 保留在range实例里无需单独设置
+                this.renderCellmm(rangekey, colMaps[colkey]);
             }
         }
-        catch (error) {
-            throw new Error('range.render 出错');
-        }
-    }
-    private _getRenderList(rectidx: string): Array<any> {
-        if (rectidx === 'drawall') return this._cacheQueue[rectidx];
-    }
-    // 得到canvas上当前的选中区域 selectIndexes
-    // 最上层mdata：selectIndexes那里拿
-    private _getRefreshRegions(): Array<any> {
-        return [];
     }
 }

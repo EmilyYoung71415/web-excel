@@ -44,10 +44,10 @@ export class FixedHeaderRange extends BaseRange {
         this._fixedheadermargin = FIXEDHEADERMARGIN;
         this._textRange = new TextRange(rangecontroller, this._cfg.style.text);
     }
-    _resetdata() {
+    _resetdata(gridmap: GridIdxToOffsetMap) {
         // this._scrollindexes = viewData.scrollindexes;
         this._rect = this._canvas.getViewRange();
-        this._gridmap = this._props.dataStore.gridmap;
+        this._gridmap = gridmap;
         this._rowheadrect = {
             left: this._fixedheadermargin.left,
             top: 0,
@@ -61,8 +61,8 @@ export class FixedHeaderRange extends BaseRange {
             height: this._rect.height,
         };
     }
-    render() {
-        this._resetdata();
+    render(gridmap: GridIdxToOffsetMap) {
+        this._resetdata(gridmap);
         this._ctx.save();
         this._ctx.translate(-this._fixedheadermargin.left, -this._fixedheadermargin.top);
         this._canvas.drawRegion(this._rowheadrect, this._renderHeader.bind(this, true));
