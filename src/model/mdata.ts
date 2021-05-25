@@ -84,6 +84,9 @@ export class DataModel implements IDataModel {
             cellmm: this._initcellmm,
             selectIdxes: this._initselectIdxes,
         });
+        setInterval(() => {
+            console.log(this._proxyViewdata.cellmm[1][1].text = '你好');
+        }, 10);
     }
     resetGrid(grid: GridMdata): GridMdata {
         this._grid = _merge(defaultGridData, grid);

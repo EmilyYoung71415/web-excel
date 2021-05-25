@@ -13,6 +13,9 @@ export class ViewModel {
     private _canvasRender: CanvasRender;
     private _revocableObject = null;
 
+    private _updateRequest = 0;
+    private _updateDelayCount = 0;
+
     constructor(canvasrender: CanvasRender) {
         this._canvasRender = canvasrender;
     }
@@ -40,15 +43,17 @@ export class ViewModel {
                 return Reflect.get(target, key);
             },
             set: (target: ViewDataSource, key: PropertyKey, value: any) => {
-                console.log(target[key]);
+                this._updateRequest++;
                 this.updateCanvasView(true);
                 return Reflect.set(target, key, value);
             },
             deleteProperty: (target: ViewDataSource, propertyKey: PropertyKey) => {
+                this._updateRequest++;
                 this.updateCanvasView(true);
                 return Reflect.deleteProperty(target, propertyKey);
             },
             defineProperty: (target: ViewDataSource, propertyKey: PropertyKey, value: any) => {
+                this._updateRequest++;
                 this.updateCanvasView(true);
                 return Reflect.defineProperty(target, propertyKey, value);
             }
@@ -68,10 +73,13 @@ export class ViewModel {
             this._canvasRender.render(this.state);
             return;
         }
-
-        // TODO:自动渲染 这里需要加个锁 不然会一直陷入死循环
-        // requestAnimationFrame(() => {
-        // 
-        // });
+        requestAnimationFrame(() => {
+            // raf 里加入一个节流，控制最多一帧内触发一次渲染
+            this._updateDelayCount++;
+            if (this._updateDelayCount === this._updateRequest) {
+                this._canvasRender.render(this.state);
+                this._updateRequest = this._updateDelayCount = 0;
+            }
+        });
     }
 }
