@@ -11,7 +11,7 @@ import { GridRange } from './grid-range';
 import { FixedHeaderRange } from './fixedheader-range';
 import { TextRange } from './text-range';
 import { StyleRange } from './style-range';
-import { _merge, draw, parseRangeKey, getRangeKey } from '../../utils';
+import { _merge, draw } from '../../utils';
 import { Cell, ViewDataSource } from '../../type';
 import { CanvasRender } from '..';
 
@@ -38,11 +38,9 @@ export class RangeRenderController {
         this._renderCells(); // cellmm
         // this.renderMerge();
     }
-    renderCellmm(rangekey: string, rangedata: Cell) {
+    _renderCellmm(rowkey: number, colkey: number, rangedata: Cell) {
         const { gridmap } = this.viewdata;
-        const rectidxes = parseRangeKey(rangekey);
-        const rectOffset = draw.getRangeOffsetByIdxes(gridmap, rectidxes);
-        // view、viewmodel-view： TODO: viewdata抽取、dataproxy、
+        const rectOffset = draw.getOffsetByIdx(gridmap, rowkey, colkey);
         // 滚动的view：
         // action：注册behavior、registerview
         // 性能优化：首屏渲染离线优化
@@ -63,10 +61,10 @@ export class RangeRenderController {
             const colMaps = cellmm[rowkey];
             for (const colkey in colMaps) {
                 // TODO:  结合merge变量 综合 range的起始
-                const rangekey = getRangeKey(rowkey, colkey);
+                // const rangekey = getRangeKey(rowkey, colkey);
                 // this.cellmm[rangekey]存的是当前range有的所有特殊属性
                 // 默认属性的 保留在range实例里无需单独设置
-                this.renderCellmm(rangekey, colMaps[colkey]);
+                this._renderCellmm(+rowkey, +colkey, colMaps[colkey]);
             }
         }
     }

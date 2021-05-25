@@ -19,10 +19,6 @@ type paintPoint = {
 }
 interface ICanvas {
     onCanvasChange(changeType: CanvasChangeType);
-    draw(
-        rangekey: string,
-        data: Cell,
-    ): void;
 }
 
 export class CanvasRender extends AbstraCanvas implements ICanvas {
@@ -42,11 +38,10 @@ export class CanvasRender extends AbstraCanvas implements ICanvas {
     }
     // 初始化
     render(source: ViewDataSource) {
-        // diff source 差别 实现局部更新
-        // or 每次显式传入 更改的数据 开放一个renderRegion的接口
         this.set('width', source.viewWidth);
         this.set('height', source.viewHeight);
         this._setDOMSize();
+
         this._rangeRenderController.render(source);
     }
     onCanvasChange(changeType: CanvasChangeType) {

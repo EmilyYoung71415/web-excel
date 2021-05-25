@@ -84,9 +84,9 @@ export class DataModel implements IDataModel {
             cellmm: this._initcellmm,
             selectIdxes: this._initselectIdxes,
         });
-        setInterval(() => {
-            console.log(this._proxyViewdata.cellmm[1][1].text = '你好');
-        }, 10);
+        this._proxyViewdata.cellmm[1][1].fontColor = 'red';
+        this._proxyViewdata.cellmm[2] = {}; // 必须要手动sett {} 才能对新加属性形成追踪
+        this._proxyViewdata.cellmm[2][3] = { text: 'www', fontColor: 'red' };
     }
     resetGrid(grid: GridMdata): GridMdata {
         this._grid = _merge(defaultGridData, grid);
