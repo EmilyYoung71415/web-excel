@@ -39,8 +39,8 @@ export class GridRange extends BaseRange implements IGridRange {
         this._fixedheadermargin = FIXEDHEADERMARGIN;
     }
     // 在render处初始化 this上的数据：rect、gridmap
-    render(gridmap: GridIdxToOffsetMap): void {
-        this._gridmap = gridmap;
+    render(): void {
+        this._gridmap = this._canvas.$store.gridmap;
         // 局部重绘grid
         // if (range) {
         //     this._range = range;

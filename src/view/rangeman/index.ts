@@ -23,7 +23,6 @@ export class RangeRenderController {
 
     canvas: CanvasRender;
     public viewdata: ViewDataSource;
-
     constructor(canvas: CanvasRender) {
         this.canvas = canvas;
         // 子range设计成可以拿父实例是为了：1.可以直接使用笔触 2.直接使用父处理好的数据 3.向上通知父
@@ -32,8 +31,8 @@ export class RangeRenderController {
         this._textRange = new TextRange(this);
         this._styleRange = new StyleRange(this);
     }
-    render(source: ViewDataSource) {
-        this.viewdata = source;
+    render() {
+        this.viewdata = this.canvas.$store;
         this._renderGrid();
         this._renderCells(); // cellmm
         // this.renderMerge();
@@ -52,7 +51,7 @@ export class RangeRenderController {
     _renderGrid() {
         const renderList = [this._gridRange, this._fixedHeaderRange];
         for (const range of renderList) {
-            range.render(this.viewdata.gridmap);
+            range.render();
         }
     }
     _renderCells() {

@@ -26,6 +26,7 @@ export class CanvasRender extends AbstraCanvas implements ICanvas {
     clientRect: RectOffset; // FIXME:  为啥 grid-range拿不到这里的公共的数据？
     private _rangeRenderController: RangeRenderController; // canvas的绘制任务由range控制
     changeType: CanvasChangeType;
+    $store: ViewDataSource;
     getDefaultCfg() {
         return defaultCanvasOption;
     }
@@ -37,12 +38,11 @@ export class CanvasRender extends AbstraCanvas implements ICanvas {
         // this._initEvents();
     }
     // 初始化
-    render(source: ViewDataSource) {
-        this.set('width', source.viewWidth);
-        this.set('height', source.viewHeight);
+    render() {
+        this.set('width', this.$store.viewWidth);
+        this.set('height', this.$store.viewHeight);
         this._setDOMSize();
-
-        this._rangeRenderController.render(source);
+        this._rangeRenderController.render();
     }
     onCanvasChange(changeType: CanvasChangeType) {
         /**
