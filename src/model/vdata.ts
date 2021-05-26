@@ -21,6 +21,7 @@ export class ViewModel {
     }
     init(viewdataObj: ViewDataSource): ViewDataSource {
         this.state = this.proxy(viewdataObj);
+        this._canvasRender.$store = this.state; // 将viewdata挂在渲染器上，下面的数据不靠传参获得数据了
         // 首次需要手动调用render
         this.updateCanvasView();
         return this.state;
@@ -74,6 +75,6 @@ export class ViewModel {
         return observed;
     }
     updateCanvasView() {
-        this._canvasRender.render(this.state);
+        this._canvasRender.render();
     }
 }
