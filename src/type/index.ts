@@ -95,7 +95,6 @@ export type Mdata =
     & {
         // 交互中的数据
         scrollOffset: Point;
-        scrollIndexes: ScrollIndexes;
     }
 
 /*--------------
@@ -224,5 +223,6 @@ export type ViewDataSource = ViewTableSize & {
     // gridmap 棋盘格布局数据
     gridmap: GridIdxToOffsetMap;
     cellmm: ViewDataRange;
-    selectIdxes: RangeIndexes;
+    // selectIdxes: RangeIndexes;
+    scrollIdexes: ScrollIndexes;
 }

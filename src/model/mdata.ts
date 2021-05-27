@@ -10,6 +10,7 @@ import {
     RangeOffset,
     ViewDataRange,
     ViewDataSource,
+    ScrollIndexes,
 } from '../type/index';
 import { _merge, draw, isObj } from '../utils/index';
 import { Operation, Command } from './command';
@@ -23,7 +24,7 @@ interface IDataModel {
     // 外界载入grid棋盘数据 如果没有主动调用 那会启用默认的生成棋盘格
     resetGrid: (grid: GridMdata) => GridMdata;
     // 当source被设置了关键数据更改的时候 会触发调用
-    computedGridMap: (grid: GridMdata) => void;
+    computedGridMap: (scroll: ScrollIndexes) => void;
     // 载入表格数据
     source: (sdata: SourceData) => void;
     // 根据单元格的逻辑索引得到
@@ -51,7 +52,8 @@ export class DataModel implements IDataModel {
     private _computedgridmap: GridIdxToOffsetMap;
     // public rangemm: ViewDataRange = {};
     private _initcellmm: ViewDataRange = {};
-    private _initselectIdxes: RangeIndexes = null;
+    private _selectIdxes: RangeIndexes = null;
+    private _scrollIdexes: ScrollIndexes = { ri: 0, ci: 0 };
     private _viewModel: ViewModel;
     private _proxyViewdata: ViewDataSource;
 
@@ -61,8 +63,6 @@ export class DataModel implements IDataModel {
             viewWidth: 400,
             ...defaultGridData,
             scrollOffset: { x: 0, y: 0, },
-            scrollIndexes: { ri: 0, ci: 0, },
-            selectRectIndexes: null,
         }
     }
     constructor(viewmodel: ViewModel, viewopt: ViewTableSize) {
@@ -75,18 +75,33 @@ export class DataModel implements IDataModel {
     _init(viewopt: ViewTableSize) {
         const defaultdata = this._getDefaultSource();
         this._mdata = Object.assign(defaultdata, viewopt, this._grid);
-        this.computedGridMap();
+        this.computedGridMap(this._scrollIdexes);
         // 将计算出的vdata放入viewmodel：1.proxy对数据进行访问拦截 2. 绑定data-view之间的关系
         // 之后的交互action-view响应：修改this._viewdata即可
         this._proxyViewdata = this._viewModel.init({
             ...viewopt,
             gridmap: this._computedgridmap,
             cellmm: this._initcellmm,
-            selectIdxes: this._initselectIdxes,
+            scrollIdexes: this._scrollIdexes,
         });
-        this._proxyViewdata.cellmm[1][1].fontColor = 'red';
-        this._proxyViewdata.cellmm[2] = {}; // 必须要手动sett {} 才能对新加属性形成追踪
-        this._proxyViewdata.cellmm[2][3] = { text: 'www', fontColor: 'red' };
+        // this._proxyViewdata.cellmm[1][1].fontColor = 'red';
+        // this._proxyViewdata.cellmm[2] = {}; // 必须要手动sett {} 才能对新加属性形成追踪
+        // this._proxyViewdata.cellmm[2][3] = { text: 'www', fontColor: 'red' };
+        // this._proxyViewdata.cellmm[2][6] = { text: '哈哈哈哈哈', fontColor: 'red' };
+
+
+        new Array(30).fill(1).forEach((item, i) => {
+            this._proxyViewdata.cellmm[i] = {};
+            this._proxyViewdata.cellmm[i][1] = { text: i + '_' + 1, }
+        });
+
+        // setInterval(() => {
+        //     this._scrollIdexes.ri++;
+        //     // this._scrollIdexes.ci++;
+        //     this.computedGridMap(this._scrollIdexes);
+        //     this._proxyViewdata.gridmap = this._computedgridmap;
+        //     this._proxyViewdata.scrollIdexes = this._scrollIdexes;
+        // }, 50)
     }
     resetGrid(grid: GridMdata): GridMdata {
         this._grid = _merge(defaultGridData, grid);
@@ -94,9 +109,9 @@ export class DataModel implements IDataModel {
     }
     // 绘制基础的棋盘，并生成gripmap
     // 从source配置的行列信息 取得棋盘格的行高、列宽等信息
-    computedGridMap() {
-        const [rowsumheight, row] = this._buildLinesForRows(true);
-        const [colsumwidth, col] = this._buildLinesForRows(false);
+    computedGridMap(scroll: ScrollIndexes) {
+        const [rowsumheight, row] = this._buildLinesForRows(true, scroll.ri);
+        const [colsumwidth, col] = this._buildLinesForRows(false, scroll.ci);
         // gridmap棋盘格里记录的索引key是相对的 即当前视图内的scrollindex之后的
         this._computedgridmap = {
             fixedpadding: FIXEDHEADERMARGIN,
@@ -125,7 +140,7 @@ export class DataModel implements IDataModel {
     getIdxByPonit(point: Point): RectOffset {
         // 二分查找定位
     }
-    _buildLinesForRows(isRow: boolean): [number, any[]] {
+    _buildLinesForRows(isRow: boolean, scrollIdx: number): [number, any[]] {
         const mdata = this._mdata;
         const rowLen = mdata[`${isRow ? 'row' : 'col'}`].len;
         const rowHeight = mdata[`${isRow ? 'row' : 'col'}`].size;
@@ -135,7 +150,12 @@ export class DataModel implements IDataModel {
         let endY = 0;
         let curheight = 0;
         const rowarr = [];
-        const rowAddedIdx = mdata.scrollIndexes[`${isRow ? 'ri' : 'ci'}`] || 0;
+        // 先采用最简单的，最上面改的方式：
+        // gridmap记录viewrange的单元格信息
+        // gridmap[0] = 视觉上的0.
+        // 实际是 gridmap.index = 整个表格的[scrollidx+index]
+        // 滚动 -> gridmap重新计算 -> 整个表格render
+        const rowAddedIdx = scrollIdx || 0;
         for (let i = 0; i < rowLen; i++) {
             const curSpRow = (mdata[`${isRow ? 'rowm' : 'colm'}`] || {})[i + rowAddedIdx];
             const curRowHeight = curSpRow ? curSpRow.size : rowHeight;

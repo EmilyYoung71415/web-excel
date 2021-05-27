@@ -15,7 +15,7 @@ import { FIXEDHEADERMARGIN } from '../../model/mdata';
 export class FixedHeaderRange extends BaseRange {
     namespace: string;
     // 画布全局状态：滚动距离、画布大小
-    private _scrollindexes: ScrollIndexes;
+    private _scrollIdexes: ScrollIndexes;
     private _rowheadrect: RectOffset; // 绘制的区域
     private _colheadrect: RectOffset; // 绘制的区域
     private _fixedheadermargin: { left: number; top: number; };
@@ -46,7 +46,7 @@ export class FixedHeaderRange extends BaseRange {
     }
     _resetdata() {
         this._gridmap = this._canvas.$store.gridmap;
-        // this._scrollindexes = viewData.scrollindexes;
+        this._scrollIdexes = this._canvas.$store.scrollIdexes;
         this._rect = this._canvas.getViewRange();
         this._rowheadrect = {
             left: this._fixedheadermargin.left,
@@ -72,13 +72,15 @@ export class FixedHeaderRange extends BaseRange {
     _renderHeader(isRow: boolean) {
         const { left, top, width, height } = this[`${isRow ? '_rowheadrect' : '_colheadrect'}`];
         const col = this._gridmap[`${isRow ? 'col' : 'row'}`];
+        const startIdx = this._scrollIdexes[`${isRow ? 'ci' : 'ri'}`];
         const context = this._ctx;
         context.save();
         this._canvas.applyAttrToCtx({ ...this._style });
         context.fillRect(left, top, width, height);
         let curx = isRow ? left : top;
         const key = isRow ? 'width' : 'height';
-        col.forEach((item, idx) => {
+        for (let idx = 0; idx < col.length; idx++) {
+            const item = col[idx];
             const fixedSize = item[key];
             if (isRow) {
                 this._canvas.drawLine({ x: curx, y: top }, { x: curx, y: top + height });
@@ -87,7 +89,7 @@ export class FixedHeaderRange extends BaseRange {
                     top: top,
                     width: fixedSize,
                     height: height,
-                }, this._getText(true, idx));
+                }, this._getText(true, idx + startIdx));
             }
             else {
                 this._canvas.drawLine({ x: left, y: curx }, { x: left + width, y: curx });
@@ -96,10 +98,10 @@ export class FixedHeaderRange extends BaseRange {
                     top: curx,
                     width: width,
                     height: fixedSize,
-                }, this._getText(false, idx));
+                }, this._getText(false, idx + startIdx));
             }
             curx += fixedSize;
-        });
+        }
         context.restore();
     }
     _getText(isRow: boolean, idx: number): string {

@@ -40,7 +40,6 @@ export class RangeRenderController {
     _renderCellmm(rowkey: number, colkey: number, rangedata: Cell) {
         const { gridmap } = this.viewdata;
         const rectOffset = draw.getOffsetByIdx(gridmap, rowkey, colkey);
-        // 滚动的view：
         // action：注册behavior、registerview
         // 性能优化：首屏渲染离线优化
         this.canvas.drawRegion(rectOffset, () => {
@@ -56,14 +55,25 @@ export class RangeRenderController {
     }
     _renderCells() {
         const cellmm = this.viewdata.cellmm;
+        const { ri: scrollIdxY, ci: scrollIdxX } = this.viewdata.scrollIdexes;
+        // 绝对逻辑索引去拿单元格信息，相对逻辑索引找位置
         for (const rowkey in cellmm) {
             const colMaps = cellmm[rowkey];
-            for (const colkey in colMaps) {
-                // TODO:  结合merge变量 综合 range的起始
-                // const rangekey = getRangeKey(rowkey, colkey);
-                // this.cellmm[rangekey]存的是当前range有的所有特殊属性
-                // 默认属性的 保留在range实例里无需单独设置
-                this._renderCellmm(+rowkey, +colkey, colMaps[colkey]);
+            const renderkeyri = +rowkey - scrollIdxY;
+            if (renderkeyri >= 0 && colMaps) {
+                if (colMaps) {
+                    for (const colkey in colMaps) {
+                        const renderContent = colMaps[colkey];
+                        const renderkeyci = +colkey - scrollIdxX;
+                        // TODO:  结合merge变量 综合 range的起始
+                        // const rangekey = getRangeKey(rowkey, colkey);
+                        // this.cellmm[rangekey]存的是当前range有的所有特殊属性
+                        // 默认属性的 保留在range实例里无需单独设置
+                        if (renderkeyci >= 0 && renderContent) {
+                            this._renderCellmm(renderkeyri, renderkeyci, renderContent);
+                        }
+                    }
+                }
             }
         }
     }
