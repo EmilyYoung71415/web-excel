@@ -2,6 +2,7 @@ import { EngineOption, SourceData, GridMdata } from './type';
 import { defaultEngineOption } from './config/engineoption';
 import { CanvasRender, DomRender } from './view';
 import { Base } from './abstract/base';
+import { Shape } from './abstract/shape-base';
 import { DataModel } from './model/mdata';
 import { ViewModel } from './model/vdata';
 
@@ -14,6 +15,10 @@ export class Engine extends Base {
             ...defaultEngineOption,
         };
     }
+    // 使用RegisterView函数注册的图形将被存放在此处，由初始化时注入进来，DomRender进行具体渲染控制
+    static ViewDomMap: {
+        [key: string]: { new(...arg): Shape }
+    } = {};
     constructor(engineOpt: EngineOption) {
         super(engineOpt);
         this._canvasRender = new CanvasRender(engineOpt.container);
@@ -89,6 +94,6 @@ export class Engine extends Base {
  * 注册view在表格上
  */
 export function RegisterView(target: { new(...arg): any }, shapeName: string) {
-    // TODO
-    // RegisterView 会把新注册的 实例 挂在Engine类上
+    Engine.ViewDomMap[shapeName] = target;
+    target.prototype.name = shapeName;
 }

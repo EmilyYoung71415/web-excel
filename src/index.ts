@@ -1,11 +1,13 @@
 import { Engine, RegisterView } from './engine';
 import { EngineOption } from '@type/index';
+import { ToolBar } from './view/toolbar';
+import { ScrollBar } from './view/scrollbar';
+import { Selector } from './view/selector';
 import './index.less';
-// RegisterView(ToolBar, 'toolbar');
-// RegisterView(ContextMenu, 'ctxmenu');
-// RegisterView(ScrollBarX, 'scrollbarx');
-// RegisterView(ScrollBarY, 'scrollbary');
-// RegisterView(Editor, 'editor');
+
+RegisterView(ToolBar, 'toolbar');
+RegisterView(ScrollBar, 'scrollbar');
+RegisterView(Selector, 'selector');
 
 const XWebExcel = {
     /**
@@ -25,8 +27,6 @@ const XWebExcel = {
         return engine;
     },
 };
-
-
 
 if (window) {
     (window as any).XWebExcel = XWebExcel;

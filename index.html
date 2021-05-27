@@ -7,32 +7,7 @@
     <title>Document</title>
 </head>
 <body onload="load()">
-    <div id="app">
-        <!-- <div class="header-toolbar">
-            <ul>
-                更多
-                <li>
-                    <span>字号</span>
-                    <ul>
-                        <li>14px</li>
-                    </ul>
-                </li>
-                <li>
-                    <span>B</span>
-                </li>
-                <li>
-                    <span>背景颜色</span>
-                </li>
-            </ul>
-        </div>
-        <div class="main-table">
-            <canvas id="xexcel"></canvas>
-            <div class="editor" contenteditable="true"></div>
-            <div class="scroll-bar-x"></div>
-            <div class="scroll-bar-y"></div>
-            <div class="context-menu"></div>
-        </div> -->
-    </div>
+    <div id="app"></div>
     <script src="xexcel.js"></script>
     <script>
         function load() {
@@ -71,13 +46,20 @@
             // 表格数据
             myexcel.source({
                 cellmm: {
-                    1: {
-                        1: {
-                            text: '输入长文字测试截断',
-                            bgcolor: 'green',
-                            fontWeight: 'bold'
-                        },
-                    },
+                    // 1: {
+                    //     1: {
+                    //         text: '输入长文字测试截断',
+                    //         bgcolor: 'green',
+                    //         fontColor: '#fff',
+                    //     },
+                    // },
+                    // 3: {
+                    //     4: {
+                    //         bgcolor: 'lightblue',
+                    //         text: '输入文字2333333erewrwedewrew',
+                    //         fontWeight: 'bold'
+                    //     },
+                    // },
                 },
                 // merges:[]
             });
