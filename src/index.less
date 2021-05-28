@@ -1,9 +1,74 @@
 #app {
     border: 1px solid blue;
 
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    ul,
+    li {
+        list-style: none;
+    }
+
     #xexcel-canvas {
         border: 1px solid red;
-        margin-left: 100px;
-        margin-top: 100px;
+        // margin-left: 100px;
+        // margin-top: 100px;
+    }
+
+    .xsheet-toolbar {
+        margin-bottom: 10px;
+
+        ul.xsheet-toolbar-content {
+            height: 30px;
+            border: 1px solid green;
+            // overflow: hidden;
+
+            li.xsheet-toolbar-item {
+                position: relative;
+                float: left;
+                line-height: 30px;
+                vertical-align: middle;
+                padding: 0 5px;
+                border-right: 1px solid #E8E6E3;
+
+                &:hover {
+                    background: #E8E6E3;
+                    cursor: pointer;
+
+                    .toolbar-setting-menu {
+                        display: block;
+                    }
+                }
+
+                input[type='color'] {
+                    cursor: pointer;
+                }
+
+                label {
+                    cursor: pointer;
+                }
+
+                // 字号选择
+                .toolbar-setting-menu {
+                    // display: none;
+                    position: absolute;
+                    width: 100%;
+                    z-index: 100;
+                    top: 100%;
+                    left: 0;
+                    background-color: #fff;
+
+                    .toolbar-setting-menu-item {
+                        text-align: center;
+
+                        &:hover {
+                            background-color: lavender;
+                        }
+                    }
+                }
+            }
+        }
     }
 }
