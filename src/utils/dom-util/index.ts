@@ -9,3 +9,12 @@ export function modifyCSS(dom: HTMLElement, css: { [key: string]: any }): HTMLEl
     }
     return dom;
 }
+
+export function createDom(str: string): any {
+    const container = document.createElement('div');
+    str = str.replace(/(^\s*)|(\s*$)/g, '');
+    container.innerHTML = '' + str;
+    const dom = container.childNodes[0];
+    container.removeChild(dom);
+    return dom;
+}

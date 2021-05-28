@@ -1,7 +1,7 @@
 // 以为dom为class，创建dom、修改dom
 import { EngineOption } from '../../type';
 import { Base } from '../../abstract/base';
-import { modifyCSS } from '../../utils';
+import { modifyCSS, createDom } from '../../utils';
 import { Engine } from '../../engine';
 
 const PREFIX_DOM_NAME = 'xexcel-';
@@ -18,8 +18,8 @@ export class DomRender extends Base {
         this._domroot = document.createElement('div');
         // 视配置决定渲染某些自定义view
         this.createShape('toolbar');
-        this.createShape('scrollbar');
-        this.createShape('selector');
+        // this.createShape('scrollbar');
+        // this.createShape('selector');
         this.initContainer();
     }
     createShape(shapeValue: string) {
@@ -33,13 +33,11 @@ export class DomRender extends Base {
         // 创建图形
         const shape = new shapeConstruct();
         const domstr = shape.createRender();
-        const $domroot = document.createElement('div');
-        $domroot.innerHTML = domstr;
-        $domroot.className = PREFIX_DOM_NAME + shapeName;
+        const $dom = createDom(domstr);
         if (shapeValue === 'toolbar') {
-            this.get('container').append($domroot);
+            this.get('container').append($dom);
         } else {
-            this._domroot.append($domroot);
+            this._domroot.append($dom);
         }
     }
     initContainer() {
