@@ -7,9 +7,16 @@ import { Engine } from '../../engine';
 const PREFIX_DOM_NAME = 'xexcel-';
 export class DomRender extends Base {
     private _domroot = null;
+    private _engine: Engine;
+    shapeList: any[];
     // 当前视图里有的dom
-    constructor(engineOpt: EngineOption) {
+    constructor(
+        Engine: Engine,
+        engineOpt: EngineOption
+    ) {
         super(engineOpt);
+        this._engine = Engine;
+        this.shapeList = [];
         // 先把container 设置为viewopt大小
         const el = engineOpt.container;
         const vw = this.get('viewOption.viewWidth') + 'px';
@@ -21,6 +28,7 @@ export class DomRender extends Base {
         // this.createShape('scrollbar');
         // this.createShape('selector');
         this.initContainer();
+        this.initEvent();
     }
     createShape(shapeValue: string) {
         let shapeConstruct = null;
@@ -31,10 +39,11 @@ export class DomRender extends Base {
         }
         if (!shapeConstruct) return;
         // 创建图形
-        const shape = new shapeConstruct();
+        const shape = new shapeConstruct(this._engine);
+        this.shapeList.push(shape);
         const domstr = shape.createRender();
         const $dom = createDom(domstr);
-        if (shapeValue === 'toolbar') {
+        if (shapeName === 'toolbar') {
             this.get('container').append($dom);
         } else {
             this._domroot.append($dom);
@@ -43,5 +52,10 @@ export class DomRender extends Base {
     initContainer() {
         this._domroot.className = PREFIX_DOM_NAME + 'main-table';
         this.get('container').append(this._domroot);
+    }
+    initEvent() {
+        for (const shape of this.shapeList) {
+            shape.initEvent();
+        }
     }
 }

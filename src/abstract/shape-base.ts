@@ -5,14 +5,16 @@
  */
 import { Base } from './base';
 import { LooseObject } from '../interface';
-
+import { Engine } from '../engine';
 export class Shape extends Base {
+    engine: Engine;
     getDefaultCfg() {
         const cfg = super.getDefaultCfg();
         return cfg;
     }
-    constructor(cfg?: LooseObject) {
+    constructor(Engine: Engine, cfg?: LooseObject) {
         super(cfg);
+        this.engine = Engine;
     }
     createRender(): string { }
     initEvent() { }

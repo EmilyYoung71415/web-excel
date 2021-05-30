@@ -66,6 +66,7 @@ export class DataModel implements IDataModel {
         }
     }
     constructor(viewmodel: ViewModel, viewopt: ViewTableSize) {
+        this._selectIdxes = { sri: 1, sci: 1, eri: 1, eci: 1 };
         // ViewModel
         this._viewModel = viewmodel;
         Promise.resolve().then(() => {
@@ -90,11 +91,12 @@ export class DataModel implements IDataModel {
         // this._proxyViewdata.cellmm[2][6] = { text: '哈哈哈哈哈', fontColor: 'red' };
 
 
-        new Array(30).fill(1).forEach((item, i) => {
-            this._proxyViewdata.cellmm[i] = {};
-            this._proxyViewdata.cellmm[i][1] = { text: i + '_' + 1, }
-        });
+        // new Array(30).fill(1).forEach((item, i) => {
+        //     this._proxyViewdata.cellmm[i] = {};
+        //     this._proxyViewdata.cellmm[i][1] = { text: i + '_' + 1, }
+        // });
 
+        // 滚动模拟
         // setInterval(() => {
         //     this._scrollIdexes.ri++;
         //     // this._scrollIdexes.ci++;

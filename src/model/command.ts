@@ -13,6 +13,12 @@ type SetRangeOperation = {
     properties: Cell;
 }
 
+type ScrollOperation = {
+    type: 'scrollView';
+    distance: number;
+    dir: 'horizontal' | 'vertical';
+}
+
 type ResizeRowOperation = {
     type: 'resizeGrid';
     idx: number;
@@ -29,33 +35,42 @@ type AddRowOperation = {
 
 export type Operation =
     | SetRangeOperation
+    | ScrollOperation
     | ResizeRowOperation
     | AddRowOperation;
 
 
 interface Command {
     setRange: (op: SetRangeOperation) => void;
+    scrollView: (op: ScrollOperation) => void;
+}
+
+function setCellmm(ri: number, ci: number, properties: Cell) {
+    let cellmm = {};
+    try {
+        cellmm = this._proxyViewdata.cellmm[ri][ci];
+    } catch {
+        this._proxyViewdata.cellmm[ri] = cellmm;
+    }
+    this._proxyViewdata.cellmm[ri][ci] = _merge(cellmm, properties);
 }
 
 export const Command: Command = {
     setRange(op: SetRangeOperation): void {
         // 对datamodel.range进行修改
         const { rangeidxes, properties } = op;
-        const curRangeidxes = rangeidxes;// 没传的话就是默认的当前selectidxes
-        // 先降级处理，把range打散为cell操作
-        const { sri, sci, eri, eci } = parseRangeKey(curRangeidxes);
+        const curRangeidxes = (rangeidxes && parseRangeKey(rangeidxes)) || this._selectIdxes;// 没传的话就是默认的当前selectidxes
+        const { sri, sci, eri, eci } = curRangeidxes;
+        // 先降级处理，把range打散为cell操作 之后引入rangemm统一管理
         // 遍历cellmm 给每一个range内的单元格挂上属性
         for (let i = sri; i <= eri; i++) {
-            if (!this.cellmm[i]) {
-                this.cellmm[i] = {};
-            }
-            const rowmm = this.cellmm[i];
             for (let j = sci; j <= eci; j++) {
-                const cellmm = rowmm[j] ? rowmm[j] : {};
-                this.cellmm[i][j] = _merge(cellmm, properties);
+                setCellmm.call(this, i, j, properties);
             }
         }
-        // 暂时手动调用 且 set一次就更新一次
-        this._cellmmRender();
+    },
+    scrollView(op: ScrollOperation): void {
+        const { distance, dir } = op;
+        // scroll: 得到scroll的滚动距离，进而计算出滚动格数 => scrollidxes
     }
 }
