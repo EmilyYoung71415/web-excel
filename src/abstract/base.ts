@@ -6,6 +6,7 @@
  */
 import { isObj, _merge } from '../utils';
 import { LooseObject } from '../interface';
+import { EventEmitter } from '../event';
 
 export interface IBase {
     _cfg: LooseObject;
@@ -13,12 +14,13 @@ export interface IBase {
     set(name: string, value: any);
 }
 
-export abstract class Base implements IBase {
+export abstract class Base extends EventEmitter implements IBase {
     _cfg: LooseObject;
     getDefaultCfg() {
         return {};
     }
     constructor(cfg) {
+        super();
         const defaultCfg = this.getDefaultCfg();
         this._cfg = _merge(defaultCfg, cfg);
     }

@@ -40,10 +40,12 @@ export class Engine extends Base {
         // dom -> action 
         // action -> datamodel
         // dom与action之间的通信，属于跨层级的兄弟通信，所以引入eventemitter作为信息中转站
-        // this.eventController = new EventController(
-        //     this.datamodel,
-        //     this._domRender, 
-        // );
+
+        // 给canvas加上系统级别的event管理
+        // 给domrender直接传engine实例，管理从头到尾的扩展
+        this.eventController = new EventController(
+            this._canvasRender,
+        );
 
         // dom: this.emit('', xxx);
         // datamodel: this.on();
