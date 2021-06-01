@@ -1,5 +1,5 @@
 
-import { CanvasChangeType, Cell, RectOffset, ViewDataSource } from '../../type';
+import { CanvasChangeType, ViewTableSize, RectOffset, ViewDataSource } from '../../type';
 import { defaultCanvasOption } from '../../config/engineoption';
 import { RangeRenderController } from '../rangeman';
 import { AbstraCanvas } from '../../abstract/canvas';
@@ -32,10 +32,13 @@ export class CanvasRender extends AbstraCanvas implements ICanvas {
     }
     constructor(
         container: HTMLElement,
+        viewopt: ViewTableSize
     ) {
         super(container);
         this._rangeRenderController = new RangeRenderController(this);
-        // this._initEvents();
+        this.set('width', viewopt.viewWidth);
+        this.set('height', viewopt.viewHeight);
+        this._setDOMSize();
     }
     // 初始化
     render() {

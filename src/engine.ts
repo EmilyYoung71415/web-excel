@@ -21,16 +21,17 @@ export class Engine extends Base {
     } = {};
     constructor(engineOpt: EngineOption) {
         super(engineOpt);
-        this._canvasRender = new CanvasRender(engineOpt.container);
+        const viewRect = {
+            viewHeight: this.get('viewOption.viewHeight'),
+            viewWidth: this.get('viewOption.viewWidth')
+        }
+        this._canvasRender = new CanvasRender(engineOpt.container, viewRect);
         this._domRender = new DomRender(this, engineOpt);
         // 依赖关系：data -> viewmodel -> render
         const viewModel = new ViewModel(
             this._canvasRender,
         );
-        this.dataModel = new DataModel(viewModel, {
-            viewHeight: this.get('viewOption.viewHeight'),
-            viewWidth: this.get('viewOption.viewWidth'),
-        });
+        this.dataModel = new DataModel(viewModel, viewRect);
 
         // event依赖datamodel,
         // event根据datamodel的值计算出关键的action数据后会修改到 datamodel里，进而触发viewdata修改
