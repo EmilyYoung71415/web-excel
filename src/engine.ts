@@ -68,6 +68,12 @@ export class Engine extends Base {
     getCell(point: RectIndexes) {
         return this.dataModel.getCell(point);
     }
+    getSumHeight(): number {
+        return this.dataModel.getSumHeight();
+    }
+    getSumWidth(): number {
+        return this.dataModel.getSumWidth();
+    }
 }
 
 /**

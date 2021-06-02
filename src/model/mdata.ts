@@ -161,11 +161,20 @@ export class DataModel implements IDataModel {
                 Object.assign(targetCell, col[j - 1]);
             }
         }
+        targetCell.left += this._computedgridmap.fixedpadding.left;
+        targetCell.top += this._computedgridmap.fixedpadding.top;
         return targetCell;
     }
     getCell(point: RectIndexes) {
         if (!this._proxyViewdata.cellmm[point.ri]) return null;
         return this._proxyViewdata.cellmm[point.ri][point.ci];
+    }
+    getSumHeight(): number {
+        console.log('getSumHeight', this._computedgridmap.rowsumheight);
+        return this._computedgridmap.rowsumheight;
+    }
+    getSumWidth(): number {
+        return this._computedgridmap.colsumwidth;
     }
     _getOffsetByIdx(ri: number, ci: number): RectOffset {
         return draw.getOffsetByIdx(this._computedgridmap, ri, ci);

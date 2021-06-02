@@ -17,6 +17,7 @@
         // margin-top: 100px;
     }
 
+    /* toolbar */
     .xsheet-toolbar {
         margin-bottom: 10px;
 
@@ -70,6 +71,44 @@
                         }
                     }
                 }
+            }
+        }
+    }
+
+    .xexcel-main-table {
+        position: relative;
+        // width: 1000px;
+        // height: 1000px;
+        border: 2px solid red;
+
+        /* selector */
+        .xexcel-selector {
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: 11;
+
+            .xexcel-selector-area {
+                position: absolute;
+                border: 2px solid rgb(75, 137, 255);
+                background: rgba(75, 137, 255, .1);
+                pointer-events: none;
+                // width: 137px;
+                // height: 22px;
+                // left: 360px;
+                // top: 90px;
+            }
+
+            .xexcel-selector-corner {
+                position: absolute;
+                cursor: crosshair;
+                font-size: 0;
+                height: 5px;
+                width: 5px;
+                right: -5px;
+                bottom: -5px;
+                border: 2px solid rgb(255, 255, 255);
+                background: rgb(75, 137, 255);
             }
         }
     }
