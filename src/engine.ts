@@ -1,4 +1,4 @@
-import { EngineOption, SourceData, GridMdata, Cell, Point, RectOffset } from './type';
+import { EngineOption, SourceData, GridMdata, Cell, Point, RectOffset, RectIndexes } from './type';
 import { defaultEngineOption } from './config/engineoption';
 import { CanvasRender, DomRender } from './view';
 import { Base } from './abstract/base';
@@ -42,7 +42,6 @@ export class Engine extends Base {
         // xexcel.on('scroll', );
         // xexcel.on('resize', );
         // xexcel.on('datachange', (cur, prev));
-
         // toolbar的
         // xexcel.on('toolbar:bold', );
     }
@@ -65,6 +64,9 @@ export class Engine extends Base {
     // 根据画布坐标，获取当前cell：cell逻辑索引、cell物理坐标
     getIdxByPoint(point: Point): RectOffset {
         return this.dataModel.getIdxByPoint(point);
+    }
+    getCell(point: RectIndexes) {
+        return this.dataModel.getCell(point);
     }
 }
 

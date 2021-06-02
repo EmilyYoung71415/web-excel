@@ -16,8 +16,8 @@
                 {
                     viewOption: {
                         showToolbar: false,
-                        viewHeight: document.documentElement.clientHeight,
-                        viewWidth: document.documentElement.clientWidth,
+                        viewHeight: 1200,
+                        viewWidth: 800,
                     },
                     interactOption: {
                         canEdit: true 
@@ -46,20 +46,21 @@
             // 表格数据
             myexcel.source({
                 cellmm: {
-                    // 1: {
-                    //     1: {
-                    //         text: '输入长文字测试截断',
-                    //         bgcolor: 'green',
-                    //         fontColor: '#fff',
-                    //     },
-                    // },
-                    // 3: {
-                    //     4: {
-                    //         bgcolor: 'lightblue',
-                    //         text: '输入文字2333333erewrwedewrew',
-                    //         fontWeight: 'bold'
-                    //     },
-                    // },
+                    1: {
+                        1: {
+                            text: '输入长文字测试截断',
+                            bgcolor: 'green',
+                            fontColor: '#fff',
+                            fontWeight: 'bold'
+                        },
+                    },
+                    3: {
+                        4: {
+                            bgcolor: 'lightblue',
+                            text: '输入文字2333333erewrwedewrew',
+                            fontWeight: 'bold'
+                        },
+                    },
                 },
                 // merges:[]
             });

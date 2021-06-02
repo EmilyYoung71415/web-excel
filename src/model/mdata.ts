@@ -12,6 +12,7 @@ import {
     ViewDataRange,
     ViewDataSource,
     ScrollIndexes,
+    RectIndexes,
 } from '../type/index';
 import { _merge, draw, isObj } from '../utils/index';
 import { Operation, Command } from './command';
@@ -147,19 +148,24 @@ export class DataModel implements IDataModel {
             height: 0,
         }
         // TODO: perf: 二分查找
+        // FIX:  这样的算法算出来，当点位在中间位置时， ij与坐标系标注一致
+        // 当无论是在包围盒的哪个边缘，都应该按在中间位置算的
         for (let i = 0; i < row.length; i++) {
-            if (row[i].top < point.y && point.y < row[i + 1].top) {
-                Object.assign(targetCell, row[i]);
+            if (row[i].top < point.y && point.y <= row[i + 1].top) {
+                // -1 是为了和cellmm的计数对齐，从0开始
+                Object.assign(targetCell, row[i - 1]);
             }
         }
-
         for (let j = 0; j < col.length; j++) {
-            if (col[j].left < point.x && point.y < col[j + 1].left) {
-                Object.assign(targetCell, col[j]);
+            if (col[j].left < point.x && point.x <= col[j + 1].left) {
+                Object.assign(targetCell, col[j - 1]);
             }
         }
-
         return targetCell;
+    }
+    getCell(point: RectIndexes) {
+        if (!this._proxyViewdata.cellmm[point.ri]) return null;
+        return this._proxyViewdata.cellmm[point.ri][point.ci];
     }
     _getOffsetByIdx(ri: number, ci: number): RectOffset {
         return draw.getOffsetByIdx(this._computedgridmap, ri, ci);

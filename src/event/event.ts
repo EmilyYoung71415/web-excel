@@ -96,13 +96,9 @@ export class EventController {
     protected onCanvasEvents(evt: IExcelEvent) {
         const { engine } = this;
         const canvas = engine.canvasRender;
-        const $canvas = canvas.get('el');
-        const { target } = evt;
         const eventType = evt.type;
 
         const point = canvas.getPointByClient(evt.clientX, evt.clientY);
-        if (target === $canvas) {
-        }
         evt.canvasX = point.x;
         evt.canvasY = point.y;
         if (eventType === 'click') {

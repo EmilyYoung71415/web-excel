@@ -2,11 +2,14 @@
  * @file 工具栏
  * - xExcel.toolbar(['redo', 'undo', 'bold', 'font']) 配置显现
  */
+import { each, isNil } from '../../utils';
 import { Shape } from '../../abstract/shape-base';
 export class ToolBar extends Shape {
+    // TODO: 选中选区，toolbar要高亮 // 接受engine发出的 .on('cellselect', );
     initEvent() {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const self = this;
+        this.watchHighlight();
         // 加粗
         document.getElementById('toolbar-bold').addEventListener('click', function (e) {
             const isActive = this.classList.contains('active');
@@ -81,5 +84,19 @@ export class ToolBar extends Shape {
                 </ul>
             </div>
         `
+    }
+    watchHighlight() {
+        this.engine.on('canvas:cellclick', rect => {
+            const cellmm = this.engine.getCell(rect);
+            const $bold = document.getElementById('toolbar-bold');
+            $bold.classList.remove('active');
+            if (!isNil(cellmm)) {
+                each(cellmm, (val, key) => {
+                    if (key === 'fontWeight' && val === 'bold') {
+                        $bold.classList.toggle('active');
+                    }
+                });
+            }
+        });
     }
 }
