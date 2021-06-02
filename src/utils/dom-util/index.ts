@@ -18,3 +18,16 @@ export function createDom(str: string): any {
     container.removeChild(dom);
     return dom;
 }
+
+export function addEventListener(target: HTMLElement, eventType: string, callback: any) {
+    if (!target) return;
+    if (typeof target.addEventListener === 'function') {
+        target.addEventListener(eventType, callback, false);
+        // 用于清除 destroy
+        return {
+            remove() {
+                target.removeEventListener(eventType, callback, false);
+            },
+        };
+    }
+}

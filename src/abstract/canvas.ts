@@ -25,6 +25,20 @@ interface ICanvas {
     applyAttrToCtx(attr: CanvasCtxAttrs);
     clearRect(x: number, y: number, width: number, height: number);
     getViewRange(): RectOffset;
+    /**
+     * document -> canvas
+     * @param {number} clientX 屏幕 x 坐标
+     * @param {number} clientY 屏幕 y 坐标
+     * @return {object} 画布坐标
+     */
+    getPointByClient(clientX: number, clientY: number): Point;
+    /**
+     * canvas -> document
+     * @param {number} canvasX 画布 x坐标 
+     * @param {number} canvasY 画布 y坐标 
+     * @return {Point} 屏幕坐标
+     */
+    getClientByPoint(canvasX: number, canvasY: number): Point;
 }
 
 export abstract class AbstraCanvas extends Base implements ICanvas {
@@ -32,7 +46,6 @@ export abstract class AbstraCanvas extends Base implements ICanvas {
         super({ container });
         this._initContainer();
         this._initDom();
-        // this.initEvents();
     }
     // 复写基类函数
     getDefaultCfg() {
@@ -96,6 +109,22 @@ export abstract class AbstraCanvas extends Base implements ICanvas {
             top: 0,
             width: this.get('width'),
             height: this.get('height'),
+        };
+    }
+    getPointByClient(clientX: number, clientY: number): Point {
+        const el = this.get('el');
+        const bbox = el.getBoundingClientRect();
+        return {
+            x: clientX - bbox.left,
+            y: clientY - bbox.top,
+        };
+    }
+    getClientByPoint(x: number, y: number): Point {
+        const el = this.get('el');
+        const bbox = el.getBoundingClientRect();
+        return {
+            x: x + bbox.left,
+            y: y + bbox.top,
         };
     }
     protected _initContainer() {

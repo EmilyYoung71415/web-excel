@@ -4,6 +4,7 @@ import {
     GridIdxToOffsetMap,
     ViewTableSize,
     RectOffset,
+    Rect,
     Point,
     GridMdata,
     RangeIndexes,
@@ -133,14 +134,38 @@ export class DataModel implements IDataModel {
         // this._proxyViewdata.xxx = xxx;
         return Command[op.type].call(this, op);
     }
+    getIdxByPoint(point: Point): Rect {
+        // row[i].top <= point.x < row[i+1].top
+        const { row, col } = this._computedgridmap;
+
+        const targetCell: Rect = {
+            ri: -1,
+            ci: -1,
+            left: 0,
+            top: 0,
+            width: 0,
+            height: 0,
+        }
+        // TODO: perf: 二分查找
+        for (let i = 0; i < row.length; i++) {
+            if (row[i].top < point.y && point.y < row[i + 1].top) {
+                Object.assign(targetCell, row[i]);
+            }
+        }
+
+        for (let j = 0; j < col.length; j++) {
+            if (col[j].left < point.x && point.y < col[j + 1].left) {
+                Object.assign(targetCell, col[j]);
+            }
+        }
+
+        return targetCell;
+    }
     _getOffsetByIdx(ri: number, ci: number): RectOffset {
         return draw.getOffsetByIdx(this._computedgridmap, ri, ci);
     }
     _getRangeOffsetByIdxes(rect: RangeIndexes): RangeOffset {
         return draw.getRangeOffsetByIdxes(this._computedgridmap, rect);
-    }
-    getIdxByPonit(point: Point): RectOffset {
-        // 二分查找定位
     }
     _buildLinesForRows(isRow: boolean, scrollIdx: number): [number, any[]] {
         const mdata = this._mdata;

@@ -37,3 +37,9 @@ export const isNil = function (value: any): value is null | undefined {
      */
     return value === null || value === undefined;
 };
+
+export const isArray = function (value: any): value is Array<any> {
+    return Array.isArray ?
+        Array.isArray(value) :
+        isType(value, 'Array');
+}

@@ -3,20 +3,7 @@ import { CanvasChangeType, ViewTableSize, RectOffset, ViewDataSource } from '../
 import { defaultCanvasOption } from '../../config/engineoption';
 import { RangeRenderController } from '../rangeman';
 import { AbstraCanvas } from '../../abstract/canvas';
-type clientPoint = {
-    clientX: number; // 点相对于浏览器的定位
-    clientY: number;
-}
 
-type canvasPoint = {
-    canvasX: number; // canvas相对于浏览器的坐标系 取值为整数
-    canvasY: number;
-}
-
-type paintPoint = {
-    pointX: number;  // 真正绘制图形时，图形是根据 pointX/pointY 定位的
-    pointY: number;  // 无缩放变形时canvasX=pointX
-}
 interface ICanvas {
     onCanvasChange(changeType: CanvasChangeType);
 }
