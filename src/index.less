@@ -1,4 +1,5 @@
 #app {
+    position: relative;
     border: 1px solid blue;
 
     * {
@@ -75,10 +76,14 @@
         }
     }
 
+    // zindex管理：
+    // content > selector(2) > editor(3) > scroll(4)
     .xexcel-main-table {
-        position: relative;
-        // width: 1000px;
-        // height: 1000px;
+        position: absolute;
+        left: 0;
+        top: 38px;
+        width: 100%;
+        height: 100%;
         border: 2px solid red;
 
         /* selector */
@@ -86,9 +91,10 @@
             position: absolute;
             left: 0;
             top: 0;
-            z-index: 11;
+            z-index: 2;
 
             .xexcel-selector-area {
+                display: none;
                 position: absolute;
                 border: 2px solid rgb(75, 137, 255);
                 background: rgba(75, 137, 255, .1);
@@ -113,7 +119,7 @@
                 text-align: left;
                 border: 2px solid #4b89ff;
                 line-height: 0;
-                z-index: 100;
+                z-index: 3;
                 overflow: hidden;
 
                 .xexcel-editor-textarea {
@@ -136,6 +142,56 @@
                     word-wrap: break-word;
                     line-height: 22px;
                     margin: 0;
+                }
+            }
+        }
+
+        /* scrollbar */
+        // scrollbar相对maintable定位，但是不是自动撑开内容大小
+        // 采用读取变量的方式定位scrollbar，这样可以维持main-table与canvas同级
+        // 且 scrollzindex的仅滚动条 zindex > content
+        .xexcel-scrollbar-wrapper {
+            position: relative;
+            z-index: 5;
+
+            // width: ;
+            .xexcel-scrollbar {
+                position: absolute;
+                opacity: 0.85;
+                z-index: 12;
+
+                &.horizontal {
+                    // bottom: -(viewheight - boxheight)
+                    bottom: -1160px;
+                    left: 0;
+                    overflow-x: scroll;
+                    overflow-y: hidden;
+                }
+
+                &.vertical {
+                    top: 0;
+                    right: 5px;
+                    overflow-x: hidden;
+                    overflow-y: scroll;
+                }
+
+                &:hover {
+                    opacity: .85;
+                }
+
+                &::-webkit-scrollbar {
+                    width: 8px;
+                    height: 8px;
+                    background: rgba(75, 137, 255, 0.2);
+                }
+
+                &::-webkit-scrollbar-thumb {
+                    background: rgb(75, 137, 255);
+                    border-radius: 6px;
+                }
+
+                &::-webkit-scrollbar-corner {
+                    background: rgba(75, 137, 255, .2);
                 }
             }
         }

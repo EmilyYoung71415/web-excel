@@ -25,8 +25,8 @@ export class DomRender extends Base {
         this._domroot = document.createElement('div');
         // 视配置决定渲染某些自定义view
         this.createShape('toolbar');
-        // this.createShape('scrollbar');
         this.createShape('selector');
+        this.createShape('scrollbar');
         this.initContainer();
         this.initEvent();
     }
