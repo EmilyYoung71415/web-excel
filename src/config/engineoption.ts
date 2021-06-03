@@ -32,7 +32,7 @@ export const defaultEngineOption: EngineOption = {
 };
 
 export const defaultCanvasOption: CanvasCfg = {
-    // width: defaultEngineOption.viewOption.viewWidth,
-    // height: defaultEngineOption.viewOption.viewHeight,
+    width: defaultEngineOption.viewOption.viewWidth,
+    height: defaultEngineOption.viewOption.viewHeight,
     cursor: 'default',
 };

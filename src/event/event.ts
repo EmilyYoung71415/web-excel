@@ -5,7 +5,7 @@
  */
 import { Engine } from '../engine';
 import { addEventListener, isNil, each } from '../utils';
-import { LooseObject } from '../interface';
+import { IExcelEvent } from '../interface';
 
 export enum ExcelEvent {
     // common events
@@ -41,23 +41,12 @@ export enum ExcelEvent {
     CANVAS_CELLCLICK = 'canvas:cellclick',
     CANVAS_SELECT = 'canvas:select',
 }
-export interface IExcelEvent {
-    type: string;    // 事件类型
-    canvasX: number; // (canvasX, canvasY): 相对于 <canvas> 左上角的坐标；
-    canvasY: number;
-    clientX: number; // (clientX, clientY): 相对于页面的坐标；
-    clientY: number;
-    wheelDelta: number;
-    detail: number;
-    key?: string;
-    target: LooseObject;
-    [key: string]: unknown;
-}
 
 export class EventController {
     protected destroyed = false;
     protected extendEvents: any[] = []; // 使用数组存放监听事件函数，当engine销毁的时候，一并销毁掉这些lisener
     protected engine: Engine;
+    protected selecting = false;
     constructor(engine: Engine) {
         this.engine = engine;
         this.initEvents();
@@ -76,6 +65,7 @@ export class EventController {
         // mousemove
         extendEvents.push(addEventListener(el, 'mousemove', this.onCanvasEvents.bind(this)));
         extendEvents.push(addEventListener(el, 'mouseup', this.onCanvasEvents.bind(this)));
+        extendEvents.push(addEventListener(el, 'mousedown', this.onCanvasEvents.bind(this)));
 
         // click
         extendEvents.push(addEventListener(el, 'click', this.onCanvasEvents.bind(this)));
@@ -101,10 +91,42 @@ export class EventController {
         const point = canvas.getPointByClient(evt.clientX, evt.clientY);
         evt.canvasX = point.x;
         evt.canvasY = point.y;
-        if (eventType === 'click') {
-            this.onCanvasClick(evt);
+        // if (eventType === 'click') {
+        //     this.onCanvasClick(evt);
+        // } else 
+        if (eventType === 'mousedown') {
+            this.onMouseDown(evt);
+        } else if (eventType === 'mousemouve') {
+            this.onMouseMove(evt);
+        } else if (eventType === 'mouseup') {
+            this.selecting = false;
         }
         engine.emit(`canvas:${eventType}`, evt);
+    }
+    onMouseDown(evt: IExcelEvent) {
+        if (evt.detail === 2) {
+            this.onCanvasDblClick(evt);
+        } else {
+            // 单选：mousedown mouseup === click
+            // 框选：mousedown mousemove mouseup
+            if (!evt.shiftKey) {
+                this.selecting = true;
+                this.onCanvasClick(evt);
+            }
+        }
+    }
+    onMouseMove(evt: IExcelEvent) {
+        const { engine } = this;
+        if (this.selecting) {
+            if (evt.buttons === 1 && !evt.shiftKey) {
+                const cell = engine.getIdxByPoint({
+                    x: evt.canvasX,
+                    y: evt.canvasY
+                });
+                // engine.emit('canvas:selectEnd', cell);
+
+            }
+        }
     }
     // 找到当前canvas点击的哪个cell
     onCanvasClick(evt: IExcelEvent) {
@@ -113,7 +135,12 @@ export class EventController {
             x: evt.canvasX,
             y: evt.canvasY
         });
-        engine.emit(`canvas:cellclick`, cell);
+        engine.emit('canvas:cellclick', cell);
+    }
+    // canvas 双击 进入编辑
+    onCanvasDblClick(evt: IExcelEvent) {
+        const { engine } = this;
+        engine.emit(`canvas:dblclick`, evt);
     }
     /**
      * 处理滚轮事件

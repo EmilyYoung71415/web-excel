@@ -1,4 +1,4 @@
-import { EngineOption, SourceData, GridMdata, Cell, Point, RectOffset, RectIndexes } from './type';
+import { EngineOption, SourceData, GridMdata, Cell, Point, Rect, RectIndexes } from './type';
 import { defaultEngineOption } from './config/engineoption';
 import { CanvasRender, DomRender } from './view';
 import { Base } from './abstract/base';
@@ -6,8 +6,9 @@ import { Shape } from './abstract/shape-base';
 import { EventController } from './event';
 import { DataModel } from './model/mdata';
 import { ViewModel } from './model/vdata';
+import { IEngine } from './interface';
 
-export class Engine extends Base {
+export class Engine extends Base implements IEngine {
     canvasRender: CanvasRender;
     _domRender: DomRender; // toolbar、scrollbar等
     dataModel: DataModel;
@@ -62,7 +63,7 @@ export class Engine extends Base {
         return this;
     }
     // 根据画布坐标，获取当前cell：cell逻辑索引、cell物理坐标
-    getIdxByPoint(point: Point): RectOffset {
+    getIdxByPoint(point: Point): Rect {
         return this.dataModel.getIdxByPoint(point);
     }
     getCell(point: RectIndexes) {
