@@ -3,22 +3,23 @@
  */
 import { modifyCSS } from '../../utils';
 import { Shape } from '../../abstract/shape-base';
-import { Rect } from '../../type';
+import { Range } from '../../type';
 
 export class Selector extends Shape {
     initEvent() {
         const $selector = document.querySelector('.xexcel-selector .xexcel-selector-area') as HTMLElement;
-        this.engine.on('canvas:cellclick', (rect: Rect) => {
-            if (rect.ri === -1 && rect.ci === -1) {
+        this.engine.on('canvas:select', (rect: Range) => {
+            const { sri, sci, eri, eci } = rect;
+            if (sri === -1 && sci === -1) {
                 modifyCSS($selector, { display: 'none' });
                 return;
             }
             // 行选
-            if (rect.ci === -1) {
+            if (sci === -1 && eri >= 0) {
                 rect.width = this.engine.getSumWidth();
             }
             // 列选
-            if (rect.ri === -1) {
+            if (sri === -1 && eci >= 0) {
                 rect.height = this.engine.getSumHeight();
             }
             const borderpadding = 2;
@@ -32,7 +33,6 @@ export class Selector extends Shape {
             modifyCSS($selector, rectOffset);
             this.engine.dataModel.setSelect(rect);
         });
-
     }
     createRender() {
         return `

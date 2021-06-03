@@ -6,6 +6,7 @@
 import { Engine } from '../engine';
 import { addEventListener, isNil, each } from '../utils';
 import { IExcelEvent } from '../interface';
+import { Rect } from '../type';
 
 export enum ExcelEvent {
     // common events
@@ -46,7 +47,8 @@ export class EventController {
     protected destroyed = false;
     protected extendEvents: any[] = []; // 使用数组存放监听事件函数，当engine销毁的时候，一并销毁掉这些lisener
     protected engine: Engine;
-    protected selecting = false;
+    protected selectStartRect: Rect | null;
+    protected multiSelect = false;
     constructor(engine: Engine) {
         this.engine = engine;
         this.initEvents();
@@ -91,15 +93,27 @@ export class EventController {
         const point = canvas.getPointByClient(evt.clientX, evt.clientY);
         evt.canvasX = point.x;
         evt.canvasY = point.y;
-        // if (eventType === 'click') {
-        //     this.onCanvasClick(evt);
-        // } else 
         if (eventType === 'mousedown') {
             this.onMouseDown(evt);
-        } else if (eventType === 'mousemouve') {
+        } else if (eventType === 'mousemove') {
             this.onMouseMove(evt);
         } else if (eventType === 'mouseup') {
-            this.selecting = false;
+            if (this.multiSelect) {
+                // 框选结束
+                this.multiSelect = false;
+                this.selectStartRect = null;
+                return;
+            }
+            const ri = this.selectStartRect.ri;
+            const ci = this.selectStartRect.ci;
+            engine.emit('canvas:select', {
+                sri: ri,
+                sci: ci,
+                eri: ri,
+                eci: ci,
+                ...this.selectStartRect,
+            });
+            this.selectStartRect = null;
         }
         engine.emit(`canvas:${eventType}`, evt);
     }
@@ -110,21 +124,42 @@ export class EventController {
             // 单选：mousedown mouseup === click
             // 框选：mousedown mousemove mouseup
             if (!evt.shiftKey) {
-                this.selecting = true;
                 this.onCanvasClick(evt);
             }
         }
     }
     onMouseMove(evt: IExcelEvent) {
         const { engine } = this;
-        if (this.selecting) {
+        if (this.selectStartRect) {
             if (evt.buttons === 1 && !evt.shiftKey) {
-                const cell = engine.getIdxByPoint({
+                const endCell = engine.getIdxByPoint({
                     x: evt.canvasX,
                     y: evt.canvasY
                 });
-                // engine.emit('canvas:selectEnd', cell);
+                let [eri, eci] = [endCell.ri, endCell.ci];
 
+                if (eri === -1 && eci === -1) return;
+                let { ri: sri, ci: sci } = this.selectStartRect;
+
+                if (sri >= eri) {
+                    [sri, eri] = [eri, sri];
+                }
+                if (sci >= eci) {
+                    [sci, eci] = [eci, sci];
+                }
+                const width = endCell.left + endCell.width - this.selectStartRect.left;
+                const height = endCell.top + endCell.height - this.selectStartRect.top;
+                engine.emit('canvas:select', {
+                    sri,
+                    sci,
+                    eri,
+                    eci,
+                    left: this.selectStartRect.left,
+                    top: this.selectStartRect.top,
+                    width,
+                    height,
+                });
+                this.multiSelect = true;
             }
         }
     }
@@ -135,7 +170,8 @@ export class EventController {
             x: evt.canvasX,
             y: evt.canvasY
         });
-        engine.emit('canvas:cellclick', cell);
+        this.selectStartRect = cell;
+        // engine.emit('canvas:cellclick', cell);
     }
     // canvas 双击 进入编辑
     onCanvasDblClick(evt: IExcelEvent) {
