@@ -31,8 +31,8 @@ export type RectOffset = {
 export type RangeOffset = {
     left: number;
     top: number;
-    right: number;
-    bottom: number;
+    right?: number;
+    bottom?: number;
     width: number;
     height: number;
 }

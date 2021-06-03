@@ -104,15 +104,7 @@ export class EventController {
                 this.selectStartRect = null;
                 return;
             }
-            const ri = this.selectStartRect.ri;
-            const ci = this.selectStartRect.ci;
-            engine.emit('canvas:select', {
-                sri: ri,
-                sci: ci,
-                eri: ri,
-                eci: ci,
-                ...this.selectStartRect,
-            });
+            engine.emit('canvas:cellclick', this.selectStartRect);
             this.selectStartRect = null;
         }
         engine.emit(`canvas:${eventType}`, evt);
