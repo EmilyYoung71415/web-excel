@@ -30,6 +30,7 @@ export class Selector extends Shape {
                 display: 'block'
             };
             modifyCSS($selector, rectOffset);
+            this.engine.dataModel.setSelect(rect);
         });
 
     }

@@ -176,6 +176,18 @@ export class DataModel implements IDataModel {
     getSumWidth(): number {
         return this._computedgridmap.colsumwidth;
     }
+    setSelect(range: RangeIndexes | RectIndexes): RangeIndexes {
+        let currange: RangeIndexes = { sri: 0, sci: 0, eri: 0, eci: 0 };
+        if (range.ri) {
+            currange.sri = range.ri;
+            currange.sci = range.ci;
+            currange.eri = range.ri;
+            currange.eci = range.ci;
+        } else {
+            currange = range;
+        }
+        this._selectIdxes = currange;
+    }
     _getOffsetByIdx(ri: number, ci: number): RectOffset {
         return draw.getOffsetByIdx(this._computedgridmap, ri, ci);
     }
