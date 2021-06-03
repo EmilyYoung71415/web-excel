@@ -13,6 +13,7 @@ import {
     ViewDataSource,
     ScrollIndexes,
     RectIndexes,
+    Cell,
 } from '../type/index';
 import { _merge, draw, isObj } from '../utils/index';
 import { Operation, Command } from './command';
@@ -36,6 +37,7 @@ interface IDataModel {
     // 根据点在画布上的物理坐标得到逻辑索引
     getIdxByPonit: (point: Point) => RectOffset;
     command: (op: Operation) => void;
+    getCell: (point: RectIndexes) => Cell;
 }
 
 const defaultGridData = {
@@ -165,7 +167,7 @@ export class DataModel implements IDataModel {
         targetCell.top += this._computedgridmap.fixedpadding.top;
         return targetCell;
     }
-    getCell(point: RectIndexes) {
+    getCell(point: RectIndexes): Cell {
         if (!this._proxyViewdata.cellmm[point.ri]) return null;
         return this._proxyViewdata.cellmm[point.ri][point.ci];
     }

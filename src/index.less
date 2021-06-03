@@ -93,10 +93,6 @@
                 border: 2px solid rgb(75, 137, 255);
                 background: rgba(75, 137, 255, .1);
                 pointer-events: none;
-                // width: 137px;
-                // height: 22px;
-                // left: 360px;
-                // top: 90px;
             }
 
             .xexcel-selector-corner {
@@ -109,6 +105,38 @@
                 bottom: -5px;
                 border: 2px solid rgb(255, 255, 255);
                 background: rgb(75, 137, 255);
+            }
+
+            /* editor */
+            .xexcel-editor {
+                position: absolute;
+                text-align: left;
+                border: 2px solid #4b89ff;
+                line-height: 0;
+                z-index: 100;
+                overflow: hidden;
+
+                .xexcel-editor-textarea {
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    width: 100%;
+                    height: 100%;
+                    box-sizing: content-box;
+                    border: none;
+                    padding: 0 4px;
+                    outline-width: 0;
+                    resize: none;
+                    text-align: start;
+                    overflow-y: hidden;
+                    font-family: inherit;
+                    font-size: inherit;
+                    color: inherit;
+                    white-space: normal;
+                    word-wrap: break-word;
+                    line-height: 22px;
+                    margin: 0;
+                }
             }
         }
     }

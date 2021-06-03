@@ -104,10 +104,8 @@ export class EventController {
                 this.selectStartRect = null;
                 return;
             }
-            engine.emit('canvas:cellclick', this.selectStartRect);
-            this.selectStartRect = null;
         }
-        engine.emit(`canvas:${eventType}`, evt);
+        engine.emit(`canvas:${eventType} `, evt);
     }
     onMouseDown(evt: IExcelEvent) {
         if (evt.detail === 2) {
@@ -158,17 +156,18 @@ export class EventController {
     // 找到当前canvas点击的哪个cell
     onCanvasClick(evt: IExcelEvent) {
         const { engine } = this;
+        this.selectStartRect = null;
         const cell = engine.getIdxByPoint({
             x: evt.canvasX,
             y: evt.canvasY
         });
         this.selectStartRect = cell;
-        // engine.emit('canvas:cellclick', cell);
+        engine.emit('canvas:cellclick', cell);
     }
     // canvas 双击 进入编辑
     onCanvasDblClick(evt: IExcelEvent) {
         const { engine } = this;
-        engine.emit(`canvas:dblclick`, evt);
+        this.selectStartRect && engine.emit('canvas:dblclick', this.selectStartRect);
     }
     /**
      * 处理滚轮事件

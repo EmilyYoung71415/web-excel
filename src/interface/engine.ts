@@ -1,5 +1,4 @@
-import { IExcelEvent } from '.';
-import { GridMdata, SourceData, Cell, Point, Rect } from '../type';
+import { GridMdata, SourceData, Cell, Point, Rect, RectIndexes } from '../type';
 export interface IEngine {
     // getDefaultCfg: () => Partial<GraphOptions>;
     get: <T = any>(key: string) => T;
@@ -24,6 +23,7 @@ export interface IEngine {
      * @param point 
      */
     getIdxByPoint(point: Point): Rect;
+    getCell(cellidx: RectIndexes): Cell;
     /**
      * 监听函数，继承自eventemitter
      */

@@ -66,7 +66,7 @@ export class Engine extends Base implements IEngine {
     getIdxByPoint(point: Point): Rect {
         return this.dataModel.getIdxByPoint(point);
     }
-    getCell(point: RectIndexes) {
+    getCell(point: RectIndexes): Cell {
         return this.dataModel.getCell(point);
     }
     getSumHeight(): number {

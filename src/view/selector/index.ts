@@ -4,21 +4,55 @@
 import { modifyCSS } from '../../utils';
 import { Shape } from '../../abstract/shape-base';
 import { Range, Rect } from '../../type';
+import { Editor } from '../editor';
+import { Engine } from '../../engine';
+import { LooseObject } from '../../interface';
 
 export class Selector extends Shape {
+    private _cellOffset;
+    private _editorText: string;
+    protected editor: Editor;
+    protected isEditing = false;
+    constructor(Engine: Engine, cfg?: LooseObject) {
+        super(Engine, cfg);
+        this.editor = new Editor();
+        this.editor.onEdit = this.handleEdit.bind(this);
+    }
     initEvent() {
-        this.engine.on('canvas:cellclick', (rect: Rect) => {
-            this.handleSelect({
-                sri: rect.ri,
-                sci: rect.ci,
-                eri: rect.ri,
-                eci: rect.ci,
-                ...rect,
+        this.engine
+            .on('canvas:cellclick', (rect: Rect) => {
+                if (this.isEditing) {
+                    this.isEditing = false;
+                    this.editor.hide();
+                    this.engine.dataModel.command({
+                        type: 'setRange',
+                        properties: { text: this._editorText }
+                    });
+                    this._editorText = '';
+                }
+                this.handleSelect({
+                    sri: rect.ri,
+                    sci: rect.ci,
+                    eri: rect.ri,
+                    eci: rect.ci,
+                    ...rect,
+                });
+            })
+            .on('canvas:select', (rect: Range) => {
+                this.isEditing = false;
+                this.editor.hide();
+                this.handleSelect(rect);
+            })
+            .on('canvas:dblclick', (rect: Rect) => {
+                const cellmm = this.engine.getCell({ ri: rect.ri, ci: rect.ci }) || {};
+                this._editorText = cellmm.text || '';
+                this.isEditing = true;
+                this.editor.show({
+                    ...this._cellOffset,
+                    text: this._editorText
+                });
             });
-        });
-        this.engine.on('canvas:select', (rect: Range) => {
-            this.handleSelect(rect);
-        });
+        this.editor.initEvent();
     }
     createRender() {
         return `
@@ -26,6 +60,7 @@ export class Selector extends Shape {
                 <div class="xexcel-selector-area" contenteditable="true" style="display:none">
                     <div class="xexcel-selector-corner"></div>
                 </div>
+                ${this.editor.createRender()}
             </div>
         `;
     }
@@ -52,7 +87,11 @@ export class Selector extends Shape {
             top: rect.top + 'px',
             display: 'block'
         };
+        this._cellOffset = rectOffset;
         modifyCSS($selector, rectOffset);
         this.engine.dataModel.setSelect(rect);
+    }
+    handleEdit(cur, prev) {
+        this._editorText = cur;
     }
 }
