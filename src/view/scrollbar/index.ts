@@ -2,7 +2,7 @@
  * @file 滚动条
  */
 import { Shape } from '../../abstract/shape-base';
-import { modifyCSS } from '../../utils';
+import { modifyCSS, addEventListener } from '../../utils';
 export class ScrollBar extends Shape {
     private $vertical: HTMLElement;
     private $horizontal: HTMLElement;
@@ -12,6 +12,14 @@ export class ScrollBar extends Shape {
         this.$vertical = $vertical;
         this.$horizontal = $horizontal;
         this.initSize();
+        addEventListener($vertical, 'scroll', (evt) => this.onScroll(true, evt));
+        addEventListener($horizontal, 'scroll', (evt) => this.onScroll(false, evt));
+
+        // this.engine.on('wheel', (evt) => {
+        //     // 向下wheelDelta：负数
+        //     // 向上wheelDelta：正数
+        //     console.log(evt.wheelDelta);
+        // });
     }
     createRender() {
         return `
@@ -46,6 +54,18 @@ export class ScrollBar extends Shape {
         });
         modifyCSS($horizontalInner, {
             width: contentW + 'px',
+        });
+    }
+    onScroll(isVertical: boolean, evt: Event) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        const { scrollTop, scrollLeft } = evt.target;
+        const distance = isVertical ? scrollTop : scrollLeft;
+
+        this.engine.dataModel.command({
+            type: 'scrollView',
+            distance,
+            isVertical,
         });
     }
 }

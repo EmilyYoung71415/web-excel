@@ -88,14 +88,15 @@ export type SourceData = {
     // merges
 }
 
+export type ScrollOffset = {
+    x: number;
+    y: number;
+}
+
 export type Mdata =
     & ViewTableSize
     & GridMdata
-    & SourceData
-    & {
-        // 交互中的数据
-        scrollOffset: Point;
-    }
+    & SourceData;
 
 /*--------------
     EngineOption

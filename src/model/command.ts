@@ -16,7 +16,7 @@ type SetRangeOperation = {
 type ScrollOperation = {
     type: 'scrollView';
     distance: number;
-    dir: 'horizontal' | 'vertical';
+    isVertical: boolean;
 }
 
 type ResizeRowOperation = {
@@ -70,7 +70,22 @@ export const Command: Command = {
         }
     },
     scrollView(op: ScrollOperation): void {
-        const { distance, dir } = op;
-        // scroll: 得到scroll的滚动距离，进而计算出滚动格数 => scrollidxes
+        const { distance, isVertical } = op;
+        const { row, col } = this._grid;
+        let scrollOffset = 0;
+        let scrollIdx = 0;
+        const maxLen = isVertical ? row.len : col.len;
+        const getCurSize = isVertical ? (i) => this.getRowHeight(i) : (i) => this.getColWidth(i);
+        for (let i = 0; i < maxLen; i++) {
+            if (scrollOffset > distance) break;
+            const curSize = getCurSize(i);
+            scrollOffset += curSize;
+            scrollIdx = i;
+        }
+        this._scrollOffset[isVertical ? 'y' : 'x'] = scrollOffset;
+        this._scrollIdexes[isVertical ? 'ri' : 'ci'] = scrollIdx;
+        this.computedGridMap(this._scrollIdexes);
+        this._proxyViewdata.gridmap = this._computedgridmap;
+        this._proxyViewdata.scrollIdexes = this._scrollIdexes;
     }
 }

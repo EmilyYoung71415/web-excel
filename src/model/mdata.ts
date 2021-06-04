@@ -14,6 +14,7 @@ import {
     ScrollIndexes,
     RectIndexes,
     Cell,
+    ScrollOffset
 } from '../type/index';
 import { _merge, draw, isObj, each } from '../utils/index';
 import { Operation, Command } from './command';
@@ -38,6 +39,8 @@ interface IDataModel {
     getIdxByPonit: (point: Point) => RectOffset;
     command: (op: Operation) => void;
     getCell: (point: RectIndexes) => Cell;
+    getRowHeight: (index: number) => number;
+    getColWidth: (index: number) => number;
 }
 
 const defaultGridData = {
@@ -59,6 +62,7 @@ export class DataModel implements IDataModel {
     private _initcellmm: ViewDataRange = {};
     private _selectIdxes: RangeIndexes = null;
     private _scrollIdexes: ScrollIndexes = { ri: 0, ci: 0 };
+    private _scrollOffset: ScrollOffset = { x: 0, y: 0 };
     private _viewModel: ViewModel;
     private _proxyViewdata: ViewDataSource;
 
@@ -90,25 +94,6 @@ export class DataModel implements IDataModel {
             cellmm: this._initcellmm,
             scrollIdexes: this._scrollIdexes,
         });
-        // this._proxyViewdata.cellmm[1][1].fontColor = 'red';
-        // this._proxyViewdata.cellmm[2] = {}; // 必须要手动sett {} 才能对新加属性形成追踪
-        // this._proxyViewdata.cellmm[2][3] = { text: 'www', fontColor: 'red' };
-        // this._proxyViewdata.cellmm[2][6] = { text: '哈哈哈哈哈', fontColor: 'red' };
-
-
-        // new Array(30).fill(1).forEach((item, i) => {
-        //     this._proxyViewdata.cellmm[i] = {};
-        //     this._proxyViewdata.cellmm[i][1] = { text: i + '_' + 1, }
-        // });
-
-        // 滚动模拟
-        // setInterval(() => {
-        //     this._scrollIdexes.ri++;
-        //     // this._scrollIdexes.ci++;
-        //     this.computedGridMap(this._scrollIdexes);
-        //     this._proxyViewdata.gridmap = this._computedgridmap;
-        //     this._proxyViewdata.scrollIdexes = this._scrollIdexes;
-        // }, 50)
     }
     resetGrid(grid: GridMdata): GridMdata {
         this._grid = _merge(defaultGridData, grid);
@@ -198,6 +183,14 @@ export class DataModel implements IDataModel {
         });
         this._boxrealsize = [rowsumheight, colsumwidth];
         return this._boxrealsize;
+    }
+    getRowHeight(index: number): number {
+        const { row, rowm } = this._grid;
+        return rowm[`${index}`] ? rowm[`${index}`].size : row.size;
+    }
+    getColWidth(index: number): number {
+        const { col, colm } = this._grid;
+        return colm[`${index}`] ? colm[`${index}`].size : col.size;
     }
     setSelect(range: RangeIndexes): RangeIndexes {
         this._selectIdxes = range;
