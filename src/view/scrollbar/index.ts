@@ -15,11 +15,18 @@ export class ScrollBar extends Shape {
         addEventListener($vertical, 'scroll', (evt) => this.onScroll(true, evt));
         addEventListener($horizontal, 'scroll', (evt) => this.onScroll(false, evt));
 
-        // this.engine.on('wheel', (evt) => {
-        //     // 向下wheelDelta：负数
-        //     // 向上wheelDelta：正数
-        //     console.log(evt.wheelDelta);
-        // });
+        // 鼠标滚轮滚动, 计算出鼠标滚动的距离，滚一点计算成一格，让scrollbar滚动, 触发onScroll事件
+        // 通过转移的方式让效果归一化
+        this.engine.on('wheel', (evt) => {
+            const { scroll } = this.engine.getStatus();
+            if (evt.deltaY > 0) { // up
+                const nextScrollTop = scroll.offsetY + this.engine.dataModel.getRowHeight(scroll.ri);
+                this.$vertical.scroll({ top: nextScrollTop });
+            } else {// down
+                const nextScrollTop = scroll.ri === 0 ? 0 : scroll.offsetY - 50;
+                this.$vertical.scroll({ top: nextScrollTop });
+            }
+        });
     }
     createRender() {
         return `

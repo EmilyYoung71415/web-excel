@@ -1,4 +1,4 @@
-import { EngineOption, SourceData, GridMdata, Cell, Point, Rect, RectIndexes, Boxsize } from './type';
+import { EngineOption, SourceData, GridMdata, Cell, Point, Rect, RectIndexes, Boxsize, TableStatus } from './type';
 import { defaultEngineOption } from './config/engineoption';
 import { CanvasRender, DomRender } from './view';
 import { Base } from './abstract/base';
@@ -84,6 +84,9 @@ export class Engine extends Base implements IEngine {
             contentH: contentH,
             contentW: contentW
         }
+    }
+    getStatus(): TableStatus {
+        return this.dataModel.getStatus();
     }
 }
 

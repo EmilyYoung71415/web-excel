@@ -234,3 +234,12 @@ export type Boxsize = {
     contentH: number;
     contentW: number;
 }
+
+export type TableStatus = {
+    scroll: {
+        offsetX: number;
+        offsetY: number;
+        ri: number;
+        ci: number;
+    }
+}

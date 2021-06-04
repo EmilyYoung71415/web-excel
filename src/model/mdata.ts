@@ -14,7 +14,8 @@ import {
     ScrollIndexes,
     RectIndexes,
     Cell,
-    ScrollOffset
+    ScrollOffset,
+    TableStatus
 } from '../type/index';
 import { _merge, draw, isObj, each } from '../utils/index';
 import { Operation, Command } from './command';
@@ -41,6 +42,7 @@ interface IDataModel {
     getCell: (point: RectIndexes) => Cell;
     getRowHeight: (index: number) => number;
     getColWidth: (index: number) => number;
+    getStatus: () => TableStatus;
 }
 
 const defaultGridData = {
@@ -195,6 +197,16 @@ export class DataModel implements IDataModel {
     setSelect(range: RangeIndexes): RangeIndexes {
         this._selectIdxes = range;
         return range;
+    }
+    getStatus(): TableStatus {
+        return {
+            scroll: {
+                offsetX: this._scrollOffset.x,
+                offsetY: this._scrollOffset.y,
+                ri: this._scrollIdexes.ri,
+                ci: this._scrollIdexes.ci
+            }
+        }
     }
     _getOffsetByIdx(ri: number, ci: number): RectOffset {
         return draw.getOffsetByIdx(this._computedgridmap, ri, ci);
