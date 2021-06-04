@@ -2,23 +2,50 @@
  * @file 滚动条
  */
 import { Shape } from '../../abstract/shape-base';
+import { modifyCSS } from '../../utils';
 export class ScrollBar extends Shape {
+    private $vertical: HTMLElement;
+    private $horizontal: HTMLElement;
     initEvent() {
+        const $vertical = document.querySelector('.xexcel-scrollbar-wrapper .vertical') as HTMLElement;
+        const $horizontal = document.querySelector('.xexcel-scrollbar-wrapper .horizontal') as HTMLElement;
+        this.$vertical = $vertical;
+        this.$horizontal = $horizontal;
+        this.initSize();
     }
     createRender() {
-        const viewHeight = this.engine.get('viewOption.viewHeight');
-        const viewWidth = this.engine.get('viewOption.viewWidth');
-        const contentHeight = 75015;
-        const contentWidth = 1500;
         return `
             <div class="xexcel-scrollbar-wrapper">
-                <div class="xexcel-scrollbar vertical" style="height: ${viewHeight}px; display: block;">
-                    <div class="xexcel-scrollbar-inner" style="width: 1px; height: ${contentHeight}px;"></div>
+                <div class="xexcel-scrollbar vertical" style="display: none">
+                    <div class="xexcel-scrollbar-inner inner" style="width: 1px;"></div>
                 </div>
-                <div class="xexcel-scrollbar horizontal" style="width: ${viewWidth}px; display: block;">
-                    <div class="xexcel-scrollbar-inner" style="height: 1px; width: ${contentWidth}px;"></div>
+                <div class="xexcel-scrollbar horizontal" style="display: none">
+                    <div class="xexcel-scrollbar-inner inner" style="height: 1px;"></div>
                 </div>
             </div>
         `
+    }
+    initSize() {
+        const $verticalInner = this.$vertical.querySelector('.inner') as HTMLElement;
+        const $horizontalInner = this.$horizontal.querySelector('.inner') as HTMLElement;
+
+        const { viewH, viewW, contentH, contentW } = this.engine.getBoxSize();
+        const verticalShow = contentH > viewH;
+        const horizontalShow = contentW > viewW;
+        modifyCSS(this.$vertical, {
+            height: viewH + 'px',
+            display: verticalShow ? 'block' : 'none',
+        });
+        modifyCSS($verticalInner, {
+            height: contentH + 'px',
+        });
+
+        modifyCSS(this.$horizontal, {
+            width: viewW + 'px',
+            display: horizontalShow ? 'block' : 'none',
+        });
+        modifyCSS($horizontalInner, {
+            width: contentW + 'px',
+        });
     }
 }

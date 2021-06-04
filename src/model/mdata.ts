@@ -15,7 +15,7 @@ import {
     RectIndexes,
     Cell,
 } from '../type/index';
-import { _merge, draw, isObj } from '../utils/index';
+import { _merge, draw, isObj, each } from '../utils/index';
 import { Operation, Command } from './command';
 import { ViewModel } from './vdata';
 
@@ -48,6 +48,7 @@ const defaultGridData = {
 export class DataModel implements IDataModel {
     // modeldata：视图数据、互动数据 计算出viewdata
     private _mdata: Mdata;
+    private _boxrealsize: number[];
     // sourcedata：griddata => viewtdata: gridmap
     private _grid: GridMdata;
 
@@ -111,6 +112,7 @@ export class DataModel implements IDataModel {
     }
     resetGrid(grid: GridMdata): GridMdata {
         this._grid = _merge(defaultGridData, grid);
+        this._boxrealsize = this.getRealContentSize(this._grid);
         return this._grid;
     }
     // 绘制基础的棋盘，并生成gripmap
@@ -171,11 +173,31 @@ export class DataModel implements IDataModel {
         if (!this._proxyViewdata.cellmm[point.ri]) return null;
         return this._proxyViewdata.cellmm[point.ri][point.ci];
     }
+    // 绘制高度
     getSumHeight(): number {
         return this._computedgridmap.rowsumheight;
     }
     getSumWidth(): number {
         return this._computedgridmap.colsumwidth;
+    }
+    // [rowsumheight, colsumwidth]
+    getRealContentSize(initgrid?: GridMdata): number[] {
+        if (this._boxrealsize) return this._boxrealsize;
+        const grid = initgrid ? initgrid : this._grid;
+        const { row, col, rowm, colm } = grid;
+        let colsumwidth = col.len * col.size;
+        let rowsumheight = row.len * row.size;
+        each(colm, item => {
+            colsumwidth -= col.size;
+            colsumwidth += item.size;
+        });
+
+        each(rowm, item => {
+            rowsumheight -= col.size;
+            rowsumheight += item.size;
+        });
+        this._boxrealsize = [rowsumheight, colsumwidth];
+        return this._boxrealsize;
     }
     setSelect(range: RangeIndexes): RangeIndexes {
         this._selectIdxes = range;

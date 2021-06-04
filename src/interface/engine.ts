@@ -1,4 +1,5 @@
-import { GridMdata, SourceData, Cell, Point, Rect, RectIndexes } from '../type';
+import { GridMdata, SourceData, Cell, Point, Rect, RectIndexes, Boxsize } from '../type';
+
 export interface IEngine {
     // getDefaultCfg: () => Partial<GraphOptions>;
     get: <T = any>(key: string) => T;
@@ -24,6 +25,7 @@ export interface IEngine {
      */
     getIdxByPoint(point: Point): Rect;
     getCell(cellidx: RectIndexes): Cell;
+    getBoxSize(): Boxsize;
     /**
      * 监听函数，继承自eventemitter
      */

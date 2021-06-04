@@ -28,7 +28,7 @@ export class DomRender extends Base {
         this.createShape('selector');
         this.createShape('scrollbar');
         this.initContainer();
-        this.initEvent();
+        Promise.resolve().then(this.initEvent.bind(this));
     }
     createShape(shapeValue: string) {
         let shapeConstruct = null;

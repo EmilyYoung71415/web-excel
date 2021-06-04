@@ -226,3 +226,10 @@ export type ViewDataSource = ViewTableSize & {
     // selectIdxes: RangeIndexes;
     scrollIdexes: ScrollIndexes;
 }
+
+export type Boxsize = {
+    viewH: number;
+    viewW: number;
+    contentH: number;
+    contentW: number;
+}

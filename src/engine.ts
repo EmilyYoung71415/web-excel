@@ -1,4 +1,4 @@
-import { EngineOption, SourceData, GridMdata, Cell, Point, Rect, RectIndexes } from './type';
+import { EngineOption, SourceData, GridMdata, Cell, Point, Rect, RectIndexes, Boxsize } from './type';
 import { defaultEngineOption } from './config/engineoption';
 import { CanvasRender, DomRender } from './view';
 import { Base } from './abstract/base';
@@ -74,6 +74,16 @@ export class Engine extends Base implements IEngine {
     }
     getSumWidth(): number {
         return this.dataModel.getSumWidth();
+    }
+    // 获取当前表格的宽高数据：画布大小、实际content大小
+    getBoxSize(): Boxsize {
+        const [contentH, contentW] = this.dataModel.getRealContentSize();
+        return {
+            viewH: this.get('viewOption.viewHeight'),
+            viewW: this.get('viewOption.viewWidth'),
+            contentH: contentH,
+            contentW: contentW
+        }
     }
 }
 
