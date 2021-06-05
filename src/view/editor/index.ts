@@ -10,7 +10,7 @@ export class Editor {
     onEdit: (acur: string, prev: string) => void;
     createRender() {
         return `
-             <div class="xexcel-editor">
+             <div class="xexcel-editor" style="display:none">
                  <textarea class="xexcel-editor-textarea"></textarea>
              </div>
          `;
