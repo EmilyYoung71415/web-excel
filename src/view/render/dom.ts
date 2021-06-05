@@ -3,10 +3,12 @@ import { EngineOption } from '../../type';
 import { Base } from '../../abstract/base';
 import { modifyCSS, createDom } from '../../utils';
 import { Engine } from '../../engine';
+import { FIXEDHEADERMARGIN, BUFFERPADDING } from '../../model/mdata';
 
-const PREFIX_DOM_NAME = 'xexcel-';
+const PREFIX_DOM_NAME = 'xexcel';
 export class DomRender extends Base {
     private _domroot = null;
+    private _domrootInner = null;
     private _engine: Engine;
     shapeList: any[];
     // 当前视图里有的dom
@@ -22,7 +24,7 @@ export class DomRender extends Base {
         const vw = this.get('viewOption.viewWidth') + 'px';
         const vh = this.get('viewOption.viewHeight') + 'px';
         modifyCSS(el, { width: vw, height: vh, overflow: 'hidden' });
-        this._domroot = document.createElement('div');
+        this._domrootInner = createDom(`<div class="${PREFIX_DOM_NAME}-main-table-inner"></div>`);
         // 视配置决定渲染某些自定义view
         this.createShape('toolbar');
         this.createShape('selector');
@@ -46,11 +48,20 @@ export class DomRender extends Base {
         if (shapeName === 'toolbar') {
             this.get('container').append($dom);
         } else {
-            this._domroot.append($dom);
+            this._domrootInner.append($dom);
         }
     }
     initContainer() {
-        this._domroot.className = PREFIX_DOM_NAME + 'main-table';
+        this._domroot = createDom(`<div class="${PREFIX_DOM_NAME}-main-table"></div>`);
+        this._domroot.append(this._domrootInner);
+        const innerLeft = (FIXEDHEADERMARGIN.left - BUFFERPADDING) + 'px';
+        const innerTop = (FIXEDHEADERMARGIN.top - BUFFERPADDING) + 'px';
+        modifyCSS(this._domrootInner, {
+            left: innerLeft,
+            top: innerTop,
+            width: `calc(100% - ${innerLeft}`,
+            height: `calc(100% - ${innerTop}`
+        });
         this.get('container').append(this._domroot);
     }
     initEvent() {

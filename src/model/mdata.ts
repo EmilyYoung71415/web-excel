@@ -25,6 +25,9 @@ export const FIXEDHEADERMARGIN = {
     left: 50,
     top: 25,
 }
+
+export const BUFFERPADDING = 2;
+
 interface IDataModel {
     // 外界载入grid棋盘数据 如果没有主动调用 那会启用默认的生成棋盘格
     resetGrid: (grid: GridMdata) => GridMdata;
@@ -152,8 +155,8 @@ export class DataModel implements IDataModel {
                 Object.assign(targetCell, col[j - 1]);
             }
         }
-        targetCell.left += this._computedgridmap.fixedpadding.left;
-        targetCell.top += this._computedgridmap.fixedpadding.top;
+        targetCell.left += BUFFERPADDING * 2; //this._computedgridmap.fixedpadding.left;
+        targetCell.top += BUFFERPADDING;//this._computedgridmap.fixedpadding.top;
         return targetCell;
     }
     getCell(point: RectIndexes): Cell {
