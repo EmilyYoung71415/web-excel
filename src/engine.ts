@@ -31,6 +31,7 @@ export class Engine extends Base implements IEngine {
         // 依赖关系：data -> viewmodel -> render
         const viewModel = new ViewModel(this.canvasRender);
         this.dataModel = new DataModel(viewModel, viewRect);
+        this.dataModel.emit = this.emit.bind(this);
         this._domRender = new DomRender(this, engineOpt);
         // 至此形成的数据链路是：event(aciton) -> datamodel -> viewdata -> render
 

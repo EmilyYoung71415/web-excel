@@ -1,10 +1,16 @@
+import { isString } from "../index";
+
 export function modifyCSS(dom: HTMLElement, css: { [key: string]: any }): HTMLElement {
     if (!dom) {
         return;
     }
     for (const key in css) {
         if (css.hasOwnProperty(key)) {
-            dom.style[key] = css[key];
+            let val = css[key];
+            if (['width', 'height', 'top', 'left', 'right', 'bottom'].includes(key)) {
+                val = isString(val) && val.endsWith('px') ? val : `${val}px`;
+            }
+            dom.style[key] = val;
         }
     }
     return dom;

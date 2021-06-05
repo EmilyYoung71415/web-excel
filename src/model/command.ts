@@ -76,16 +76,22 @@ export const Command: Command = {
         let scrollIdx = 0;
         const maxLen = isVertical ? row.len : col.len;
         const getCurSize = isVertical ? (i) => this.getRowHeight(i) : (i) => this.getColWidth(i);
-        for (let i = 0; i < maxLen; i++) {
-            if (scrollOffset > distance) break;
-            const curSize = getCurSize(i);
-            scrollOffset += curSize;
+        for (let i = 1; i < maxLen; i++) {
+            const curSize = getCurSize(i - 1);
+            if (scrollOffset + curSize > distance) break;
             scrollIdx = i;
+            scrollOffset += curSize;
         }
         this._scrollOffset[isVertical ? 'y' : 'x'] = scrollOffset;
         this._scrollIdexes[isVertical ? 'ri' : 'ci'] = scrollIdx;
         this.computedGridMap(this._scrollIdexes);
         this._proxyViewdata.gridmap = this._computedgridmap;
         this._proxyViewdata.scrollIdexes = this._scrollIdexes;
+        this.emit('canvas:scroll', {
+            x: this._scrollOffset.x,
+            y: this._scrollOffset.y,
+            ri: this._scrollIdexes.ri,
+            ci: this._scrollIdexes.ci
+        });
     }
 }

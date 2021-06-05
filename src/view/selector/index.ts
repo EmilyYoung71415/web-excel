@@ -3,7 +3,7 @@
  */
 import { modifyCSS } from '../../utils';
 import { Shape } from '../../abstract/shape-base';
-import { Range, Rect } from '../../type';
+import { Range, Rect, RectOffset } from '../../type';
 import { Editor } from '../editor';
 import { Engine } from '../../engine';
 import { LooseObject } from '../../interface';
@@ -11,6 +11,7 @@ import { LooseObject } from '../../interface';
 export class Selector extends Shape {
     private _cellOffset;
     private _editorText: string;
+    private $selector: HTMLElement;
     protected editor: Editor;
     protected isEditing = false;
     constructor(Engine: Engine, cfg?: LooseObject) {
@@ -19,6 +20,8 @@ export class Selector extends Shape {
         this.editor.onEdit = this.handleEdit.bind(this);
     }
     initEvent() {
+        const $selector = document.querySelector('.xexcel-selector .xexcel-selector-area') as HTMLElement;
+        this.$selector = $selector;
         this.engine
             .on('canvas:cellclick', (rect: Rect) => {
                 if (this.isEditing) {
@@ -51,6 +54,15 @@ export class Selector extends Shape {
                     ...this._cellOffset,
                     text: this._editorText
                 });
+            })
+            .on('canvas:scroll', scroll => {
+                if (!this._cellOffset) return;
+                this._cellOffset.top += scroll.y;
+                this._cellOffset.left += scroll.x;
+                modifyCSS(this.$selector, {
+                    transform: `translate3d(-${scroll.x}px, -${scroll.y}px, 0)`
+                });
+                this.editor.move(scroll.x, scroll.y);
             });
         this.editor.initEvent();
     }
@@ -65,10 +77,9 @@ export class Selector extends Shape {
         `;
     }
     handleSelect(rect: Range) {
-        const $selector = document.querySelector('.xexcel-selector .xexcel-selector-area') as HTMLElement;
         const { sri, sci, eri, eci } = rect;
         if (sri === -1 && sci === -1) {
-            modifyCSS($selector, { display: 'none' });
+            modifyCSS(this.$selector, { display: 'none' });
             return;
         }
         // 行选
@@ -79,17 +90,20 @@ export class Selector extends Shape {
         if (sri === -1 && eci >= 0) {
             rect.height = this.engine.getSumHeight();
         }
+        this.changeSelectOffset(rect);
+        this.engine.dataModel.setSelect(rect);
+    }
+    changeSelectOffset(rectOffset: RectOffset) {
         const borderpadding = 2;
-        const rectOffset = {
-            width: rect.width + 'px',
-            height: rect.height + 'px',
-            left: (rect.left - 2 * borderpadding) + 'px',
-            top: rect.top + 'px',
+        const curOffset = {
+            width: rectOffset.width,
+            height: rectOffset.height,
+            left: rectOffset.left - 2 * borderpadding,
+            top: rectOffset.top - borderpadding,
             display: 'block'
         };
-        this._cellOffset = rectOffset;
-        modifyCSS($selector, rectOffset);
-        this.engine.dataModel.setSelect(rect);
+        this._cellOffset = curOffset;
+        modifyCSS(this.$selector, curOffset);
     }
     handleEdit(cur, prev) {
         this._editorText = cur;

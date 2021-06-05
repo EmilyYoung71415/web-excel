@@ -36,13 +36,12 @@ interface IDataModel {
     // getOffsetByIdx: (ri: number, ci: number) => RectOffset;
     // // 根据单元格的逻辑索引得到
     // getRangeOffsetByIdxes: (rect: RangeIndexes) => RangeOffset;
-    // 根据点在画布上的物理坐标得到逻辑索引
-    getIdxByPonit: (point: Point) => RectOffset;
     command: (op: Operation) => void;
     getCell: (point: RectIndexes) => Cell;
     getRowHeight: (index: number) => number;
     getColWidth: (index: number) => number;
     getStatus: () => TableStatus;
+    emit: (evt: string, ...args: any[]) => void;
 }
 
 const defaultGridData = {
@@ -67,6 +66,7 @@ export class DataModel implements IDataModel {
     private _scrollOffset: ScrollOffset = { x: 0, y: 0 };
     private _viewModel: ViewModel;
     private _proxyViewdata: ViewDataSource;
+    emit: (evt: string, ...args: any[]) => void; // 父传下来的方法
 
     private _getDefaultSource() {
         return {

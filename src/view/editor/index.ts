@@ -6,6 +6,7 @@ import { modifyCSS } from '../../utils';
 
 export class Editor {
     protected text: string;
+    protected $editor: HTMLElement;
     onEdit: (acur: string, prev: string) => void;
     createRender() {
         return `
@@ -16,6 +17,7 @@ export class Editor {
     }
     show(rect) {
         const $editor = document.querySelector('.xexcel-editor') as HTMLElement;
+        this.$editor = $editor;
         this.initVal(rect.text);
         modifyCSS($editor, { visibility: 'visible' });
         modifyCSS($editor, rect);
@@ -31,6 +33,11 @@ export class Editor {
             this.onEdit(curstr, this.text);
             this.text = curstr;
         })
+    }
+    move(scrollx: number, scrolly: number) {
+        modifyCSS(this.$editor, {
+            transform: `translate3d(-${scrollx}px, -${scrolly}px, 0)`
+        });
     }
     initVal(val: string) {
         this.text = val;
