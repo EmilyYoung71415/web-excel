@@ -86,11 +86,11 @@
         height: 100%;
         border: 2px solid red;
         overflow: hidden;
+        z-index: 1;
 
         .xexcel-main-table-inner {
             position: absolute;
             overflow: hidden;
-            // z-index: 7;
 
             /* selector */
             .xexcel-selector {
@@ -153,53 +153,42 @@
             }
 
             /* scrollbar */
-            // scrollbar相对maintable定位，但是不是自动撑开内容大小
-            // 采用读取变量的方式定位scrollbar，这样可以维持main-table与canvas同级
-            // 且 scrollzindex的仅滚动条 zindex > content
-            .xexcel-scrollbar-wrapper {
-                position: relative;
-                z-index: 5;
-                width: 100%;
-                height: 100%;
+            .xexcel-scrollbar {
+                position: absolute;
+                opacity: 0.85;
+                z-index: 12;
 
-                // width: ;
-                .xexcel-scrollbar {
-                    position: absolute;
-                    opacity: 0.85;
-                    z-index: 12;
+                &.horizontal {
+                    bottom: 44px; // scrollbar height
+                    left: 0;
+                    overflow-x: scroll;
+                    overflow-y: hidden;
+                }
 
-                    &.horizontal {
-                        bottom: 44px; // scrollbar height
-                        left: 0;
-                        overflow-x: scroll;
-                        overflow-y: hidden;
-                    }
+                &.vertical {
+                    top: 0;
+                    right: 5px;
+                    overflow-x: hidden;
+                    overflow-y: scroll;
+                }
 
-                    &.vertical {
-                        top: 0;
-                        right: 5px;
-                        overflow-x: hidden;
-                        overflow-y: scroll;
-                    }
+                &:hover {
+                    opacity: .85;
+                }
 
-                    &:hover {
-                        opacity: .85;
-                    }
+                &::-webkit-scrollbar {
+                    width: 8px;
+                    height: 8px;
+                    background: rgba(75, 137, 255, 0.2);
+                }
 
-                    &::-webkit-scrollbar {
-                        width: 8px;
-                        height: 8px;
-                        background: rgba(75, 137, 255, 0.2);
-                    }
+                &::-webkit-scrollbar-thumb {
+                    background: rgb(75, 137, 255);
+                    border-radius: 6px;
+                }
 
-                    &::-webkit-scrollbar-thumb {
-                        background: rgb(75, 137, 255);
-                        border-radius: 6px;
-                    }
-
-                    &::-webkit-scrollbar-corner {
-                        background: rgba(75, 137, 255, .2);
-                    }
+                &::-webkit-scrollbar-corner {
+                    background: rgba(75, 137, 255, .2);
                 }
             }
         }
