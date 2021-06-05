@@ -109,6 +109,8 @@ export class EventController {
         engine.emit(`canvas:${eventType} `, evt);
     }
     onMouseDown(evt: IExcelEvent) {
+        const classList = Array.from(evt.target.classList);
+        if (classList.includes('xexcel-scrollbar')) return;
         if (evt.detail === 2) {
             this.onCanvasDblClick(evt);
         } else {
