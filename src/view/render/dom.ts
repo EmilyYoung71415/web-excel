@@ -1,5 +1,5 @@
 // 以为dom为class，创建dom、修改dom
-import { EngineOption } from '../../type';
+import { EngineOption, Point } from '../../type';
 import { Base } from '../../abstract/base';
 import { modifyCSS, createDom } from '../../utils';
 import { Engine } from '../../engine';
@@ -63,10 +63,19 @@ export class DomRender extends Base {
             height: `calc(100% - ${innerTop}`
         });
         this.get('container').append(this._domroot);
+        this.set('el', this._domroot);
     }
     initEvent() {
         for (const shape of this.shapeList) {
             shape.initEvent();
         }
+    }
+    getPointByClient(clientX: number, clientY: number): Point {
+        const el = this.get('el');
+        const bbox = el.getBoundingClientRect();
+        return {
+            x: clientX - bbox.left,
+            y: clientY - bbox.top,
+        };
     }
 }

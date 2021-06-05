@@ -10,7 +10,7 @@ import { IEngine } from './interface';
 
 export class Engine extends Base implements IEngine {
     canvasRender: CanvasRender;
-    _domRender: DomRender; // toolbar、scrollbar等
+    domRender: DomRender; // toolbar、scrollbar等
     dataModel: DataModel;
     getDefaultCfg() {
         return {
@@ -32,7 +32,7 @@ export class Engine extends Base implements IEngine {
         const viewModel = new ViewModel(this.canvasRender);
         this.dataModel = new DataModel(viewModel, viewRect);
         this.dataModel.emit = this.emit.bind(this);
-        this._domRender = new DomRender(this, engineOpt);
+        this.domRender = new DomRender(this, engineOpt);
         // 至此形成的数据链路是：event(aciton) -> datamodel -> viewdata -> render
 
         // 这个事件管理器里面：处理canvas的事件，并且将canvas上的事派发到engine层面

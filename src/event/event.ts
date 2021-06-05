@@ -57,9 +57,9 @@ export class EventController {
     }
     initEvents() {
         const { engine, extendEvents = [] } = this;
+        const dom = engine.domRender;
+        const el = dom.get('el');
 
-        const canvas = engine.canvasRender;
-        const el = canvas.get('el');
 
         // 滚动
         extendEvents.push(addEventListener(el, 'DOMMouseScroll', this.onWheelEvent.bind(this)));
@@ -88,10 +88,10 @@ export class EventController {
      */
     protected onCanvasEvents(evt: IExcelEvent) {
         const { engine } = this;
-        const canvas = engine.canvasRender;
+        const dom = engine.domRender;
         const eventType = evt.type;
 
-        const point = canvas.getPointByClient(evt.clientX, evt.clientY);
+        const point = dom.getPointByClient(evt.clientX, evt.clientY);
         evt.canvasX = point.x;
         evt.canvasY = point.y;
         if (eventType === 'mousedown') {

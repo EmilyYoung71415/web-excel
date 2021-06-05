@@ -90,6 +90,7 @@
         .xexcel-main-table-inner {
             position: absolute;
             overflow: hidden;
+            // z-index: 7;
 
             /* selector */
             .xexcel-selector {
@@ -158,6 +159,8 @@
             .xexcel-scrollbar-wrapper {
                 position: relative;
                 z-index: 5;
+                width: 100%;
+                height: 100%;
 
                 // width: ;
                 .xexcel-scrollbar {
@@ -166,8 +169,7 @@
                     z-index: 12;
 
                     &.horizontal {
-                        // bottom: -(viewheight - boxheight)
-                        bottom: -1160px;
+                        bottom: 44px; // scrollbar height
                         left: 0;
                         overflow-x: scroll;
                         overflow-y: hidden;
