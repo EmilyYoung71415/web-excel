@@ -5,7 +5,7 @@
  * - 考虑rangemm维护在这里 cellmm = computed(rangemm)
  */
 import { Cell } from '../type';
-import { _merge, parseRangeKey } from '../utils';
+import { _merge, parseRangeKey, each } from '../utils';
 
 type SetRangeOperation = {
     type: 'setRange';
@@ -19,11 +19,11 @@ type ScrollOperation = {
     isVertical: boolean;
 }
 
-type ResizeRowOperation = {
+type ResizeOperation = {
     type: 'resizeGrid';
     idx: number;
-    distance: number;
-    dir: 'add' | 'cut';
+    diff: number; // 改动差距 可正可负
+    isCol: boolean; // 修改列宽
 }
 
 
@@ -36,13 +36,14 @@ type AddRowOperation = {
 export type Operation =
     | SetRangeOperation
     | ScrollOperation
-    | ResizeRowOperation
+    | ResizeOperation
     | AddRowOperation;
 
 
 interface Command {
     setRange: (op: SetRangeOperation) => void;
     scrollView: (op: ScrollOperation) => void;
+    resizeGrid: (op: ResizeOperation) => void;
 }
 
 function setCellmm(ri: number, ci: number, properties: Cell) {
@@ -92,6 +93,19 @@ export const Command: Command = {
             y: this._scrollOffset.y,
             ri: this._scrollIdexes.ri,
             ci: this._scrollIdexes.ci
+        });
+    },
+    // 行高列宽
+    resizeGrid(op: ResizeOperation): void {
+        const { diff, isCol, idx: targetIdx } = op;
+        // 修改vdata
+        const targetArr = this._proxyViewdata.gridmap[isCol ? 'col' : 'row'];
+        each(targetArr, (item, i) => {
+            if (targetIdx === i) {
+                item[isCol ? 'width' : 'height'] += diff;
+            } else if (i > targetIdx) {
+                item[isCol ? 'left' : 'top'] += diff;
+            }
         });
     }
 }

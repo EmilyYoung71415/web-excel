@@ -99,6 +99,14 @@ export class DataModel implements IDataModel {
             cellmm: this._initcellmm,
             scrollIdexes: this._scrollIdexes,
         });
+        setTimeout(() => {
+            this.command({
+                type: 'resizeGrid',
+                idx: 1,
+                diff: 20,
+                isCol: true
+            });
+        }, 1500);
     }
     resetGrid(grid: GridMdata): GridMdata {
         this._grid = _merge(defaultGridData, grid);
@@ -129,9 +137,11 @@ export class DataModel implements IDataModel {
         // this._proxyViewdata.xxx = xxx;
         return Command[op.type].call(this, op);
     }
+    // TODO: selector、editor的 evt => rect是根据这个函数来的
+    // 现在的问题是：resizer会更改gridmap，怎么能实现gridmap更改之后，下面依赖gridmap计算出的东西都重新计算、重绘一遍
     getIdxByPoint(point: Point): Rect {
         // row[i].top <= point.x < row[i+1].top
-        const { row, col } = this._computedgridmap;
+        const { row, col } = this._proxyViewdata.gridmap;
 
         const targetCell: Rect = {
             ri: -1,
@@ -210,12 +220,6 @@ export class DataModel implements IDataModel {
                 ci: this._scrollIdexes.ci
             }
         }
-    }
-    _getOffsetByIdx(ri: number, ci: number): RectOffset {
-        return draw.getOffsetByIdx(this._computedgridmap, ri, ci);
-    }
-    _getRangeOffsetByIdxes(rect: RangeIndexes): RangeOffset {
-        return draw.getRangeOffsetByIdxes(this._computedgridmap, rect);
     }
     _buildLinesForRows(isRow: boolean, scrollIdx: number): [number, any[]] {
         const mdata = this._mdata;
