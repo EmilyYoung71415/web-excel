@@ -25,6 +25,7 @@ export type RectOffset = {
     top: number;
     width: number;
     height: number;
+    lineoffset?: number;
 }
 
 // range 物理位置

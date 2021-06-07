@@ -52,3 +52,5 @@ export function each(elements: any[] | object, func: (v: any, k: any) => any): v
         }
     }
 }
+
+export const isBetween = (value: number, min: number, max: number) => value >= min && value <= max;

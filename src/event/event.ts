@@ -4,7 +4,7 @@
  *   业务层处理业务逻辑通过 egine.on(eventname, callback); 处理
  */
 import { Engine } from '../engine';
-import { addEventListener, isNil, each } from '../utils';
+import { addEventListener, isNil, each, isBetween } from '../utils';
 import { IExcelEvent } from '../interface';
 import { Rect } from '../type';
 
@@ -130,8 +130,16 @@ export class EventController {
             y: evt.canvasY
         });
         this.engine.changeCursor('auto');
+        if (cell.ci === -1 && cell.ri === -1) return;
         if (cell.ci === -1 || cell.ri === -1) {
-            this.engine.changeCursor(`${cell.ri === -1 ? 'col-resize' : 'row-resize'}`);
+            const isColResizing = cell.ri === -1;
+            const { lineoffset } = cell;
+            const boxsize = isColResizing ? cell.width : cell.height;
+            const evtOffset = isColResizing ? evt.canvasX : evt.canvasY;
+            const buffer = ~~(boxsize / 6);
+            if (isBetween(evtOffset, lineoffset - buffer, lineoffset + buffer)) {
+                this.engine.changeCursor(`${isColResizing ? 'col-resize' : 'row-resize'}`);
+            }
             return;
         }
         if (this.selectStartRect) {
@@ -175,10 +183,6 @@ export class EventController {
             x: evt.canvasX,
             y: evt.canvasY
         });
-        if (cell.ri === -1 || cell.ci === -1) {
-            this.engine.changeCursor(`${cell.ri === -1 ? 'col-resize' : 'row-resize'}`);
-            return;
-        };
         this.selectStartRect = cell;
         engine.emit('canvas:cellclick', cell);
     }

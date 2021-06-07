@@ -187,8 +187,16 @@ export class DataModel implements IDataModel {
                 Object.assign(targetCell, col[j - 1]);
             }
         }
-        targetCell.left += BUFFERPADDING * 2; //this._computedgridmap.fixedpadding.left;
-        targetCell.top += BUFFERPADDING;//this._computedgridmap.fixedpadding.top;
+        if (targetCell.ci === -1 && targetCell.ri >= 0) {
+            targetCell.width = this._computedgridmap.fixedpadding.left;
+            targetCell.lineoffset = targetCell.top + this._computedgridmap.fixedpadding.top + targetCell.height;
+        } else if (targetCell.ri === -1 && targetCell.ci >= 0) {
+            targetCell.height = this._computedgridmap.fixedpadding.top;
+            targetCell.lineoffset = targetCell.left + this._computedgridmap.fixedpadding.left + targetCell.width;
+        }
+        targetCell.left += BUFFERPADDING * 2;
+        targetCell.top += BUFFERPADDING;
+
         return targetCell;
     }
     getCell(point: RectIndexes): Cell {
