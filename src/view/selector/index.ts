@@ -78,6 +78,9 @@ export class Selector extends Shape {
         `;
     }
     handleSelect(rect: Range) {
+        modifyCSS(this.$selector, {
+            transform: `translate3d(0, 0, 0)`
+        });
         // TODO: 高亮对应的索引栏
         const { sri, sci, eri, eci } = rect;
         if (sri === -1 && sci === -1) {
