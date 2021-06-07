@@ -80,6 +80,8 @@ export class EventController {
             extendEvents.push(addEventListener(window as any, 'keyup', this.onExtendEvents.bind(this)));
             extendEvents.push(addEventListener(window as any, 'focus', this.onExtendEvents.bind(this)));
         }
+
+        extendEvents.push(addEventListener(window as any, 'onbeforeunload', this.unload.bind(this)));
     }
     /**
      * 处理 canvas 事件
@@ -190,6 +192,11 @@ export class EventController {
         this.engine.emit(evt.type, evt);
     }
 
+    unload() {
+        this.engine.emit('destroy');
+        this.engine.dataModel.export();
+        this.destroy();
+    }
     public destroy() {
         const { extendEvents } = this;
         each(extendEvents, (event) => {

@@ -65,8 +65,8 @@ type RowOrCol = {
 }
 
 export type GridMdata = {
-    row: RowOrCol;
-    col: RowOrCol;
+    row?: RowOrCol;
+    col?: RowOrCol;
     // 特殊行总数、行高
     // {1: {1: {size:xx}}} 二维对象
     rowm?: Record<number, Record<number, RowOrCol>>;

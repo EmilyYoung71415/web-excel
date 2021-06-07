@@ -53,7 +53,10 @@ function setCellmm(ri: number, ci: number, properties: Cell) {
     } catch {
         this._proxyViewdata.cellmm[ri] = cellmm;
     }
-    this._proxyViewdata.cellmm[ri][ci] = _merge(cellmm, properties);
+    const curval = _merge(cellmm, properties);
+    this._proxyViewdata.cellmm[ri][ci] = curval;
+    this._mdata.cellmm[ri] = this._mdata.cellmm[ri] || cellmm;
+    this._mdata.cellmm[ri][ci] = curval;
 }
 
 export const Command: Command = {
@@ -107,5 +110,8 @@ export const Command: Command = {
                 item[isCol ? 'left' : 'top'] += diff;
             }
         });
+        // 维护mdata
+        this._mdata[isCol ? 'colm' : 'rowm'][targetIdx] = this._mdata[isCol ? 'colm' : 'rowm'][targetIdx] || {};
+        this._mdata[isCol ? 'colm' : 'rowm'][targetIdx].size = targetArr[targetIdx][isCol ? 'width' : 'height'];
     }
 }

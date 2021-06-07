@@ -50,11 +50,14 @@ interface IDataModel {
 const defaultGridData = {
     row: { len: 100, size: 25, },
     col: { len: 25, size: 25, },
+    colm: {},
+    rowm: {},
+    cellmm: {},
 }
 
 export class DataModel implements IDataModel {
     // modeldata：视图数据、互动数据 计算出viewdata
-    private _mdata: Mdata;
+    _mdata: Mdata;
     private _boxrealsize: number[];
     // sourcedata：griddata => viewtdata: gridmap
     private _grid: GridMdata;
@@ -79,25 +82,38 @@ export class DataModel implements IDataModel {
             scrollOffset: { x: 0, y: 0, },
         }
     }
-    constructor(viewmodel: ViewModel, viewopt: ViewTableSize) {
+    constructor(viewmodel: ViewModel, data: Mdata) {
         this._selectIdxes = { sri: 1, sci: 1, eri: 1, eci: 1 };
         // ViewModel
         this._viewModel = viewmodel;
         Promise.resolve().then(() => {
-            this._init(viewopt);
+            this._init(data);
         });
     }
-    _init(viewopt: ViewTableSize) {
+    _init(data: Mdata) {
         const defaultdata = this._getDefaultSource();
-        this._mdata = Object.assign(defaultdata, viewopt, this._grid);
+        const _mdata = Object.assign(defaultdata, this._grid, data);
+        const _mdatacellmm = _merge(_mdata.cellmm, this._initcellmm);
+        _mdata.cellmm = _mdatacellmm;
+        const localmdata = this.import();
+        this._mdata = _merge(_mdata, localmdata);
         this.computedGridMap(this._scrollIdexes);
         // 将计算出的vdata放入viewmodel：1.proxy对数据进行访问拦截 2. 绑定data-view之间的关系
         // 之后的交互action-view响应：修改this._viewdata即可
+
+        // vdata = ViewTableSize + cellmm + scrollIdexes + gridmap
+        // gridmap = f(mdata);
+
+        // import(mdata) : ui = render(vdata = computed(mdata))
+        // export:(vdata) => mdata; vTom(vdata);
+        // vTom函数：way1 diff f(originmdata) vs vdata反向得到操作
+        //          way2 在操作时 维护变化量
+        // 先暂时采用way2
         this._proxyViewdata = this._viewModel.init({
-            ...viewopt,
             gridmap: this._computedgridmap,
             cellmm: this._initcellmm,
             scrollIdexes: this._scrollIdexes,
+            ...this._mdata,
         });
         setTimeout(() => {
             this.command({
@@ -107,6 +123,12 @@ export class DataModel implements IDataModel {
                 isCol: true
             });
         }, 1500);
+    }
+    import(): Mdata {
+        return JSON.parse(localStorage.getItem('excel-2021') || '{}') as unknown as Mdata;
+    }
+    export() {
+        localStorage.setItem('excel-2021', JSON.stringify(this._mdata));
     }
     resetGrid(grid: GridMdata): GridMdata {
         this._grid = _merge(defaultGridData, grid);
