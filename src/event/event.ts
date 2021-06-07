@@ -50,6 +50,7 @@ export class EventController {
     protected engine: Engine;
     protected selectStartRect: Rect | null;
     protected multiSelect = false;
+    protected isResizing = false;
     protected el = null;
     constructor(engine: Engine) {
         this.engine = engine;
@@ -131,7 +132,7 @@ export class EventController {
         if (this.checkResizerCell(evt)) {
             return;
         }
-        if (this.selectStartRect) {
+        if (this.selectStartRect && !this.isResizing) {
             if (evt.buttons === 1 && !evt.shiftKey) {
                 const endCell = engine.getIdxByPoint({
                     x: evt.canvasX,
@@ -194,6 +195,7 @@ export class EventController {
         this.mouseMoveUp(moveFunc, moveUp);
 
         function moveFunc(e) {
+            this.isResizing = true;
             if (startEvt !== null && e.buttons === 1) {
                 if (isColResizing) {
                     distance += e.movementX;
@@ -207,6 +209,7 @@ export class EventController {
 
         function moveUp() {
             startEvt = null;
+            this.isResizing = false;
             const cellsize = isColResizing ? cell.width : cell.height;
             const minDistance = isColResizing ? colminsize : rowminsize;
             if (distance < minDistance) {
