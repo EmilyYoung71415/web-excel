@@ -50,6 +50,7 @@ export class EventController {
     protected engine: Engine;
     protected selectStartRect: Rect | null;
     protected multiSelect = false;
+    protected el = null;
     constructor(engine: Engine) {
         this.engine = engine;
         this.initEvents();
@@ -59,6 +60,7 @@ export class EventController {
         const { engine, extendEvents = [] } = this;
         const dom = engine.domRender;
         const el = dom.get('el');
+        this.el = el;
 
 
         // 滚动
@@ -125,21 +127,8 @@ export class EventController {
     }
     onMouseMove(evt: IExcelEvent) {
         const { engine } = this;
-        const cell = engine.getIdxByPoint({
-            x: evt.canvasX,
-            y: evt.canvasY
-        });
         this.engine.changeCursor('auto');
-        if (cell.ci === -1 && cell.ri === -1) return;
-        if (cell.ci === -1 || cell.ri === -1) {
-            const isColResizing = cell.ri === -1;
-            const { lineoffset } = cell;
-            const boxsize = isColResizing ? cell.width : cell.height;
-            const evtOffset = isColResizing ? evt.canvasX : evt.canvasY;
-            const buffer = ~~(boxsize / 6);
-            if (isBetween(evtOffset, lineoffset - buffer, lineoffset + buffer)) {
-                this.engine.changeCursor(`${isColResizing ? 'col-resize' : 'row-resize'}`);
-            }
+        if (this.checkResizerCell(evt)) {
             return;
         }
         if (this.selectStartRect) {
@@ -175,9 +164,67 @@ export class EventController {
             }
         }
     }
+    checkResizerCell(evt: IExcelEvent): Rect | null {
+        const { fixedColWidth, fixedRowHeight } = this.engine.getStatus();
+        if (evt.canvasX > fixedColWidth && evt.canvasY > fixedRowHeight) return null;
+        // if (evt.buttons !== 0) return false;
+        const cell = this.engine.getIdxByPoint({
+            x: evt.canvasX,
+            y: evt.canvasY
+        });
+        if (cell.ci === -1 && cell.ri === -1) return null;
+        if (cell.ci === -1 || cell.ri === -1) {
+            const isColResizing = cell.ri === -1;
+            const { lineoffset } = cell;
+            const boxsize = isColResizing ? cell.width : cell.height;
+            const evtOffset = isColResizing ? evt.canvasX : evt.canvasY;
+            const buffer = ~~(boxsize / 6);
+            if (isBetween(evtOffset, lineoffset - buffer, lineoffset + buffer)) {
+                this.engine.changeCursor(`${isColResizing ? 'col-resize' : 'row-resize'}`);
+                return cell;
+            }
+        }
+        return null;
+    }
+    handleResize(evt: IExcelEvent, cell: Rect) {
+        let startEvt = evt;
+        const isColResizing = cell.ri === -1;
+        let distance = isColResizing ? cell.width : cell.height;
+        this.mouseMoveUp(moveFunc, moveUp);
+
+        function moveFunc(e) {
+            if (startEvt !== null && e.buttons === 1) {
+                if (isColResizing) {
+                    distance += e.movementX;
+                }
+                else {
+                    distance += e.movementY;
+
+                }
+                startEvt = e;
+            }
+        }
+
+        function moveUp() {
+            startEvt = null;
+            const cellsize = isColResizing ? cell.width : cell.height;
+            console.log(this.engine.dataModel);
+            this.engine.dataModel.command({
+                type: 'resizeGrid',
+                isCol: isColResizing,
+                idx: isColResizing ? cell.ci : cell.ri,
+                diff: distance - cellsize
+            });
+        }
+    }
     // 找到当前canvas点击的哪个cell
     onCanvasClick(evt: IExcelEvent) {
         const { engine } = this;
+        const resizerCell = this.checkResizerCell(evt);
+        if (resizerCell) {
+            this.handleResize(evt, resizerCell);
+            return;
+        }
         this.selectStartRect = null;
         const cell = engine.getIdxByPoint({
             x: evt.canvasX,
@@ -185,6 +232,15 @@ export class EventController {
         });
         this.selectStartRect = cell;
         engine.emit('canvas:cellclick', cell);
+    }
+    mouseMoveUp(moveFunc, moveUpFunc) {
+        const func1 = addEventListener(this.el, 'mousemove', moveFunc.bind(this));
+        const func2 = addEventListener(this.el, 'mouseup', movefinished.bind(this));
+        function movefinished(evt) {
+            func1.remove();
+            func2.remove();
+            moveUpFunc.call(this, evt);
+        }
     }
     // canvas 双击 进入编辑
     onCanvasDblClick(evt: IExcelEvent) {

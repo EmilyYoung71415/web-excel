@@ -240,6 +240,8 @@ export type Boxsize = {
 }
 
 export type TableStatus = {
+    fixedColWidth: number;
+    fixedRowHeight: number;
     scroll: {
         offsetX: number;
         offsetY: number;

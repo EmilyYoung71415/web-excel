@@ -243,6 +243,8 @@ export class DataModel implements IDataModel {
     }
     getStatus(): TableStatus {
         return {
+            fixedColWidth: this._computedgridmap.fixedpadding.left,
+            fixedRowHeight: this._computedgridmap.fixedpadding.top,
             scroll: {
                 offsetX: this._scrollOffset.x,
                 offsetY: this._scrollOffset.y,
