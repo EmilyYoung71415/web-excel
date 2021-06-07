@@ -187,6 +187,7 @@ export class EventController {
         return null;
     }
     handleResize(evt: IExcelEvent, cell: Rect) {
+        const { rowminsize, colminsize } = this.engine.getStatus();
         let startEvt = evt;
         const isColResizing = cell.ri === -1;
         let distance = isColResizing ? cell.width : cell.height;
@@ -199,7 +200,6 @@ export class EventController {
                 }
                 else {
                     distance += e.movementY;
-
                 }
                 startEvt = e;
             }
@@ -208,7 +208,10 @@ export class EventController {
         function moveUp() {
             startEvt = null;
             const cellsize = isColResizing ? cell.width : cell.height;
-            console.log(this.engine.dataModel);
+            const minDistance = isColResizing ? colminsize : rowminsize;
+            if (distance < minDistance) {
+                distance = minDistance;
+            }
             this.engine.dataModel.command({
                 type: 'resizeGrid',
                 isCol: isColResizing,
