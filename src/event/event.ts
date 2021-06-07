@@ -125,6 +125,15 @@ export class EventController {
     }
     onMouseMove(evt: IExcelEvent) {
         const { engine } = this;
+        const cell = engine.getIdxByPoint({
+            x: evt.canvasX,
+            y: evt.canvasY
+        });
+        this.engine.changeCursor('auto');
+        if (cell.ci === -1 || cell.ri === -1) {
+            this.engine.changeCursor(`${cell.ri === -1 ? 'col-resize' : 'row-resize'}`);
+            return;
+        }
         if (this.selectStartRect) {
             if (evt.buttons === 1 && !evt.shiftKey) {
                 const endCell = engine.getIdxByPoint({
@@ -166,6 +175,10 @@ export class EventController {
             x: evt.canvasX,
             y: evt.canvasY
         });
+        if (cell.ri === -1 || cell.ci === -1) {
+            this.engine.changeCursor(`${cell.ri === -1 ? 'col-resize' : 'row-resize'}`);
+            return;
+        };
         this.selectStartRect = cell;
         engine.emit('canvas:cellclick', cell);
     }

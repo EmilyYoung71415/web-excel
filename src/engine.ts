@@ -89,6 +89,9 @@ export class Engine extends Base implements IEngine {
     getStatus(): TableStatus {
         return this.dataModel.getStatus();
     }
+    changeCursor(type: Cursor) {
+        this.domRender.changeCursor(type);
+    }
 }
 
 /**

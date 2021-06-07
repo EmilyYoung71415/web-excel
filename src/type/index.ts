@@ -174,6 +174,10 @@ export type CellText = {
 export type Cursor =
     | 'auto'
     | 'default'
+    | 'default'
+    | 'col-resize'
+    | 'row-resize'
+    | 'crosshair'
     | 'none'
     | 'context-menu'
     | 'help'
@@ -192,7 +196,6 @@ export type CanvasCfg = {
     container?: HTMLElement;// 容器 controller传下来的父容器dom
     width: number;         // 画布宽度
     height: number;        // 画布高度
-    cursor?: Cursor;       // 画布的cursor样式
     // pixelRatio: number;    // dpr 用于高清屏适配
 };
 

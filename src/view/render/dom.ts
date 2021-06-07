@@ -1,5 +1,5 @@
 // 以为dom为class，创建dom、修改dom
-import { EngineOption, Point } from '../../type';
+import { EngineOption, Point, Cursor } from '../../type';
 import { Base } from '../../abstract/base';
 import { modifyCSS, createDom } from '../../utils';
 import { Engine } from '../../engine';
@@ -21,6 +21,7 @@ export class DomRender extends Base {
         this.shapeList = [];
         // 先把container 设置为viewopt大小
         const el = engineOpt.container;
+        this.set('el', el);
         const vw = this.get('viewOption.viewWidth') + 'px';
         const vh = this.get('viewOption.viewHeight') + 'px';
         modifyCSS(el, { width: vw, height: vh, overflow: 'hidden' });
@@ -77,5 +78,9 @@ export class DomRender extends Base {
             x: clientX - bbox.left,
             y: clientY - bbox.top,
         };
+    }
+    changeCursor(type: Cursor) {
+        type = type || 'auto';
+        modifyCSS(this.get('el'), { cursor: type });
     }
 }

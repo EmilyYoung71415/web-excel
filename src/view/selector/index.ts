@@ -44,6 +44,7 @@ export class Selector extends Shape {
             .on('canvas:select', (rect: Range) => {
                 this.isEditing = false;
                 this.editor.hide();
+                this.engine.changeCursor('crosshair');
                 this.handleSelect(rect);
             })
             .on('canvas:dblclick', (rect: Rect) => {
@@ -77,6 +78,7 @@ export class Selector extends Shape {
         `;
     }
     handleSelect(rect: Range) {
+        // TODO: 高亮对应的索引栏
         const { sri, sci, eri, eci } = rect;
         if (sri === -1 && sci === -1) {
             modifyCSS(this.$selector, { display: 'none' });
