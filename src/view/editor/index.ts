@@ -3,7 +3,7 @@
  * - 附着于selector框上，纯UI组件，行为由selector控制
  */
 import { modifyCSS } from '../../utils';
-
+import { RectOffset } from '../../type';
 export class Editor {
     protected text: string;
     protected $editor: HTMLElement;
@@ -21,6 +21,9 @@ export class Editor {
         this.initVal(rect.text);
         modifyCSS($editor, { visibility: 'visible' });
         modifyCSS($editor, rect);
+    }
+    changeOffset(rect: RectOffset) {
+        modifyCSS(this.$editor, rect);
     }
     hide() {
         const $editor = document.querySelector('.xexcel-editor') as HTMLElement;

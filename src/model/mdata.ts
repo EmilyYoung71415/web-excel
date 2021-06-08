@@ -2,13 +2,12 @@ import {
     Mdata,
     SourceData,
     GridIdxToOffsetMap,
-    ViewTableSize,
-    RectOffset,
     Rect,
     Point,
     GridMdata,
     RangeIndexes,
     RangeOffset,
+    Range,
     ViewDataRange,
     ViewDataSource,
     ScrollIndexes,
@@ -198,6 +197,17 @@ export class DataModel implements IDataModel {
         targetCell.top += BUFFERPADDING;
 
         return targetCell;
+    }
+    getRangeOffsetByIdxes(idxes: RangeIndexes): RangeOffset {
+        return draw.getRangeOffsetByIdxes(this._proxyViewdata.gridmap, idxes);
+    }
+    getRange(): Range {
+        if (!this._selectIdxes) return null;
+        const offset = this.getRangeOffsetByIdxes(this._selectIdxes);
+        return {
+            ...this._selectIdxes,
+            ...offset
+        };
     }
     getCell(point: RectIndexes): Cell {
         if (!this._proxyViewdata.cellmm[point.ri]) return null;

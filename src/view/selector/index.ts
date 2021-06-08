@@ -44,7 +44,7 @@ export class Selector extends Shape {
             .on('canvas:select', (rect: Range) => {
                 this.isEditing = false;
                 this.editor.hide();
-                this.engine.changeCursor('crosshair');
+                // this.engine.changeCursor('crosshair');
                 this.handleSelect(rect);
             })
             .on('canvas:dblclick', (rect: Rect) => {
@@ -64,6 +64,11 @@ export class Selector extends Shape {
                     transform: `translate3d(-${scroll.x}px, -${scroll.y}px, 0)`
                 });
                 this.editor.move(scroll.x, scroll.y);
+            })
+            .on('canvas:resize', resize => {
+                if (!this._cellOffset) return;
+                const range = this.engine.getRange();
+                this.changeSelectOffset(range);
             });
         this.editor.initEvent();
     }
@@ -96,7 +101,12 @@ export class Selector extends Shape {
             rect.height = this.engine.getSumHeight();
         }
         this.changeSelectOffset(rect);
-        this.engine.dataModel.setSelect(rect);
+        this.engine.dataModel.setSelect({
+            sri: rect.sri,
+            sci: rect.sci,
+            eri: rect.eri,
+            eci: rect.eci,
+        });
     }
     changeSelectOffset(rectOffset: RectOffset) {
         const borderpadding = 2;
@@ -109,6 +119,9 @@ export class Selector extends Shape {
         };
         this._cellOffset = curOffset;
         modifyCSS(this.$selector, curOffset);
+        if (this.isEditing) {
+            this.editor.changeOffset(curOffset);
+        }
     }
     handleEdit(cur, prev) {
         this._editorText = cur;

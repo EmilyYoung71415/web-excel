@@ -1,4 +1,4 @@
-import { EngineOption, SourceData, GridMdata, Cell, Point, Rect, RectIndexes, Boxsize, TableStatus } from './type';
+import { EngineOption, SourceData, GridMdata, Cell, Point, Rect, RectIndexes, Boxsize, TableStatus, Range } from './type';
 import { defaultEngineOption } from './config/engineoption';
 import { CanvasRender, DomRender } from './view';
 import { Base } from './abstract/base';
@@ -66,6 +66,9 @@ export class Engine extends Base implements IEngine {
     // 根据画布坐标，获取当前cell：cell逻辑索引、cell物理坐标
     getIdxByPoint(point: Point): Rect {
         return this.dataModel.getIdxByPoint(point);
+    }
+    getRange(): Range {
+        return this.dataModel.getRange();
     }
     getCell(point: RectIndexes): Cell {
         return this.dataModel.getCell(point);

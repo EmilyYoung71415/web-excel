@@ -113,5 +113,8 @@ export const Command: Command = {
         // 维护mdata
         this._mdata[isCol ? 'colm' : 'rowm'][targetIdx] = this._mdata[isCol ? 'colm' : 'rowm'][targetIdx] || {};
         this._mdata[isCol ? 'colm' : 'rowm'][targetIdx].size = targetArr[targetIdx][isCol ? 'width' : 'height'];
+        this.emit('canvas:resize', {
+            key: `${isCol ? 'colm' : 'rowm'}[${targetIdx}]`
+        });
     }
 }

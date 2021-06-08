@@ -38,6 +38,7 @@ export enum ExcelEvent {
     CANVAS_MOUSEOUT = 'canvas:mouseout',
     CANVAS_MOUSEOVER = 'canvas:mouseover',
     CANVAS_SCROLL = 'canvas:scroll',
+    CANVAS_RESIZE = 'canvas:resize',
 
     // 业务层
     CANVAS_CELLCLICK = 'canvas:cellclick',
