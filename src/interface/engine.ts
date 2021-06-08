@@ -8,7 +8,10 @@ import {
     Boxsize,
     TableStatus,
     Cursor,
+<<<<<<< HEAD
     Range
+=======
+>>>>>>> aa34184 (style: 代码整洁)
 } from '../type';
 
 export interface IEngine {
