@@ -1,4 +1,9 @@
-
+/**
+ * @file canvas 表格主体渲染器
+ * - 表格的大部分绘制由rangeman管理：基础网格、文字、样式等
+ * - 绘制提供三种方式：render全局绘制、基于某单元格的局部绘制、外部接管canvas绘制（如辅助线）
+ * - 外部接管canvas进行绘制，需要借助 saveDrawingSurface、restoreDrawingSurface
+ */
 import { CanvasChangeType, ViewTableSize, RectOffset, ViewDataSource } from '../../type';
 import { defaultCanvasOption } from '../../config/engineoption';
 import { RangeRenderController } from '../rangeman';

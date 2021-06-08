@@ -40,7 +40,7 @@ export type Operation =
     | AddRowOperation;
 
 
-interface Command {
+interface ICommand {
     setRange: (op: SetRangeOperation) => void;
     scrollView: (op: ScrollOperation) => void;
     resizeGrid: (op: ResizeOperation) => void;
@@ -59,7 +59,7 @@ function setCellmm(ri: number, ci: number, properties: Cell) {
     this._mdata.cellmm[ri][ci] = curval;
 }
 
-export const Command: Command = {
+export const Command: ICommand = {
     setRange(op: SetRangeOperation): void {
         // 对datamodel.range进行修改
         const { rangeidxes, properties } = op;

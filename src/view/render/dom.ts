@@ -1,4 +1,8 @@
-// 以为dom为class，创建dom、修改dom
+/**
+ * @file 除了canvas元素以外的dom管理器
+ * - 入口文件的index.ts注入dom，RegisterView(ToolBar, 'toolbar');
+ * - 对注入的dom进行实例化控制，以及具体插入到哪个dom里的控制 
+ */
 import { EngineOption, Point, Cursor } from '../../type';
 import { Base } from '../../abstract/base';
 import { modifyCSS, createDom } from '../../utils';

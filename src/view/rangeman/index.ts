@@ -1,5 +1,7 @@
 /**
  * @file 表格的渲染能力：可跨cell 与command维护的rangemm一一对应
+ * rangeman是一个分层概念，将具体的绘制动作拆解，而不是都写在rendercontent里
+ * RangeRenderController是对单独的range，进行管理的功能，注入细节range需要的变量，以及控制range的绘制方式（全局or局部）
  * - 网格： grid-range = gridrange + fixedheader-range
  * - 单元格样式内容 cell-range = stylerange + textrange
  * - 选区 selector-range

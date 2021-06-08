@@ -1,3 +1,10 @@
+/**
+ * @file  modelData 模型数据
+ * mdata = computed(cfg) & computed(interactiondata)
+ * 将众多的数据过滤、计算、重组，得到最精简的、最适合render的数据vdata供 render 渲染
+ * 业务层要更改viewmodel引起渲染，通过 datamodel.command()
+ * 业务层 通过接口访问mdata的数据
+ */
 import {
     Mdata,
     SourceData,
@@ -32,18 +39,30 @@ interface IDataModel {
     resetGrid: (grid: GridMdata) => GridMdata;
     // 当source被设置了关键数据更改的时候 会触发调用
     computedGridMap: (scroll: ScrollIndexes) => void;
-    // 载入表格数据
+    // 载入表格单元格数据
     source: (sdata: SourceData) => void;
-    // 根据单元格的逻辑索引得到
-    // getOffsetByIdx: (ri: number, ci: number) => RectOffset;
-    // // 根据单元格的逻辑索引得到
-    // getRangeOffsetByIdxes: (rect: RangeIndexes) => RangeOffset;
+    // 响应interation对viewmodel的修改
     command: (op: Operation) => void;
+    // 根据鼠标坐标得到鼠标指向的单元格
+    getIdxByPoint: (point: Point) => Rect;
+    // 指定单元格： 逻辑索引 -> 单元格物理坐标
+    getRangeOffsetByIdxes: (idxes: RangeIndexes) => RangeOffset;
+    // 指定单元格： 逻辑索引 -> 单元格信息属性
     getCell: (point: RectIndexes) => Cell;
+    // 指定行的行高
     getRowHeight: (index: number) => number;
     getColWidth: (index: number) => number;
+    // 本该渲染的内容高度，用于scrollbar进度条显示
+    getRealContentSize: (initgrid?: GridMdata) => number[];
     getStatus: () => TableStatus;
+    // 设置当前选中单元格 全局单例
+    setSelect: (range: RangeIndexes) => RangeIndexes;
+    // 向engine派发事件
     emit: (evt: string, ...args: any[]) => void;
+    // 导入数据（暂时从本地的localstorage获取
+    import: () => Mdata;
+    // 导出数据
+    export: () => string;
 }
 
 const defaultGridData = {
@@ -83,13 +102,12 @@ export class DataModel implements IDataModel {
     }
     constructor(viewmodel: ViewModel, data: Mdata) {
         this._selectIdxes = { sri: 1, sci: 1, eri: 1, eci: 1 };
-        // ViewModel
         this._viewModel = viewmodel;
         Promise.resolve().then(() => {
             this._init(data);
         });
     }
-    _init(data: Mdata) {
+    private _init(data: Mdata) {
         const defaultdata = this._getDefaultSource();
         const _mdata = Object.assign(defaultdata, this._grid, data);
         const _mdatacellmm = _merge(_mdata.cellmm, this._initcellmm);
@@ -114,20 +132,6 @@ export class DataModel implements IDataModel {
             scrollIdexes: this._scrollIdexes,
             ...this._mdata,
         });
-        setTimeout(() => {
-            this.command({
-                type: 'resizeGrid',
-                idx: 1,
-                diff: 20,
-                isCol: true
-            });
-        }, 1500);
-    }
-    import(): Mdata {
-        return JSON.parse(localStorage.getItem('excel-2021') || '{}') as unknown as Mdata;
-    }
-    export() {
-        localStorage.setItem('excel-2021', JSON.stringify(this._mdata));
     }
     resetGrid(grid: GridMdata): GridMdata {
         this._grid = _merge(defaultGridData, grid);
@@ -158,12 +162,8 @@ export class DataModel implements IDataModel {
         // this._proxyViewdata.xxx = xxx;
         return Command[op.type].call(this, op);
     }
-    // TODO: selector、editor的 evt => rect是根据这个函数来的
-    // 现在的问题是：resizer会更改gridmap，怎么能实现gridmap更改之后，下面依赖gridmap计算出的东西都重新计算、重绘一遍
     getIdxByPoint(point: Point): Rect {
-        // row[i].top <= point.x < row[i+1].top
         const { row, col } = this._proxyViewdata.gridmap;
-
         const targetCell: Rect = {
             ri: -1,
             ci: -1,
@@ -173,7 +173,7 @@ export class DataModel implements IDataModel {
             height: 0,
         }
         // TODO: perf: 二分查找
-        // FIX:  这样的算法算出来，当点位在中间位置时， ij与坐标系标注一致
+        // FIXME:  这样的算法算出来，当点位在中间位置时， ij与坐标系标注一致
         // 当无论是在包围盒的哪个边缘，都应该按在中间位置算的
         for (let i = 0; i < row.length; i++) {
             if (row[i].top < point.y && point.y <= row[i + 1].top) {
@@ -220,7 +220,11 @@ export class DataModel implements IDataModel {
     getSumWidth(): number {
         return this._computedgridmap.colsumwidth;
     }
-    // [rowsumheight, colsumwidth]
+    /**
+     * 本该渲染的内容高度，用于scrollbar进度条显示
+     * @param initgrid 
+     * @returns [rowsumheight, colsumwidth]
+     */
     getRealContentSize(initgrid?: GridMdata): number[] {
         if (this._boxrealsize) return this._boxrealsize;
         const grid = initgrid ? initgrid : this._grid;
@@ -267,7 +271,15 @@ export class DataModel implements IDataModel {
             }
         }
     }
-    _buildLinesForRows(isRow: boolean, scrollIdx: number): [number, any[]] {
+    import(): Mdata {
+        return JSON.parse(localStorage.getItem('excel-2021') || '{}') as unknown as Mdata;
+    }
+    export(): string {
+        const compressedData = JSON.stringify(this._mdata);
+        localStorage.setItem('excel-2021', compressedData);
+        return compressedData;
+    }
+    private _buildLinesForRows(isRow: boolean, scrollIdx: number): [number, any[]] {
         const mdata = this._mdata;
         const rowLen = mdata[`${isRow ? 'row' : 'col'}`].len;
         const rowHeight = mdata[`${isRow ? 'row' : 'col'}`].size;

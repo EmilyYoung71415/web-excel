@@ -1,4 +1,14 @@
-import { GridMdata, SourceData, Cell, Point, Rect, RectIndexes, Boxsize } from '../type';
+import {
+    GridMdata,
+    SourceData,
+    Cell,
+    Point,
+    Rect,
+    RectIndexes,
+    Boxsize,
+    TableStatus,
+    Cursor,
+} from '../type';
 
 export interface IEngine {
     // getDefaultCfg: () => Partial<GraphOptions>;
@@ -26,13 +36,12 @@ export interface IEngine {
     getIdxByPoint(point: Point): Rect;
     getCell(cellidx: RectIndexes): Cell;
     getBoxSize(): Boxsize;
-    /**
-     * 监听函数，继承自eventemitter
-     */
-    // on: <T = IExcelEvent>(eventName: string, callback: (e: T) => void, once?: boolean) => this;
-    /**
-     * 销毁
-     */
+    getRange(): Range;
+    getCell: (point: RectIndexes) => Cell;
+    getSumHeight: () => number;
+    getSumWidth: () => number;
+    getStatus: () => TableStatus;
+    changeCursor: (type: Cursor) => void;
     // destroy: () => void;
     // onChange: (eventName: string, callback: (state: T, next: T) => void);
 }

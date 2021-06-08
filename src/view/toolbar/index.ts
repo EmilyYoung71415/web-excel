@@ -1,6 +1,9 @@
 /**
  * @file 工具栏
- * - xExcel.toolbar(['redo', 'undo', 'bold', 'font']) 配置显现
+ * - 基于当前selector选中框，改变单元格xxx属性
+ * - 反向高亮：对于选中的单元格，反向高亮命中的属性 如当前cell文字已加粗则B要高亮
+ * - xExcel.toolbar(['redo', 'undo', 'bold', 'font']) 可配置显现 todo
+ * - 插入图表等能力 todo
  */
 import { each, isNil } from '../../utils';
 import { Shape } from '../../abstract/shape-base';

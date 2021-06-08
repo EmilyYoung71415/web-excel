@@ -1,5 +1,8 @@
 /**
  * @file 选区
+ * - 响应用户从event传上来的：单元格单选cellclick、单元格框选select，实现selector的位置布局
+ * - 响应gridmap上的变化：scroll、resize，动态调整位置布局
+ * - editor编辑框的控制能力，editor与selector共享位置区域
  */
 import { modifyCSS } from '../../utils';
 import { Shape } from '../../abstract/shape-base';
