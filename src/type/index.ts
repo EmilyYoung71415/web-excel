@@ -240,6 +240,10 @@ export type Boxsize = {
 }
 
 export type TableStatus = {
+    sumheight: number;
+    sumwidth: number;
+    rowminsize: number;
+    colminsize: number;
     fixedColWidth: number;
     fixedRowHeight: number;
     scroll: {

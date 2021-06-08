@@ -12,6 +12,7 @@ export class CanvasRender extends AbstraCanvas implements ICanvas {
     // canvasCoord: Point; // canvas自身坐标系 取值为整数
     clientRect: RectOffset; // FIXME:  为啥 grid-range拿不到这里的公共的数据？
     private _rangeRenderController: RangeRenderController; // canvas的绘制任务由range控制
+    private _curImageData: string | null;
     changeType: CanvasChangeType;
     $store: ViewDataSource;
     getDefaultCfg() {
@@ -44,6 +45,16 @@ export class CanvasRender extends AbstraCanvas implements ICanvas {
         //     this._set('refreshElements', [this]);
         //     this.draw();
         // }
+    }
+    saveDrawingSurface() {
+        const context = this.get('context');
+        const pixelRatio = this._getPixelRatio();
+        this._curImageData = context.getImageData(0, 0, this.get('width') * pixelRatio, this.get('height') * pixelRatio);
+    }
+    restoreDrawingSurface() {
+        if (!this._curImageData) return;
+        const context = this.get('context');
+        context.putImageData(this._curImageData, 0, 0);
     }
     _setDOMSize() {
         super._setDOMSize();

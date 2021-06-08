@@ -188,20 +188,27 @@ export class EventController {
         return null;
     }
     handleResize(evt: IExcelEvent, cell: Rect) {
-        const { rowminsize, colminsize } = this.engine.getStatus();
-        let startEvt = evt;
+        const canvasrender = this.engine.canvasRender;
+        canvasrender.saveDrawingSurface();
+        const { rowminsize, colminsize, sumheight, sumwidth } = this.engine.getStatus();
         const isColResizing = cell.ri === -1;
+        const minDistance = isColResizing ? colminsize : rowminsize;
+        let startEvt = evt;
         let distance = isColResizing ? cell.width : cell.height;
         this.mouseMoveUp(moveFunc, moveUp);
 
         function moveFunc(e) {
             this.isResizing = true;
+            canvasrender.restoreDrawingSurface();
             if (startEvt !== null && e.buttons === 1) {
                 if (isColResizing) {
                     distance += e.movementX;
                 }
                 else {
                     distance += e.movementY;
+                }
+                if (distance > minDistance) {
+                    drawGuidelines(distance + cell[isColResizing ? 'left' : 'top']);
                 }
                 startEvt = e;
             }
@@ -210,8 +217,8 @@ export class EventController {
         function moveUp() {
             startEvt = null;
             this.isResizing = false;
+            canvasrender.restoreDrawingSurface();
             const cellsize = isColResizing ? cell.width : cell.height;
-            const minDistance = isColResizing ? colminsize : rowminsize;
             if (distance < minDistance) {
                 distance = minDistance;
             }
@@ -221,6 +228,23 @@ export class EventController {
                 idx: isColResizing ? cell.ci : cell.ri,
                 diff: distance - cellsize
             });
+        }
+
+        function drawGuidelines(offset: number) {
+            const context = canvasrender.get('context');
+            context.strokeStyle = '#4b89ff';
+            context.setLineDash([10, 10]);
+            context.lineWidth = 3;
+            context.beginPath();
+            if (isColResizing) {
+                context.moveTo(offset, 0);
+                context.lineTo(offset, sumheight);
+            }
+            else {
+                context.moveTo(0, offset);
+                context.lineTo(sumwidth, offset);
+            }
+            context.stroke();
         }
     }
     // 找到当前canvas点击的哪个cell

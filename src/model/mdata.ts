@@ -48,8 +48,8 @@ interface IDataModel {
 }
 
 const defaultGridData = {
-    row: { len: 100, size: 25, },
-    col: { len: 25, size: 25, },
+    row: { len: 100, size: 25, minsize: 25, },
+    col: { len: 25, size: 25, minsize: 30, },
     colm: {},
     rowm: {},
     cellmm: {},
@@ -243,6 +243,10 @@ export class DataModel implements IDataModel {
     }
     getStatus(): TableStatus {
         return {
+            sumheight: this.getSumHeight(),
+            sumwidth: this.getSumWidth(),
+            rowminsize: this._mdata.row?.minsize,
+            colminsize: this._mdata.col?.minsize,
             fixedColWidth: this._computedgridmap.fixedpadding.left,
             fixedRowHeight: this._computedgridmap.fixedpadding.top,
             scroll: {
