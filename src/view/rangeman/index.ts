@@ -1,5 +1,7 @@
 /**
  * @file 表格的渲染能力：可跨cell 与command维护的rangemm一一对应
+ * rangeman是一个分层概念，将具体的绘制动作拆解，而不是都写在rendercontent里
+ * RangeRenderController是对单独的range，进行管理的功能，注入细节range需要的变量，以及控制range的绘制方式（全局or局部）
  * - 网格： grid-range = gridrange + fixedheader-range
  * - 单元格样式内容 cell-range = stylerange + textrange
  * - 选区 selector-range
@@ -37,16 +39,6 @@ export class RangeRenderController {
         this._renderCells(); // cellmm
         // this.renderMerge();
     }
-    _renderCellmm(rowkey: number, colkey: number, rangedata: Cell) {
-        const { gridmap } = this.viewdata;
-        const rectOffset = draw.getOffsetByIdx(gridmap, rowkey, colkey);
-        // action：注册behavior、registerview
-        // 性能优化：首屏渲染离线优化
-        this.canvas.drawRegion(rectOffset, () => {
-            this._styleRange.render(rectOffset, rangedata);
-            this._textRange.render(rectOffset, rangedata);
-        });
-    }
     _renderGrid() {
         const renderList = [this._gridRange, this._fixedHeaderRange];
         for (const range of renderList) {
@@ -76,5 +68,15 @@ export class RangeRenderController {
                 }
             }
         }
+    }
+    _renderCellmm(rowkey: number, colkey: number, rangedata: Cell) {
+        const { gridmap } = this.viewdata;
+        const rectOffset = draw.getOffsetByIdx(gridmap, rowkey, colkey);
+        // action：注册behavior、registerview
+        // 性能优化：首屏渲染离线优化
+        this.canvas.drawRegion(rectOffset, () => {
+            this._styleRange.render(rectOffset, rangedata);
+            this._textRange.render(rectOffset, rangedata);
+        });
     }
 }

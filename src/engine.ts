@@ -1,4 +1,9 @@
-import { EngineOption, SourceData, GridMdata, Cell, Point, Rect, RectIndexes, Boxsize, TableStatus, Range } from './type';
+/**
+ * @file 主函数
+ * 数据链路是：event(aciton) -> datamodel -> viewdata -> render
+ * 
+ */
+import { EngineOption, SourceData, GridMdata, Cell, Point, Rect, RectIndexes, Boxsize, TableStatus, Range, Cursor } from './type';
 import { defaultEngineOption } from './config/engineoption';
 import { CanvasRender, DomRender } from './view';
 import { Base } from './abstract/base';
@@ -27,25 +32,23 @@ export class Engine extends Base implements IEngine {
             viewHeight: this.get('viewOption.viewHeight'),
             viewWidth: this.get('viewOption.viewWidth')
         }
+        /**
+         * initUI = canvasRender(viewmodel = datamodel(cfg))
+         * 数据流：datamodel -> viewdata -> render
+         */
         this.canvasRender = new CanvasRender(engineOpt.container, viewRect);
-        // 依赖关系：data -> viewmodel -> render
         const viewModel = new ViewModel(this.canvasRender);
         this.dataModel = new DataModel(viewModel, viewRect);
-        this.dataModel.emit = this.emit.bind(this);
+        this.dataModel.emit = this.emit.bind(this); // 赋予datamodel派发事件的能力
         this.domRender = new DomRender(this, engineOpt);
-        // 至此形成的数据链路是：event(aciton) -> datamodel -> viewdata -> render
 
-        // 这个事件管理器里面：处理canvas的事件，并且将canvas上的事派发到engine层面
-        // 给canvas上挂载上事件
+        /**
+         * interactionUI = render (viewmodel = (datamodel.command(action = eventController.emit)))
+         * 数据流：event(aciton) -> datamodel -> viewdata -> render
+         */
+        // 有两个事件处理入口：1.event 将用户交互事件派发到engine.on上 2.registerview里的initevent
         const eventcontroller = new EventController(this);
         this._setObj({ eventcontroller });
-        // xexcel.on('cellclick', (rect) => {ri,ci,left,top,width,height});
-        // xexcel.on('select', );
-        // xexcel.on('scroll', );
-        // xexcel.on('resize', );
-        // xexcel.on('datachange', (cur, prev));
-        // toolbar的
-        // xexcel.on('toolbar:bold', );
     }
     griddata(grid: GridMdata) {
         this.dataModel.resetGrid(grid);
@@ -63,7 +66,6 @@ export class Engine extends Base implements IEngine {
         });
         return this;
     }
-    // 根据画布坐标，获取当前cell：cell逻辑索引、cell物理坐标
     getIdxByPoint(point: Point): Rect {
         return this.dataModel.getIdxByPoint(point);
     }

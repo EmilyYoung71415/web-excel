@@ -16,8 +16,8 @@
                 {
                     viewOption: {
                         showToolbar: false,
-                        viewHeight: 1200,
-                        viewWidth: 800,
+                        viewHeight: 800,
+                        viewWidth: 1200,
                     },
                     interactOption: {
                         canEdit: true 
@@ -28,20 +28,19 @@
             myexcel.griddata({
                 row: {
                     size: 25,   // 行高
-                    len: 120,    // 行总数
+                    len: 1200,    // 行总数
                 },
                 col: {
                     size: 100,  // 列宽
-                    minsize: 10,
-                    len: 20,
+                    len: 140,
                 },
                 rowm: {// 特殊列 列高
                     1: { size: 40}
                 },
-                colm: {
-                    1: { size: 60 },
-                    4: { size: 140 }
-                },
+                // colm: {
+                //     1: { size: 60 },
+                //     4: { size: 140 }
+                // },
             });
             // 表格数据
             myexcel.source({
@@ -69,6 +68,13 @@
             //      const newdata = state;
             //      next(newdata);
             // })
+
+            // myexcel.on('cellclick', (rect) => {ri,ci,left,top,width,height});
+            // myexcel.on('select', );
+            // myexcel.on('scroll', );
+            // myexcel.on('resize', );
+            // myexcel.on('datachange', (cur, prev));
+            // myexcel.on('toolbar:bold', );
         }
     </script>
 </body>

@@ -1,5 +1,8 @@
 /**
  * @file 选区
+ * - 响应用户从event传上来的：单元格单选cellclick、单元格框选select，实现selector的位置布局
+ * - 响应gridmap上的变化：scroll、resize，动态调整位置布局
+ * - editor编辑框的控制能力，editor与selector共享位置区域
  */
 import { modifyCSS } from '../../utils';
 import { Shape } from '../../abstract/shape-base';
@@ -14,6 +17,7 @@ export class Selector extends Shape {
     private $selector: HTMLElement;
     protected editor: Editor;
     protected isEditing = false;
+    protected isSelectWhole = false; // 行选 or  列选
     constructor(Engine: Engine, cfg?: LooseObject) {
         super(Engine, cfg);
         this.editor = new Editor();
@@ -48,6 +52,7 @@ export class Selector extends Shape {
                 this.handleSelect(rect);
             })
             .on('canvas:dblclick', (rect: Rect) => {
+                if (this.isSelectWhole) return;
                 const cellmm = this.engine.getCell({ ri: rect.ri, ci: rect.ci }) || {};
                 this._editorText = cellmm.text || '';
                 this.isEditing = true;
@@ -86,6 +91,7 @@ export class Selector extends Shape {
         modifyCSS(this.$selector, {
             transform: `translate3d(0, 0, 0)`
         });
+        this.isSelectWhole = false;
         // TODO: 高亮对应的索引栏
         const { sri, sci, eri, eci } = rect;
         if (sri === -1 && sci === -1) {
@@ -95,10 +101,12 @@ export class Selector extends Shape {
         // 行选
         if (sci === -1 && eri >= 0) {
             rect.width = this.engine.getSumWidth();
+            this.isSelectWhole = true;
         }
         // 列选
         if (sri === -1 && eci >= 0) {
             rect.height = this.engine.getSumHeight();
+            this.isSelectWhole = true;
         }
         this.changeSelectOffset(rect);
         this.engine.dataModel.setSelect({

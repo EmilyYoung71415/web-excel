@@ -1,5 +1,7 @@
 /**
  * @file 滚动条
+ * - 提供滚动条，响应滚动条上的滚动事件，实现canvas的滚动
+ * - 响应鼠标的滚轮滚动事件
  */
 import { Shape } from '../../abstract/shape-base';
 import { modifyCSS, addEventListener } from '../../utils';

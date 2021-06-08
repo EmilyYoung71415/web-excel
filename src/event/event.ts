@@ -1,7 +1,7 @@
 /**
  * @file 事件管理
- * - canvas 接受用户操作，并将dom数据加工后转发到engine上（engine.emit)
- *   业务层处理业务逻辑通过 egine.on(eventname, callback); 处理
+ * - dominner 响应用户操作，并将dom数据加工后转发到engine上（engine.emit)
+ *   业务层处理业务逻辑通过 egine.on(eventname, callback) 处理
  */
 import { Engine } from '../engine';
 import { addEventListener, isNil, each, isBetween } from '../utils';
@@ -37,12 +37,12 @@ export enum ExcelEvent {
     CANVAS_MOUSEMOVE = 'canvas:mousemove',
     CANVAS_MOUSEOUT = 'canvas:mouseout',
     CANVAS_MOUSEOVER = 'canvas:mouseover',
-    CANVAS_SCROLL = 'canvas:scroll',
-    CANVAS_RESIZE = 'canvas:resize',
 
     // 业务层
     CANVAS_CELLCLICK = 'canvas:cellclick',
     CANVAS_SELECT = 'canvas:select',
+    CANVAS_SCROLL = 'canvas:scroll',
+    CANVAS_RESIZE = 'canvas:resize',
 }
 
 export class EventController {
@@ -90,7 +90,7 @@ export class EventController {
     /**
      * 处理 canvas 事件
      * @param evt 事件句柄
-     * 鼠标在canvas画布上的操作，将env转换为画布坐标
+     * 鼠标在canvas画布上的操作，将evt转换为画布坐标
      */
     protected onCanvasEvents(evt: IExcelEvent) {
         const { engine } = this;
@@ -114,6 +114,10 @@ export class EventController {
         }
         engine.emit(`canvas:${eventType} `, evt);
     }
+    /**
+     * - onCanvasDblClick 双击编辑
+     * - onCanvasClick 单击单元格选中
+     */
     onMouseDown(evt: IExcelEvent) {
         const classList = Array.from(evt.target.classList);
         if (classList.includes('xexcel-scrollbar')) return;
@@ -127,6 +131,10 @@ export class EventController {
             }
         }
     }
+    /**
+     * - 索引栏上：mousemove时候 鼠标resizer化
+     * - 单元格框选时：mousedown mousemove mouseup
+     */
     onMouseMove(evt: IExcelEvent) {
         const { engine } = this;
         this.engine.changeCursor('auto');
@@ -166,7 +174,72 @@ export class EventController {
             }
         }
     }
-    checkResizerCell(evt: IExcelEvent): Rect | null {
+    unload() {
+        this.engine.emit('destroy');
+        this.engine.dataModel.export();
+        this.destroy();
+    }
+    public destroy() {
+        const { extendEvents } = this;
+        each(extendEvents, (event) => {
+            event.remove();
+        });
+        this.extendEvents.length = 0;
+        this.destroyed = true;
+    }
+    // 找到当前canvas点击的哪个cell
+    onCanvasClick(evt: IExcelEvent) {
+        const { engine } = this;
+        const resizerCell = this.checkResizerCell(evt);
+        if (resizerCell) {
+            this.handleResize(evt, resizerCell);
+            return;
+        }
+        this.selectStartRect = null;
+        const cell = engine.getIdxByPoint({
+            x: evt.canvasX,
+            y: evt.canvasY
+        });
+        this.selectStartRect = cell;
+        engine.emit('canvas:cellclick', cell);
+    }
+
+    // canvas 双击 进入编辑
+    onCanvasDblClick(evt: IExcelEvent) {
+        const { engine } = this;
+        this.selectStartRect && engine.emit('canvas:dblclick', this.selectStartRect);
+    }
+    /**
+     * 处理滚轮事件
+     * @param evt 事件句柄
+     */
+    protected onWheelEvent(evt: IExcelEvent) {
+        if (isNil(evt.wheelDelta)) {
+            evt.wheelDelta = -evt.detail;
+        }
+        this.engine.emit('wheel', evt);
+    }
+    /**
+     * 处理扩展事件
+     * @param evt 事件句柄
+     */
+    protected onExtendEvents(evt: IExcelEvent) {
+        this.engine.emit(evt.type, evt);
+    }
+    protected mouseMoveUp(moveFunc, moveUpFunc) {
+        const func1 = addEventListener(this.el, 'mousemove', moveFunc.bind(this));
+        const func2 = addEventListener(this.el, 'mouseup', movefinished.bind(this));
+        function movefinished(evt) {
+            func1.remove();
+            func2.remove();
+            moveUpFunc.call(this, evt);
+        }
+    }
+    /**
+     * 判断鼠标在索引栏上时是否处于准备resize改变行高列宽的间隔线附近
+     * @return Rect: 当前hover的索引栏格
+     */
+    protected checkResizerCell(evt: IExcelEvent): Rect | null {
         const { fixedColWidth, fixedRowHeight } = this.engine.getStatus();
         if (evt.canvasX > fixedColWidth && evt.canvasY > fixedRowHeight) return null;
         // if (evt.buttons !== 0) return false;
@@ -188,7 +261,14 @@ export class EventController {
         }
         return null;
     }
-    handleResize(evt: IExcelEvent, cell: Rect) {
+    /**
+     * @param evt: IExcelEvent 鼠标坐标, cell: Rect当前命中索引栏格
+     * mousedown时已确定好了 targetcell
+     * 接下来拆解为俩动作：mousemove、mouseup
+     * - mousemove： 辅助线
+     * - mouseup： 通知datamodel改变gridmap
+     */
+    protected handleResize(evt: IExcelEvent, cell: Rect) {
         const canvasrender = this.engine.canvasRender;
         canvasrender.saveDrawingSurface();
         const { rowminsize, colminsize, sumheight, sumwidth } = this.engine.getStatus();
@@ -247,66 +327,5 @@ export class EventController {
             }
             context.stroke();
         }
-    }
-    // 找到当前canvas点击的哪个cell
-    onCanvasClick(evt: IExcelEvent) {
-        const { engine } = this;
-        const resizerCell = this.checkResizerCell(evt);
-        if (resizerCell) {
-            this.handleResize(evt, resizerCell);
-            return;
-        }
-        this.selectStartRect = null;
-        const cell = engine.getIdxByPoint({
-            x: evt.canvasX,
-            y: evt.canvasY
-        });
-        this.selectStartRect = cell;
-        engine.emit('canvas:cellclick', cell);
-    }
-    mouseMoveUp(moveFunc, moveUpFunc) {
-        const func1 = addEventListener(this.el, 'mousemove', moveFunc.bind(this));
-        const func2 = addEventListener(this.el, 'mouseup', movefinished.bind(this));
-        function movefinished(evt) {
-            func1.remove();
-            func2.remove();
-            moveUpFunc.call(this, evt);
-        }
-    }
-    // canvas 双击 进入编辑
-    onCanvasDblClick(evt: IExcelEvent) {
-        const { engine } = this;
-        this.selectStartRect && engine.emit('canvas:dblclick', this.selectStartRect);
-    }
-    /**
-     * 处理滚轮事件
-     * @param evt 事件句柄
-     */
-    protected onWheelEvent(evt: IExcelEvent) {
-        if (isNil(evt.wheelDelta)) {
-            evt.wheelDelta = -evt.detail;
-        }
-        this.engine.emit('wheel', evt);
-    }
-    /**
-     * 处理扩展事件
-     * @param evt 事件句柄
-     */
-    protected onExtendEvents(evt: IExcelEvent) {
-        this.engine.emit(evt.type, evt);
-    }
-
-    unload() {
-        this.engine.emit('destroy');
-        this.engine.dataModel.export();
-        this.destroy();
-    }
-    public destroy() {
-        const { extendEvents } = this;
-        each(extendEvents, (event) => {
-            event.remove();
-        });
-        this.extendEvents.length = 0;
-        this.destroyed = true;
     }
 }

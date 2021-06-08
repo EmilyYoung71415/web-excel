@@ -1,7 +1,7 @@
 import { getOffScreenContext } from './offscreen';
-import { Text } from '../../type';
+import { CellText } from '../../type';
 
-export function assembleFont(attrs: Text) {
+export function assembleFont(attrs: CellText) {
     const { fontSize, fontFamily, fontWeight, fontStyle } = attrs;
     return [fontStyle, fontWeight, `${fontSize}px`, fontFamily].join(' ').trim();
 }

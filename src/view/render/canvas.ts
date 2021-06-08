@@ -1,11 +1,20 @@
-
+/**
+ * @file canvas 表格主体渲染器
+ * - 表格的大部分绘制由rangeman管理：基础网格、文字、样式等
+ * - 绘制提供三种方式：render全局绘制、基于某单元格的局部绘制、外部接管canvas绘制（如辅助线）
+ * - 外部接管canvas进行绘制，需要借助 saveDrawingSurface、restoreDrawingSurface
+ */
 import { CanvasChangeType, ViewTableSize, RectOffset, ViewDataSource } from '../../type';
 import { defaultCanvasOption } from '../../config/engineoption';
 import { RangeRenderController } from '../rangeman';
 import { AbstraCanvas } from '../../abstract/canvas';
 
 interface ICanvas {
-    onCanvasChange(changeType: CanvasChangeType);
+    render: () => void;
+    // 将选中区域的单元格 局部绘制
+    renderRange: () => void;
+    saveDrawingSurface: () => void;
+    restoreDrawingSurface: () => void;
 }
 
 export class CanvasRender extends AbstraCanvas implements ICanvas {
@@ -35,17 +44,6 @@ export class CanvasRender extends AbstraCanvas implements ICanvas {
         this._setDOMSize();
         this._rangeRenderController.render();
     }
-    onCanvasChange(changeType: CanvasChangeType) {
-        /**
-         * 触发画布更新的2种 changeType
-         * 1. attr: 修改画布的绘图属性 ----- range聚合而来的
-         * 2. changeSize: 改变画布单元格尺寸、可视区域 ----- resizer、scroll
-         */
-        // if (['attr', 'changeSize'].includes(changeType)) {
-        //     this._set('refreshElements', [this]);
-        //     this.draw();
-        // }
-    }
     saveDrawingSurface() {
         const context = this.get('context');
         const pixelRatio = this._getPixelRatio();
@@ -56,7 +54,7 @@ export class CanvasRender extends AbstraCanvas implements ICanvas {
         const context = this.get('context');
         context.putImageData(this._curImageData, 0, 0);
     }
-    _setDOMSize() {
+    protected _setDOMSize() {
         super._setDOMSize();
         // 获取canvas绘制在dom上的：相对视窗的位置、大小
         setTimeout(() => {
@@ -71,7 +69,7 @@ export class CanvasRender extends AbstraCanvas implements ICanvas {
         });
     }
     // 改写基类方法
-    _createDom(): HTMLElement {
+    protected _createDom(): HTMLElement {
         const $canvas = super._createDom();
         $canvas.id = 'xexcel-canvas';
         return $canvas;
