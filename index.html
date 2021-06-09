@@ -1,0 +1,66 @@
+<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Document</title><script defer="defer" src="excel.bundle.js"></script><link href="excel.dd2e3d17510ec2d239fa.css" rel="stylesheet"></head><body onload="load()"><div id="app"></div><script>function load() {
+            const myexcel = XWebExcel.create(
+                document.getElementById('app'), 
+                {
+                    viewOption: {
+                        showToolbar: false,
+                        viewHeight: 600,
+                        viewWidth: 800,
+                    },
+                    interactOption: {
+                        canEdit: true 
+                    }
+                }
+            );
+            // 棋盘数据
+            myexcel.griddata({
+                row: {
+                    size: 25,   // 行高
+                    len: 1200,    // 行总数
+                },
+                col: {
+                    size: 100,  // 列宽
+                    len: 140,
+                },
+                rowm: {// 特殊列 列高
+                    1: { size: 40}
+                },
+                // colm: {
+                //     1: { size: 60 },
+                //     4: { size: 140 }
+                // },
+            });
+            // 表格数据
+            myexcel.source({
+                cellmm: {
+                    1: {
+                        1: {
+                            text: '输入长文字测试截断',
+                            bgcolor: 'green',
+                            fontColor: '#fff',
+                            fontWeight: 'bold'
+                        },
+                    },
+                    3: {
+                        4: {
+                            bgcolor: 'lightblue',
+                            text: '输入文字2333333erewrwedewrew',
+                            fontWeight: 'bold'
+                        },
+                    },
+                },
+                // merges:[]
+            });
+            
+            // myexcel.onChange(eventname, (state, next) => {
+            //      const newdata = state;
+            //      next(newdata);
+            // })
+
+            // myexcel.on('cellclick', (rect) => {ri,ci,left,top,width,height});
+            // myexcel.on('select', );
+            // myexcel.on('scroll', );
+            // myexcel.on('resize', );
+            // myexcel.on('datachange', (cur, prev));
+            // myexcel.on('toolbar:bold', );
+        }</script></body></html>
