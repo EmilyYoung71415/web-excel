@@ -2,3 +2,5 @@ node_modules
 dist
 bugs
 -viewdata
+.idea
+.record

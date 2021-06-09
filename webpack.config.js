@@ -1,44 +1,46 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
-const resolve = dir => path.join(__dirname, '..', dir);
+const isProd = process.env.NODE_ENV === 'prod';
+const isDev = process.env.NODE_ENV === 'dev';
 
 module.exports = {
+    mode: isProd ? 'production' : 'development',
     entry: {
-        webexcel: './src/index.js',
+        excel: './src/index.ts'
     },
     plugins: [
-        new CleanWebpackPlugin(['dist']),
-        //  you should know that the HtmlWebpackPlugin by default will generate its own index.html
         new HtmlWebpackPlugin({
-            template: './index.html',
-            title: 'web-excel',
+          title: '个人在线excel项目',
+          template: './index.html',
         }),
         new MiniCssExtractPlugin({
-            filename: 'styles/[name].css',
-        }),
+            filename: '[name].[contenthash].css',
+            chunkFilename: isDev ? '[id].[hash].css' : '[id].css',
+        })
     ],
-    output: {
-        filename: '[name].js',
-        path: path.resolve(__dirname, 'dist'),
+    devtool: 'inline-source-map',
+    devServer: {
+        // contentBase: './dist',
+        compress: true,
+        port: 8081,
+        host: 'localhost',
     },
+    devtool: 'inline-source-map',
     module: {
         rules: [
             {
-                test: /\.js$/,
-                use: [
-                    'babel-loader',
-                ],
-                include: [resolve('src'), resolve('test')],
+                test: /\.ts?$/,
+                use: 'ts-loader',
+                exclude: /node_modules/,
             },
             {
-                test: /\.css$/,
+                test: /\.css$/i,
                 use: [
                     MiniCssExtractPlugin.loader,
-                    'style-loader',
-                    'css-loader',
+                    'style-loader', 
+                    'css-loader'
                 ],
             },
             {
@@ -49,18 +51,14 @@ module.exports = {
                     'less-loader',
                 ],
             },
-            {
-                test: /\.(png|svg|jpg|gif)$/,
-                use: [
-                    'file-loader',
-                ],
-            },
-            {
-                test: /\.(woff|woff2|eot|ttf|otf)$/,
-                use: [
-                    'file-loader',
-                ],
-            },
         ],
+    },
+    resolve: {
+        extensions: ['.tsx', '.ts', '.js'],
+    },
+    output: {
+        filename: '[name].bundle.js',
+        path: path.resolve(__dirname, 'dist'),
+        clean: true,
     },
 };

@@ -1,200 +1,196 @@
-@border-style: 1px solid #e0e2e4;
-@icon-size: 18px;
-
-// <div id="app">
-//     <div id="webexcel">
-//         <div class="web-excel">
-//             <canvas class="excel-table"></canvas>
-//              <div class="excel-overlayer">
-//                   <div class="excel-overlayer-content">
-//                        <div class="excel-selector">
-//                             <div class="excel-selector-area">
-//                                  <div class="excel-selector-corner">
-//             <div class="excel-resizer horizontal">
-//                 <div class="excel-resizer-hover"></div><!-hover时显示的小方块-->
-//                 <div class="excel-resizer-line"></div><!-move时的辅助线-->
-//             </div>
-//             <div class="excel-resizer vertical">
-//                 <div class="excel-resizer-hover"></div>
-//                 <div class="excel-resizer-line"></div>
-//             </div>
-//             生成滚动条: 外层 宽高赋值=容器宽高，可视区域
-//             <div class="excel-scrollbar horizontal"><!-控制滚动条位置-->
-//                 内层div宽高赋值=内容宽高，当内容宽高 > 容器宽高 会在容器上产生滚动条
-//                 外层绑定原生srcoll事件
-//                 <div style="width:1px"></div><!-控制滚动条样式-->
-//             </div>
-//             <div class="excel-scrollbar vertical"></div>
-//         </div>
-//     </div>
-// </div>
-body {
-    margin: 0;
-}
-
-.web-excel {
+#app {
     position: relative;
-    font-size: 14px;
-    line-height: normal;
-    user-select: none;
-    -moz-user-select: none;
-    font-family: Roboto, Helvetica, Arial, sans-serif;
-    box-sizing: content-box;
-    background: #fff;
-    // border: 2px solid red;
-}
+    border: 1px solid #000;
 
-.excel-table {
-    position: relative;
-    overflow: hidden;
-    // height: 100%;
-    line-height: 0;
-}
-
-/* resizer **/
-.excel-resizer {
-    position: absolute;
-    z-index: 11;
-
-    .excel-resizer-hover {
-        background-color: rgba(75, 137, 255, .25);
+    * {
+        margin: 0;
+        padding: 0;
     }
 
-    .excel-resizer-line {
+    ul,
+    li {
+        list-style: none;
+    }
+
+    #xexcel-canvas {
+        // border: 1px solid red;
+        // margin-left: 100px;
+        // margin-top: 100px;
+    }
+
+    /* toolbar */
+    .xsheet-toolbar {
+        margin-bottom: 10px;
+
+        ul.xsheet-toolbar-content {
+            height: 30px;
+            border: 1px solid green;
+            // overflow: hidden;
+
+            li.xsheet-toolbar-item {
+                position: relative;
+                float: left;
+                line-height: 30px;
+                vertical-align: middle;
+                padding: 0 5px;
+                border-right: 1px solid #E8E6E3;
+
+                &:hover,
+                &.active {
+                    background: #E8E6E3;
+                    cursor: pointer;
+                    font-weight: 600;
+
+                    .toolbar-setting-menu {
+                        display: block;
+                    }
+                }
+
+                input[type='color'] {
+                    cursor: pointer;
+                }
+
+                label {
+                    cursor: pointer;
+                }
+
+                // 字号选择
+                .toolbar-setting-menu {
+                    // display: none;
+                    position: absolute;
+                    width: 100%;
+                    z-index: 100;
+                    top: 100%;
+                    left: 0;
+                    background-color: #fff;
+
+                    .toolbar-setting-menu-item {
+                        text-align: center;
+
+                        &:hover {
+                            background-color: lavender;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // zindex管理：
+    // content > selector(2) > editor(3) > scroll(4)
+    .xexcel-main-table {
         position: absolute;
-    }
-
-    &.horizontal {
-        cursor: row-resize;
-
-        .excel-resizer-line {
-            border-bottom: 2px dashed rgb(75, 137, 255);
-            left: 0;
-            bottom: 0;
-        }
-    }
-
-    &.vertical {
-        cursor: col-resize;
-
-        .excel-resizer-line {
-            border-right: 2px dashed rgb(75, 137, 255);
-            top: 0;
-            right: 0;
-        }
-    }
-}
-
-body::-webkit-scrollbar {
-    background: transparent;
-}
-
-/* scrollbar */
-.excel-scrollbar {
-    position: absolute;
-    opacity: 0.85;
-    z-index: 12;
-
-    &::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-        background: rgba(75, 137, 255, 0.2);
-    }
-
-    &::-webkit-scrollbar-thumb {
-        background: rgb(75, 137, 255);
-        border-radius: 6px;
-    }
-
-    &::-webkit-scrollbar-corner {
-        background: rgba(75, 137, 255, .2);
-    }
-
-    &.horizontal {
-        bottom: 0;
         left: 0;
-        overflow-x: scroll;
-        overflow-y: hidden;
-    }
-
-    &.vertical {
-        top: 0;
-        right: 0;
-        overflow-x: hidden;
-        overflow-y: scroll;
-    }
-
-    &:hover {
-        opacity: .85;
-    }
-}
-
-/* excel-overlayer */
-.excel-overlayer {
-    position: absolute;
-    left: 0;
-    top: 0;
-    z-index: 10;
-
-    .excel-overlayer-content {
-        position: absolute;
-        overflow: hidden;
-        pointer-events: none;
+        top: 40px; // top: toolbarheight
         width: 100%;
         height: 100%;
-    }
-}
+        overflow: hidden;
+        z-index: 1;
 
-/* excel-selector */
-.excel-selector {
-    position: absolute;
-    left: 0;
-    top: 0;
-    z-index: 11;
+        .xexcel-main-table-inner {
+            position: absolute;
+            overflow: hidden;
 
-    .excel-selector-area {
-        position: absolute;
-        border: 2px solid rgb(75, 137, 255);
-        background: rgba(75, 137, 255, .1);
-        pointer-events: none;
-    }
+            /* selector */
+            .xexcel-selector {
+                position: absolute;
+                left: 0;
+                top: 0;
+                z-index: 2;
 
-    .excel-selector-corner {
-        position: absolute;
-        cursor: crosshair;
-        font-size: 0;
-        height: 5px;
-        width: 5px;
-        right: -5px;
-        bottom: -5px;
-        border: 2px solid rgb(255, 255, 255);
-        background: rgb(75, 137, 255);
-    }
-}
+                .xexcel-selector-area {
+                    display: none;
+                    position: absolute;
+                    border: 2px solid rgb(75, 137, 255);
+                    background: rgba(75, 137, 255, .1);
+                    pointer-events: none;
+                }
+
+                .xexcel-selector-corner {
+                    position: absolute;
+                    font-size: 0;
+                    height: 5px;
+                    width: 5px;
+                    right: -5px;
+                    bottom: -5px;
+                    border: 2px solid rgb(255, 255, 255);
+                    background: rgb(75, 137, 255);
+                }
+
+                /* editor */
+                .xexcel-editor {
+                    position: absolute;
+                    text-align: left;
+                    border: 2px solid #4b89ff;
+                    line-height: 0;
+                    z-index: 3;
+                    overflow: hidden;
+
+                    .xexcel-editor-textarea {
+                        position: absolute;
+                        left: 0;
+                        top: 0;
+                        width: 100%;
+                        height: 100%;
+                        box-sizing: content-box;
+                        border: none;
+                        padding: 0 4px;
+                        outline-width: 0;
+                        resize: none;
+                        text-align: start;
+                        overflow-y: hidden;
+                        font-family: inherit;
+                        font-size: inherit;
+                        color: inherit;
+                        white-space: normal;
+                        word-wrap: break-word;
+                        line-height: 22px;
+                        margin: 0;
+                    }
+                }
+            }
+
+            /* scrollbar */
+            .xexcel-scrollbar {
+                position: absolute;
+                opacity: 0.85;
+                z-index: 12;
+
+                &.horizontal {
+                    bottom: 44px; // scrollbar height
+                    left: 0;
+                    overflow-x: scroll;
+                    overflow-y: hidden;
+                }
+
+                &.vertical {
+                    top: 0;
+                    right: 5px;
+                    overflow-x: hidden;
+                    overflow-y: scroll;
+                }
+
+                &:hover {
+                    opacity: .85;
+                }
+
+                &::-webkit-scrollbar {
+                    width: 8px;
+                    height: 8px;
+                    background: rgba(75, 137, 255, 0.2);
+                }
+
+                &::-webkit-scrollbar-thumb {
+                    background: rgb(75, 137, 255);
+                    border-radius: 6px;
+                }
+
+                &::-webkit-scrollbar-corner {
+                    background: rgba(75, 137, 255, .2);
+                }
+            }
+        }
 
 
-/*editor*/
-.excel-editor {
-    position: absolute;
-    text-align: left;
-    border: 2px solid rgb(75, 137, 255);
-    line-height: 0;
-    z-index: 100;
-
-    textarea {
-        box-sizing: content-box;
-        border: none;
-        padding: 0 3px;
-        outline-width: 0;
-        resize: none;
-        text-align: start;
-        overflow-y: hidden;
-        font-family: inherit;
-        font-size: inherit;
-        color: inherit;
-        white-space: normal;
-        word-wrap: break-word;
-        line-height: 22px;
-        margin: 0;
     }
 }

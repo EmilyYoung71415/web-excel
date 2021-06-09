@@ -1,42 +1,80 @@
 <!DOCTYPE html>
-<html style="font-size:20px">
-
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>
-        <%= htmlWebpackPlugin.options.title %>
-    </title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
 </head>
-
 <body onload="load()">
-    <div id="app">
-        <div id="webexcel"></div>
-    </div>
+    <div id="app"></div>
     <script>
         function load() {
-            webexcel(document.getElementById('webexcel'))
-                .loadData({
-                    borders: [
-                        [1, 'dashed', '#0366d6'],
-                    ],
-                    styles: [
-                        { bgcolor: 'rgb(82, 196, 26)', bi: 0, color: '#FFF' },
-                    ],
-                    rowm: {// 特殊列 列高
-                        1: { height: 40}
+            const myexcel = XWebExcel.create(
+                document.getElementById('app'), 
+                {
+                    viewOption: {
+                        showToolbar: false,
+                        viewHeight: 600,
+                        viewWidth: 800,
                     },
-                    colm: {
-                        1: { width: 60 },
-                        4: { width: 140 }
-                    },
-                    cellmm: {
+                    interactOption: {
+                        canEdit: true 
+                    }
+                }
+            );
+            // 棋盘数据
+            myexcel.griddata({
+                row: {
+                    size: 25,   // 行高
+                    len: 1200,    // 行总数
+                },
+                col: {
+                    size: 100,  // 列宽
+                    len: 140,
+                },
+                rowm: {// 特殊列 列高
+                    1: { size: 40}
+                },
+                // colm: {
+                //     1: { size: 60 },
+                //     4: { size: 140 }
+                // },
+            });
+            // 表格数据
+            myexcel.source({
+                cellmm: {
+                    1: {
                         1: {
-                            1: { text: '输入长文字测试截断', si: 0 },
+                            text: '输入长文字测试截断',
+                            bgcolor: 'green',
+                            fontColor: '#fff',
+                            fontWeight: 'bold'
                         },
                     },
-                })
+                    3: {
+                        4: {
+                            bgcolor: 'lightblue',
+                            text: '输入文字2333333erewrwedewrew',
+                            fontWeight: 'bold'
+                        },
+                    },
+                },
+                // merges:[]
+            });
+            
+            // myexcel.onChange(eventname, (state, next) => {
+            //      const newdata = state;
+            //      next(newdata);
+            // })
+
+            // myexcel.on('cellclick', (rect) => {ri,ci,left,top,width,height});
+            // myexcel.on('select', );
+            // myexcel.on('scroll', );
+            // myexcel.on('resize', );
+            // myexcel.on('datachange', (cur, prev));
+            // myexcel.on('toolbar:bold', );
         }
     </script>
 </body>
-
 </html>

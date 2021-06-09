@@ -1,0 +1,27 @@
+{
+    "compilerOptions": {
+        "target": "ES2015",
+        "module": "commonJS",
+        "removeComments": true,
+        "sourceMap": false,
+        "declaration": true,
+        "declarationMap": false,
+        // Compile to lib
+        "rootDir": "src",
+        "importHelpers": true,
+        "pretty": true,
+        "baseUrl": "src",
+        "paths": {
+            "@config/*": ["config/*"],
+            "@core/*": ["core/*"],
+            "@utils/*": ["utils/*"],
+            "@type/*": ["type/*"],
+            "@interface/*": ["interface/*"],
+            "@model/*": ["model/*"],
+        }
+    },
+    "include": [
+        "src/*"
+    ],
+    "exclude": ["node_modules"]
+}

@@ -1,2 +1,5 @@
 bugs/*
 -viewdata
+dist/*
+example/*
+webpack.*.js
