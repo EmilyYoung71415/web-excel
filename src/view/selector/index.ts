@@ -88,6 +88,7 @@ export class Selector extends Shape {
         `;
     }
     handleSelect(rect: Range) {
+        this.editor.move(0, 0);
         modifyCSS(this.$selector, {
             transform: `translate3d(0, 0, 0)`
         });

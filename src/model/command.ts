@@ -64,7 +64,14 @@ export const Command: ICommand = {
         // 对datamodel.range进行修改
         const { rangeidxes, properties } = op;
         const curRangeidxes = (rangeidxes && parseRangeKey(rangeidxes)) || this._selectIdxes;// 没传的话就是默认的当前selectidxes
-        const { sri, sci, eri, eci } = curRangeidxes;
+        let { sri, sci, eri, eci } = curRangeidxes;
+        const scrollRi = this._scrollIdexes?.ri || 0;
+        const scrollCi = this._scrollIdexes?.ci || 0;
+        sri += scrollRi;
+        sci += scrollCi;
+        eri += scrollRi;
+        eci += scrollCi;
+
         // 先降级处理，把range打散为cell操作 之后引入rangemm统一管理
         // 遍历cellmm 给每一个range内的单元格挂上属性
         for (let i = sri; i <= eri; i++) {
