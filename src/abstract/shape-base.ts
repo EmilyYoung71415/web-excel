@@ -16,7 +16,7 @@ export class Shape extends Base {
         super(cfg);
         this.engine = Engine;
     }
-    createRender(): string { }
+    createRender(): string { return '' }
     initEvent() { }
     creatHook() { }
 }

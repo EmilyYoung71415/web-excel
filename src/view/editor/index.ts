@@ -32,7 +32,7 @@ export class Editor {
     initEvent() {
         const $textarea = document.querySelector('.xexcel-editor textarea') as HTMLElement;
         $textarea.addEventListener('input', (ev: Event) => {
-            const curstr = ev.target.value as unknown as string;
+            const curstr = (<HTMLInputElement>ev.target).value as string;
             this.onEdit(curstr, this.text);
             this.text = curstr;
         })

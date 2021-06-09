@@ -129,7 +129,7 @@ export class TextRange extends BaseRange implements ITextRange {
         }
     }
     _setFont() {
-        const font = assembleFont(this._cfg as Text);
+        const font = assembleFont(this._cfg as CellText);
         this.set('font', font);
     }
 }

@@ -12,7 +12,7 @@ import { AbstraCanvas } from '../../abstract/canvas';
 interface ICanvas {
     render: () => void;
     // 将选中区域的单元格 局部绘制
-    renderRange: () => void;
+    // renderRange: () => void;
     saveDrawingSurface: () => void;
     restoreDrawingSurface: () => void;
 }
