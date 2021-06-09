@@ -8,10 +8,7 @@ import {
     Boxsize,
     TableStatus,
     Cursor,
-<<<<<<< HEAD
     Range
-=======
->>>>>>> aa34184 (style: 代码整洁)
 } from '../type';
 
 export interface IEngine {
@@ -39,13 +36,8 @@ export interface IEngine {
      */
     getIdxByPoint(point: Point): Rect;
     getCell(cellidx: RectIndexes): Cell;
-<<<<<<< HEAD
     getBoxSize: () => Boxsize;
     getRange: () => Range;
-=======
-    getBoxSize(): Boxsize;
-    getRange(): Range;
->>>>>>> aa34184 (style: 代码整洁)
     getCell: (point: RectIndexes) => Cell;
     getSumHeight: () => number;
     getSumWidth: () => number;
