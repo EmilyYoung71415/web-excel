@@ -1,41 +1,45 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
-const resolve = dir => path.join(__dirname, '..', dir);
+const isProd = process.env.NODE_ENV === 'prod';
+const isDev = process.env.NODE_ENV === 'dev';
 
 module.exports = {
+    mode: isProd ? 'production' : 'development',
     entry: {
-        xexcel: './src/index.ts',
+        excel: './src/index.ts'
     },
     plugins: [
-        new CleanWebpackPlugin(['dist']),
         new HtmlWebpackPlugin({
-            template: './index.html',
-            title: 'web-excel',
+          title: '个人在线excel项目',
+          template: './index.html',
         }),
         new MiniCssExtractPlugin({
-            filename: 'styles/[name].css',
-        }),
+            filename: '[name].[contenthash].css',
+            chunkFilename: isDev ? '[id].[hash].css' : '[id].css',
+        })
     ],
-    output: {
-        filename: '[name].js',
-        path: resolve(__dirname, 'dist'),
-    },
     devtool: 'inline-source-map',
+    devServer: {
+        // contentBase: './dist',
+        compress: true,
+        port: 8081,
+        host: 'localhost',
+    },
     module: {
         rules: [
             {
-                test: /\.ts$/,
-                use: 'babel-loader',
+                test: /\.tsx?$/,
+                use: 'ts-loader',
+                exclude: /node_modules/,
             },
             {
-                test: /\.css$/,
+                test: /\.css$/i,
                 use: [
                     MiniCssExtractPlugin.loader,
-                    'style-loader',
-                    'css-loader',
+                    'style-loader', 
+                    'css-loader'
                 ],
             },
             {
@@ -49,9 +53,11 @@ module.exports = {
         ],
     },
     resolve: {
-        extensions: ['.ts', '.js'],
-        alias: {
-            '@': resolve(__dirname, 'src/')
-        },
+        extensions: ['.tsx', '.ts', '.js'],
+    },
+    output: {
+        filename: '[name].bundle.js',
+        path: path.resolve(__dirname, 'dist'),
+        clean: true,
     },
 };
